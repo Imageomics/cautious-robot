@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cautiousrobot"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project]
+name = "cautious-robot"
+dynamic = ["version"]
+authors = [
+  { name="Elizabeth G. Campolongo", email="e.campolongo479@gmail.com" },
+]
+description = "Simple downloader that downloads images from URLs in a CSV and names them by the given column. Then uses sum-buddy to gather and record checksums for all downloaded images."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+    "argparse",
+    "pandas",
+    "pillow",
+    "sum-buddy @ git+https://github.com/Imageomics/sum-buddy",
+]
+keywords = [
+    "downloader",
+    "csv",
+    "images",
+    "url",
+    "checksums",
+    "downsized",
+    "sum-buddy",
+]
+
+[project.urls]
+Homepage = "https://github.com/Imageomics/cautious-robot"
+Repository = "https://github.com/Imageomics/cautious-robot.git"
+"Bug Tracker" = "https://github.com/Imageomics/cautious-robot/issues"
+
+[project.scripts]
+cautious-robot = "cautiousrobot.__main__:main"
+
+[tool.hatch.version]
+path = "src/cautiousrobot/__about__.py"
