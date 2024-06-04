@@ -41,10 +41,10 @@ def parse_args():
                         nargs = "?")
     opt_args.add_argument("-n", "--img-name-col", default = "filename", help = "column to use for image filename (default: filename)", nargs = "?")
     opt_args.add_argument("-u", "--url-col", default = "file_url", help = "column with URLs to download (default: file_url)", nargs = "?")
-    opt_args.add_argument("-w", "--wait-time", default = 3, help = "time to wait between tries (default: 3)", type = int)
+    opt_args.add_argument("-w", "--wait-time", default = 3, help = "seconds to wait between tries (default: 3)", type = int)
     opt_args.add_argument("-r", "--max-retries", default = 5, help = "max times to retry download on a single image (default: 5)", type = int)
     opt_args.add_argument("-l", "--side-length", required = False,
-                        help = "number of pixels per side for downsampled images (default: no downsized images created)",
+                        help = "number of pixels per side for resized square images (default: no resized images created)",
                         type = int)
     opt_args.add_argument("-x", "--starting-idx", default = 0, help = "index of CSV at which to start download (default: 0)", type = int)
     opt_args.add_argument("-a", "--checksum-algorithm", default = 'md5', #choices = available_algorithms,

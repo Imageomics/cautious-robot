@@ -38,11 +38,11 @@ optional arguments:
   -u [URL_COL], --url-col [URL_COL]
                         column with URLs to download (default: file_url)
   -w WAIT_TIME, --wait-time WAIT_TIME
-                        time to wait between tries (default: 3)
+                        seconds to wait between tries (default: 3)
   -r MAX_RETRIES, --max-retries MAX_RETRIES
                         max times to retry download on a single image (default: 5)
   -l SIDE_LENGTH, --side-length SIDE_LENGTH
-                        number of pixels per side for downsampled images (default: no downsized images created)
+                        number of pixels per side for resized square images (default: no resized images created)
   -x STARTING_IDX, --starting-idx STARTING_IDX
                         index of CSV at which to start download (default: 0)
   -a CHECKSUM_ALGORITHM, --checksum-algorithm CHECKSUM_ALGORITHM
