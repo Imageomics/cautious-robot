@@ -10,6 +10,7 @@ import shutil
 import io
 import pandas as pd
 import argparse
+import hashlib
 
 from tqdm import tqdm
 import os
@@ -24,6 +25,8 @@ REDO_CODE_LIST = [429, 500, 502, 503, 504]
 
 
 def parse_args():
+    available_algorithms = ', '.join(hashlib.algorithms_available)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", required = True, help = "path to CSV file with urls.", nargs = "?")
     parser.add_argument("--output", required = True, help = "main directory to download images into.", nargs = "?")
@@ -38,13 +41,9 @@ def parse_args():
                         help = "number of pixels per side for downsampled images (default: no downsized images created)",
                         type = int)
     parser.add_argument("--starting-idx", default = 0, help = "index of CSV at which to start download (default: 0)", type = int)
-    parser.add_argument("--checksum", default = 'md5',
-                        help = '''
-                            checksum algorithm to use on images (default: md5,
-                            available: sha384, sha3_512, sha3_224, sha256, sha224,
-                            blake2b, sm3, sha512_256, sha3_384, sha512, ripemd160,
-                            sha512_224, shake_256, sha1, md5, md5-sha1, sha3_256, shake_128, blake2s)
-                            ''')
+    parser.add_argument("--checksum", default = 'md5', #choices = available_algorithms,
+                        help = f"checksum algorithm to use on images (default: md5, available: {available_algorithms})"
+                        )
 
     return parser.parse_args()
 
@@ -173,15 +172,18 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
 def main():
     args = parse_args()
     csv_path = args.csv
+    if not csv_path.endswith(".csv"):
+        sys.exit("Expected CSV for input file; extension should be `.csv'")
     #load csv 
     data_df = pd.read_csv(csv_path, low_memory = False)
 
     subfolders = args.subfolders
 
-    # Check for required columns
+    # Make case-insensitive & check for required columns
+    data_df.columns = data_df.columns.str.lower()
     expected_cols = {
-        "filename_col": args.img_name,
-        "url_col": args.url
+        "filename_col": args.img_name.lower(),
+        "url_col": args.url.lower()
         }
     if subfolders:
         expected_cols["subfolders"] = subfolders
@@ -195,10 +197,18 @@ def main():
     # Check for missing filenames
     filename_col = expected_cols["filename_col"]
     url_col = expected_cols["url_col"]
-    if len(data_df.loc[(data_df[filename_col].isna() & (data_df[url_col].notna()))]) > 0:
-        sys.exit("Filenames are not provided for all images with URLs")
-    
+    urls_no_name = len(data_df.loc[(data_df[filename_col].isna() & (data_df[url_col].notna()))])
+    if urls_no_name > 0:
+        ignore = input(f"'{filename_col}' is missing values for {urls_no_name} URLs. Proceed with download ignoring these URLs? [y/n]: ")
+        if ignore.lower() != "y":
+            sys.exit("Exited without executing.")
+
+    # Check for img_dir
     img_dir = args.output
+    if os.path.exists(img_dir):
+        overwrite = input(f"'{img_dir}' already exists (may impact downsizing too). Overwrite? [y/n]: ")
+        if overwrite.lower() != "y":
+            sys.exit("Exited without executing.")
 
     # Set location for logs
     metadata_path = csv_path.split(".")[0]
