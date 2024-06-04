@@ -56,30 +56,28 @@ Sample CSVs [1] are provided in the `examples/` directory to test the CLI.
 
 - **Defaults:**
 ```
-cautious-robot --input-file "examples/HCGSD_testNA.csv" --output-dir "examples/test_images"
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
 ```
  > Output:
  > ```console
  > 100%|██████████████████████████████████████████████████████████████████| 8/8 [00:01<00:00,  4.18it/s]
  > Images downloaded from examples/HCGSD_testNA.csv to examples/test_images.
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
- > MD5ing: 100%|████████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:00<00:00, 5280.84it/s]
- > Checksums written to examples/HCGSD_testNA_checksums.csv
+ > Calculating md5 checksums on examples/test_images: 100%|███████████████████████████████████████████| 16/16 [00:00<00:00, 3133.00it/s]
+ > md5 checksums for examples/test_images written to examples/HCGSD_testNA_checksums.csv
  > ```
 
-- **Download Images to Subfolders:**
+- **Download Images to Subfolders Based on Column Value:**
 ```
-cautious-robot -i "examples/HCGSD_testNA.csv" -o "examples/test_images" --subdir-col "Species"
+cautious-robot -i examples/HCGSD_testNA.csv -o examples/test_images --subdir-col Species
 ```
  > Output:
  > ```console
  > 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:02<00:00,  3.47it/s]
  > Images downloaded from examples/HCGSD_testNA.csv to examples/test_images.
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
- > MD5ing: 100%|████████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:00<00:00, 1962.71it/s]
- > MD5ing: 100%|████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 4329.60it/s]
- > MD5ing: 100%|████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 2389.24it/s]
- > Checksums written to examples/HCGSD_testNA_checksums.csv
+ > Calculating md5 checksums on examples/test_images: 100%|█████████████████████████████████████████████| 8/8 [00:00<00:00, 3106.60it/s]
+ > md5 checksums for examples/test_images written to examples/HCGSD_testNA_checksums.csv
  > ```
 ```
 ls examples/test_images
@@ -87,6 +85,22 @@ ls examples/test_images
  > Output:
  > ```console
  > erato	melpomene
+ > ```
+
+```
+head -n 9 examples/HCGSD_testNA_checksums.csv
+```
+ > Output:
+ > ```console
+ > filepath,filename,md5
+ > examples/test_images/erato/10429021_V_lowres,10429021_V_lowres,c6aeb9d2f6db412ff5be0eb0b5435b83
+ > examples/test_images/erato/10428595_D_lowres,10428595_D_lowres,55882a0f3fdf8a68579c07254395653b
+ > examples/test_images/erato/10428972_V_lowres,10428972_V_lowres,0047e7454ce444f67fee1c90cc3ba9cb
+ > examples/test_images/erato/10428803_D_lowres,10428803_D_lowres,d8bfb73f2d3556390de04aa98822b815
+ > examples/test_images/melpomene/10428169_V_lowres,10428169_V_lowres,042c9dc294d589ce3f140f14ddab0166
+ > examples/test_images/melpomene/10428321_D_lowres,10428321_D_lowres,fbeeed30274e424831b06360b587ceb3
+ > examples/test_images/melpomene/10428140_V_lowres,10428140_V_lowres,c11538f2de5a5e2d6013fc800848d43a
+ > examples/test_images/melpomene/10428250_V_lowres,10428250_V_lowres,14ac99b1a9913a9d420f21b94d6136d6
  > ```
 
 [1] The test images are from the [Cuthill Gold Standard Dataset](https://huggingface.co/datasets/imageomics/Curated_GoldStandard_Hoyal_Cuthill), which was processed from Cuthill, et. al. (original dataset available at [doi:10.5061/dryad.2hp1978](https://doi.org/10.5061/dryad.2hp1978)).

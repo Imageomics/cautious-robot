@@ -179,19 +179,19 @@ def main():
     args = parse_args()
     csv_path = args.input_file
     if not csv_path.endswith(".csv"):
-        sys.exit("Expected CSV for input file; extension should be `.csv'")
+        sys.exit("Expected CSV for input file; extension should be '.csv'")
     #load csv 
     data_df = pd.read_csv(csv_path, low_memory = False)
 
-    subfolders = args.subdir_col
-
     # Make case-insensitive & check for required columns
+    subfolders = args.subdir_col
     data_df.columns = data_df.columns.str.lower()
     expected_cols = {
         "filename_col": args.img_name_col.lower(),
         "url_col": args.url_col.lower()
         }
     if subfolders:
+        subfolders = subfolders.lower()
         expected_cols["subfolders"] = subfolders
     missing_cols = []
     for col in list(expected_cols.keys()):
@@ -257,9 +257,10 @@ def main():
     # generate checksums and save CSV to same folder as CSV used for download
     checksum_path = metadata_path + "_checksums.csv"
     try:
-        get_checksums(input_directory = img_dir, output_filepath = checksum_path) #, algorithm = args.checksum)
+        get_checksums(input_directory = img_dir, output_filepath = checksum_path, algorithm = args.checksum_algorithm)
     except Exception as e:
         print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
+        print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
     
     return
 
