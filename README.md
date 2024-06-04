@@ -16,27 +16,37 @@ Cautious-robot will check the provided CSV for `IMG_NAME`, `URL`, and `SUBFOLDER
 
 ### Command Line Usage
 ```
-usage: cautious-robot [-h] --csv [CSV] --output [OUTPUT] [--subfolders [SUBFOLDERS]] [--img-name [IMG_NAME]] [--url [URL]]
-                      [--wait WAIT] [--retry RETRY] [--downsample DOWNSAMPLE] [--starting-idx STARTING_IDX] [--checksum CHECKSUM]
+usage: cautious-robot [-h] -i [INPUT_FILE] -o [OUTPUT_DIR] [-s [SUBDIR_COL]] [-n [IMG_NAME_COL]] [-u [URL_COL]] [-w WAIT_TIME]
+                      [-r MAX_RETRIES] [-l SIDE_LENGTH] [-x STARTING_IDX] [-a CHECKSUM_ALGORITHM]
 
 options:
   -h, --help            show this help message and exit
-  --csv [CSV]           path to CSV file with urls.
-  --output [OUTPUT]     main directory to download images into.
-  --subfolders [SUBFOLDERS]
+
+required arguments:
+  -i [INPUT_FILE], --input-file [INPUT_FILE]
+                        path to CSV file with urls.
+  -o [OUTPUT_DIR], --output-dir [OUTPUT_DIR]
+                        main directory to download images into.
+
+optional arguments:
+  -s [SUBDIR_COL], --subdir-col [SUBDIR_COL]
                         name of column to use for subfolders in image directory (defaults to flat directory if left blank)
-  --img-name [IMG_NAME]
+  -n [IMG_NAME_COL], --img-name-col [IMG_NAME_COL]
                         column to use for image filename (default: filename)
-  --url [URL]           column with URLs to download (default: file_url)
-  --wait WAIT           time to wait between tries (default: 3)
-  --retry RETRY         max times to retry download on a single image (default: 5)
-  --downsample DOWNSAMPLE
+  -u [URL_COL], --url-col [URL_COL]
+                        column with URLs to download (default: file_url)
+  -w WAIT_TIME, --wait-time WAIT_TIME
+                        time to wait between tries (default: 3)
+  -r MAX_RETRIES, --max-retries MAX_RETRIES
+                        max times to retry download on a single image (default: 5)
+  -l SIDE_LENGTH, --side-length SIDE_LENGTH
                         number of pixels per side for downsampled images (default: no downsized images created)
-  --starting-idx STARTING_IDX
+  -x STARTING_IDX, --starting-idx STARTING_IDX
                         index of CSV at which to start download (default: 0)
-  --checksum CHECKSUM   checksum algorithm to use on images (default: md5, available: sha384, sha3_512, sha3_224, sha256, sha224,
-                        blake2b, sm3, sha512_256, sha3_384, sha512, ripemd160, sha512_224, shake_256, sha1, md5, md5-sha1,
-                        sha3_256, shake_128, blake2s)
+  -a CHECKSUM_ALGORITHM, --checksum-algorithm CHECKSUM_ALGORITHM
+                        checksum algorithm to use on images (default: md5, available: sha3_512, md5-sha1, shake_256, sha3_384,
+                        sha3_224, sha384, sm3, sha224, md5, sha512_256, sha512, blake2s, ripemd160, sha256, sha3_256, sha1,
+                        sha512_224, shake_128, blake2b)
 ```
 Note: Alternate checksum options are [pending](https://github.com/Imageomics/sum-buddy/pull/8).
 
@@ -46,7 +56,7 @@ Sample CSVs [1] are provided in the `examples/` directory to test the CLI.
 
 - **Defaults:**
 ```
-cautious-robot --csv "examples/HCGSD_testNA.csv" --output "examples/test_images"
+cautious-robot --input-file "examples/HCGSD_testNA.csv" --output-dir "examples/test_images"
 ```
  > Output:
  > ```console
@@ -59,7 +69,7 @@ cautious-robot --csv "examples/HCGSD_testNA.csv" --output "examples/test_images"
 
 - **Download Images to Subfolders:**
 ```
-cautious-robot --csv "examples/HCGSD_testNA.csv" --output "examples/test_images" --subfolders "Species"
+cautious-robot -i "examples/HCGSD_testNA.csv" -o "examples/test_images" --subdir-col "Species"
 ```
  > Output:
  > ```console

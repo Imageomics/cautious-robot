@@ -28,20 +28,26 @@ def parse_args():
     available_algorithms = ', '.join(hashlib.algorithms_available)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--csv", required = True, help = "path to CSV file with urls.", nargs = "?")
-    parser.add_argument("--output", required = True, help = "main directory to download images into.", nargs = "?")
-    parser.add_argument("--subfolders", required = False,
+    # Use argument groups for required vs optional (both get short flags too) https://bugs.python.org/issue9694#msg132327
+    # Required arguments
+    req_args = parser.add_argument_group("required arguments")
+    req_args.add_argument("-i", "--input-file", required = True, help = "path to CSV file with urls.", nargs = "?")
+    req_args.add_argument("-o", "--output-dir", required = True, help = "main directory to download images into.", nargs = "?")
+    
+    # Optional arguments
+    opt_args = parser.add_argument_group("optional arguments")
+    opt_args.add_argument("-s", "--subdir-col", required = False,
                         help = "name of column to use for subfolders in image directory (defaults to flat directory if left blank)",
                         nargs = "?")
-    parser.add_argument("--img-name", default = "filename", help = "column to use for image filename (default: filename)", nargs = "?")
-    parser.add_argument("--url", default = "file_url", help = "column with URLs to download (default: file_url)", nargs = "?")
-    parser.add_argument("--wait", default = 3, help = "time to wait between tries (default: 3)", type = int)
-    parser.add_argument("--retry", default = 5, help = "max times to retry download on a single image (default: 5)", type = int)
-    parser.add_argument("--downsample", required = False,
+    opt_args.add_argument("-n", "--img-name-col", default = "filename", help = "column to use for image filename (default: filename)", nargs = "?")
+    opt_args.add_argument("-u", "--url-col", default = "file_url", help = "column with URLs to download (default: file_url)", nargs = "?")
+    opt_args.add_argument("-w", "--wait-time", default = 3, help = "time to wait between tries (default: 3)", type = int)
+    opt_args.add_argument("-r", "--max-retries", default = 5, help = "max times to retry download on a single image (default: 5)", type = int)
+    opt_args.add_argument("-l", "--side-length", required = False,
                         help = "number of pixels per side for downsampled images (default: no downsized images created)",
                         type = int)
-    parser.add_argument("--starting-idx", default = 0, help = "index of CSV at which to start download (default: 0)", type = int)
-    parser.add_argument("--checksum", default = 'md5', #choices = available_algorithms,
+    opt_args.add_argument("-x", "--starting-idx", default = 0, help = "index of CSV at which to start download (default: 0)", type = int)
+    opt_args.add_argument("-a", "--checksum-algorithm", default = 'md5', #choices = available_algorithms,
                         help = f"checksum algorithm to use on images (default: md5, available: {available_algorithms})"
                         )
 
@@ -171,19 +177,19 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
 
 def main():
     args = parse_args()
-    csv_path = args.csv
+    csv_path = args.input_file
     if not csv_path.endswith(".csv"):
         sys.exit("Expected CSV for input file; extension should be `.csv'")
     #load csv 
     data_df = pd.read_csv(csv_path, low_memory = False)
 
-    subfolders = args.subfolders
+    subfolders = args.subdir_col
 
     # Make case-insensitive & check for required columns
     data_df.columns = data_df.columns.str.lower()
     expected_cols = {
-        "filename_col": args.img_name.lower(),
-        "url_col": args.url.lower()
+        "filename_col": args.img_name_col.lower(),
+        "url_col": args.url_col.lower()
         }
     if subfolders:
         expected_cols["subfolders"] = subfolders
@@ -204,7 +210,7 @@ def main():
             sys.exit("Exited without executing.")
 
     # Check for img_dir
-    img_dir = args.output
+    img_dir = args.output_dir
     if os.path.exists(img_dir):
         overwrite = input(f"'{img_dir}' already exists (may impact downsizing too). Overwrite? [y/n]: ")
         if overwrite.lower() != "y":
@@ -216,7 +222,7 @@ def main():
     error_log_filepath = metadata_path + "_error_log.jsonl"
 
     # Check for downsample
-    if type(args.downsample) == int:
+    if type(args.side_length) == int:
         downsample_dest_path = img_dir + "_downsized"
         # dowload images from urls & save downsample copy
         download_images(data_df.loc[data_df[filename_col].notna()].copy(),
@@ -226,10 +232,10 @@ def main():
                         filename = filename_col,
                         subfolders = subfolders,
                         downsample_path = downsample_dest_path,
-                        downsample = args.downsample,
+                        downsample = args.side_length,
                         file_url = url_col,
-                        wait = args.wait,
-                        retry = args.retry,
+                        wait = args.wait_time,
+                        retry = args.max_retries,
                         starting_index = args.starting_idx)
         print(f"Images downloaded from {csv_path} to {img_dir}, with downsampled images in {downsample_dest_path}.")
 
@@ -242,8 +248,8 @@ def main():
                         filename = filename_col,
                         subfolders = subfolders,
                         file_url = url_col,
-                        wait = args.wait,
-                        retry = args.retry,
+                        wait = args.wait_time,
+                        retry = args.max_retries,
                         starting_index = args.starting_idx)
         print(f"Images downloaded from {csv_path} to {img_dir}.")
     print(f"Download logs are in {log_filepath} and {error_log_filepath}.")
