@@ -200,9 +200,11 @@ def main():
     if len(missing_cols) > 0:
         sys.exit(f"The CSV is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}")
     
-    # Check for missing filenames
+    # Check for missing filenames & uniqueness
     filename_col = expected_cols["filename_col"]
     url_col = expected_cols["url_col"]
+    if data_df.loc[data_df[filename_col].notna()].shape[0] != data_df[filename_col].nunique():
+        sys.exit(f"{filename_col} is not a unique identifier for this dataset, please choose a column with unique values for filenames.")
     urls_no_name = len(data_df.loc[(data_df[filename_col].isna() & (data_df[url_col].notna()))])
     if urls_no_name > 0:
         ignore = input(f"'{filename_col}' is missing values for {urls_no_name} URLs. Proceed with download ignoring these URLs? [y/n]: ")
