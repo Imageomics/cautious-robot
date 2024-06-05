@@ -41,7 +41,7 @@ def parse_args():
                         nargs = "?")
     opt_args.add_argument("-n", "--img-name-col", default = "filename", help = "column to use for image filename (default: filename)", nargs = "?")
     opt_args.add_argument("-u", "--url-col", default = "file_url", help = "column with URLs to download (default: file_url)", nargs = "?")
-    opt_args.add_argument("-w", "--wait-time", default = 3, help = "seconds to wait between tries (default: 3)", type = int)
+    opt_args.add_argument("-w", "--wait-time", default = 3, help = "seconds to wait between retries for an image (default: 3)", type = int)
     opt_args.add_argument("-r", "--max-retries", default = 5, help = "max times to retry download on a single image (default: 5)", type = int)
     opt_args.add_argument("-l", "--side-length", required = False,
                         help = "number of pixels per side for resized square images (default: no resized images created)",
@@ -70,7 +70,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
     downsample_path - String [optional]. Folder to which to download the downsized images.
     downsample - Int [optional]. Number of pixels per side for downsampled images.
     file_url - String. Name of column to use for image urls. Default: 'file_url'.
-    wait - Int. Time to wait between retries for an image. Default: 3.
+    wait - Int. Seconds to wait between retries for an image. Default: 3.
     retry - Int. Max number of times to retry downloading an image. Default: 5.
     starting_index - Int. Index at which to start the download. Default: 0.
     
@@ -103,7 +103,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
             max_redos = retry
             while redo and max_redos > 0:
                 try:
-                    response = requests.get(url, stream=True)
+                    response = requests.get(url)
                 except Exception as e:
                     redo = True
                     max_redos -= 1

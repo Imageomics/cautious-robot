@@ -12,7 +12,9 @@ pip install git+https://github.com/Imageomics/cautious-robot
 
 ## How it Works
 
-Cautious-robot will check the provided CSV for `IMG_NAME`, `URL`, and `SUBFOLDERS` (if provided), then download all images that have a value in the `IMG_NAME` column. Note that choice of image filename should be unique, cautious-robot will refuse the request if the filename column selected is not a unique identifier for the dataset. Images that have a filename but no `URL` are recorded in the error log. If desired, a secondary output directory will be created with square copies of the images downsampled to the desired size (e.g., 256 x 256). Parameters such as time to wait between retries, the maximum number of times to try retrying an image, and which index of the CSV to start with can all also be passed. Cautious-robot will retry image downloads when the following responses are returned: `429, 500, 502, 503, 504`.
+Cautious-robot will check the provided CSV for `IMG_NAME`, `URL`, and `SUBFOLDERS` (if provided), then download all images that have a value in the `IMG_NAME` column. Note that choice of image filename should be unique, cautious-robot will refuse the request if the filename column selected is not a unique identifier for the dataset. Images that have a filename but no `URL` are recorded in the error log. Logs are saved in the same directory as the source CSV. Please ensure sufficient memory for the largest images downloaded, as streaming download is not currently supported.
+
+If desired, a secondary output directory will be created with square copies of the images downsampled to the desired size (e.g., 256 x 256). Parameters such as time to wait between retries on a failed download, the maximum number of times to retry downloading an image, and which index of the CSV to start with can all also be passed. Cautious-robot will retry image downloads when the following responses are returned: `429, 500, 502, 503, 504`.
 
 After downloading the images, cautious-robot calls [`sum-buddy`](https://github.com/Imageomics/sum-buddy) to calculate and record checksums of the `OUTPUT` folder contents.
 
@@ -38,11 +40,11 @@ optional arguments:
   -u [URL_COL], --url-col [URL_COL]
                         column with URLs to download (default: file_url)
   -w WAIT_TIME, --wait-time WAIT_TIME
-                        seconds to wait between tries (default: 3)
+                        time to wait between retries for an image (default: 3)
   -r MAX_RETRIES, --max-retries MAX_RETRIES
                         max times to retry download on a single image (default: 5)
   -l SIDE_LENGTH, --side-length SIDE_LENGTH
-                        number of pixels per side for resized square images (default: no resized images created)
+                        number of pixels per side for downsampled images (default: no downsized images created)
   -x STARTING_IDX, --starting-idx STARTING_IDX
                         index of CSV at which to start download (default: 0)
   -a CHECKSUM_ALGORITHM, --checksum-algorithm CHECKSUM_ALGORITHM
@@ -50,7 +52,6 @@ optional arguments:
                         sha3_224, sha384, sm3, sha224, md5, sha512_256, sha512, blake2s, ripemd160, sha256, sha3_256, sha1,
                         sha512_224, shake_128, blake2b)
 ```
-Note: Alternate checksum options are [pending](https://github.com/Imageomics/sum-buddy/pull/8).
 
 #### CLI Examples
 
