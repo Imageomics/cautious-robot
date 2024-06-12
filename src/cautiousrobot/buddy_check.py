@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from cautiousrobot.utils import process_csv
 
@@ -76,7 +77,10 @@ class BuddyCheck:
 
         # Process source & checksum files
         expected_cols = {"id_col": id_col.lower(), "checksum_col": validation_col.lower()}
-        df = process_csv(img_source, expected_cols)
+        try:
+            df = process_csv(img_source, expected_cols)
+        except Exception as missing_cols:
+            sys.exit(f"{missing_cols} Please adjust inputs and try again.")
         df_checksum = process_csv(checksum_source, {"checksum_col": buddy_col})
         
         missing_imgs = self.check_alignment(img_df = df,

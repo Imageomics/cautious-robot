@@ -191,8 +191,11 @@ def main():
         }
     if subfolders:
         subfolders = subfolders.lower()
-        expected_cols["subfolders"] = subfolders 
-    data_df = process_csv(csv_path, expected_cols)
+        expected_cols["subfolders"] = subfolders
+    try:
+        data_df = process_csv(csv_path, expected_cols)
+    except Exception as missing_cols:
+        sys.exit(f"{missing_cols} Please adjust inputs and try again.")
 
     # Check for missing filenames & uniqueness
     filename_col = expected_cols["filename_col"]
