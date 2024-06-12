@@ -18,7 +18,8 @@ import sys
 import time
 from PIL import Image
 from sumbuddy import get_checksums
-from cautiousrobot.utils import log_response, update_log
+from cautiousrobot.utils import log_response, update_log, process_csv
+from cautiousrobot.buddy_check import BuddyCheck
 
 
 REDO_CODE_LIST = [429, 500, 502, 503, 504]
@@ -50,7 +51,8 @@ def parse_args():
     opt_args.add_argument("-a", "--checksum-algorithm", default = 'md5', #choices = available_algorithms,
                         help = f"checksum algorithm to use on images (default: md5, available: {available_algorithms})"
                         )
-
+    opt_args.add_argument("-v", "--verifier-col", required = False, help = "name of column in source CSV with checksums (same hash as -a) to verify download", nargs = "?")
+    
     return parser.parse_args()
 
 
@@ -103,7 +105,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
             max_redos = retry
             while redo and max_redos > 0:
                 try:
-                    response = requests.get(url)
+                    response = requests.get(url, stream = True)
                 except Exception as e:
                     redo = True
                     max_redos -= 1
@@ -180,12 +182,9 @@ def main():
     csv_path = args.input_file
     if not csv_path.endswith(".csv"):
         sys.exit("Expected CSV for input file; extension should be '.csv'")
-    #load csv 
-    data_df = pd.read_csv(csv_path, low_memory = False)
 
     # Make case-insensitive & check for required columns
     subfolders = args.subdir_col
-    data_df.columns = data_df.columns.str.lower()
     expected_cols = {
         "filename_col": args.img_name_col.lower(),
         "url_col": args.url_col.lower()
@@ -193,13 +192,11 @@ def main():
     if subfolders:
         subfolders = subfolders.lower()
         expected_cols["subfolders"] = subfolders
-    missing_cols = []
-    for col in list(expected_cols.keys()):
-        if expected_cols[col] not in list(data_df.columns):
-            missing_cols.append(col)
-    if len(missing_cols) > 0:
-        sys.exit(f"The CSV is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}")
-    
+    try:
+        data_df = process_csv(csv_path, expected_cols)
+    except Exception as missing_cols:
+        sys.exit(f"{missing_cols} Please adjust inputs and try again.")
+
     # Check for missing filenames & uniqueness
     filename_col = expected_cols["filename_col"]
     url_col = expected_cols["url_col"]
@@ -257,13 +254,36 @@ def main():
     print(f"Download logs are in {log_filepath} and {error_log_filepath}.")
 
     # generate checksums and save CSV to same folder as CSV used for download
+    # then verify the download if checksums in source CSV
     checksum_path = metadata_path + "_checksums.csv"
     try:
         get_checksums(input_directory = img_dir, output_filepath = checksum_path, algorithm = args.checksum_algorithm)
+        
+        # verify numbers
+        checksum_df = pd.read_csv(checksum_path, low_memory = False)
+        expected_num_imgs = data_df.loc[data_df[filename_col].notna()].shape[0]
+        print(f"{checksum_df.shape[0]} images were downloaded to {img_dir} of the {expected_num_imgs} expected.")
     except Exception as e:
         print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
         print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
-    
+        return
+
+    if args.verifier_col:
+        # Run download verification
+        buddy_check = BuddyCheck(buddy_id = "filename", buddy_col = args.checksum_algorithm)
+        try:
+            missing_imgs = buddy_check.check_alignment(img_df = data_df,
+                                                    checksum_df = checksum_df,
+                                                    id_col = filename_col,
+                                                    validation_col = args.verifier_col)
+            if missing_imgs is not None:
+                missing_imgs.to_csv(metadata_path + "_missing.csv", index = False)
+                print(f"Image mismatch: {missing_imgs.shape[0]} image(s) not aligned, see {metadata_path}_missing.csv for missing image info and check logs.")
+            else:
+                print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
+        except Exception as e:
+            print(f"Verification of download failed due to {type(e).__name__}: {e}.")
+            print(f"'BuddyCheck.validate_download' can be run directly on the CSVs after correcting for this error.")
     return
 
 

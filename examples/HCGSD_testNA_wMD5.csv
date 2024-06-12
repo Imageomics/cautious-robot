@@ -1,0 +1,11 @@
+NHM_Specimen,Species,Subspecies,Sex,file_url,filename,md5
+10429021,erato,notabilis,female,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10429021_V_lowres.png,10429021_V_lowres.jpg,c6aeb9d2f6db412ff5be0eb0b5435b83
+10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.jpg,0047e7454ce444f67fee1c90cc3ba9cb
+10429172,erato,petiverana,male,,,
+10428595,erato,phyllis,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/dorsal_images/10428595_D_lowres.png,10428595_D_lowres.jpg,55882a0f3fdf8a68579c07254395653b
+10428140,melpomene,plesseni,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428140_V_lowres.png,10428140_V_lowres.jpg,c11538f2de5a5e2d6013fc800848d43a
+10428250,melpomene,schunkei,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428250_V_lowres.png,10428250_V_lowres.jpg,14ac99b1a9913a9d420f21b94d6136d6
+10427979,melpomene,rosina_S,male,,,
+10428803,erato,guarica,female,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/dorsal_images/10428803_D_lowres.png,10428803_D_lowres.jpg,d8bfb73f2d3556390de04aa98822b815
+10428169,melpomene,plesseni,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428169_V_lowres.png,10428169_V_lowres.jpg,042c9dc294d589ce3f140f14ddab0166
+10428321,melpomene,nanna,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/dorsal_images/10428321_D_lowres.png,10428321_D_lowres.jpg,fbeeed30274e424831b06360b587ceb3
