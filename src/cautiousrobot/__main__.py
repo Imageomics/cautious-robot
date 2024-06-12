@@ -110,13 +110,13 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                     redo = True
                     max_redos -= 1
                     if max_redos <= 0:
-
                         log_errors = log_response(log_errors,
                                         index = i,
                                         image = image_name,
                                         url = url,
                                         response_code = str(e))
                         update_log(log = log_errors, index = i, filepath = error_log_filepath)
+                    continue
                         
                 if response.status_code == 200:
                     redo = False
