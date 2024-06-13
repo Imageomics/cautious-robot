@@ -172,7 +172,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                                             response_code = response.status_code)
                     update_log(log = log_errors, index = i, filepath = error_log_filepath)
 
-        del response
+                del response
 
     return
 
