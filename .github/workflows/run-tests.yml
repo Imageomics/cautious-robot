@@ -16,8 +16,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: install requirements
-        run: pip install -r requirements.txt
+      - name: install dependencies
+        run: pip install .
         shell: bash
 
       - name: run test
