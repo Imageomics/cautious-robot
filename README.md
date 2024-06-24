@@ -1,6 +1,6 @@
 # cautious-robot
 
-I am a simple downloader that downloads images from URLs in a CSV and names them by the given column. After download, [`sum-buddy`](https://github.com/Imageomics/sum-buddy) helps me gather and record checksums for all downloaded images. If the source CSV has a checksum column, I can then do a buddy-check to verify all expected images are downloaded.
+I am a simple downloader that downloads images from URLs in a CSV and names them by the given column. I make sure that each download image has a unique name and warn you before overwriting an existing image folder. Patience is a virtue, so I will wait a designated time before re-requesting an image after receiving an error on my retry list; if all retries are expended or I receive another error, I log that for your review and move on. After download, [`sum-buddy`](https://github.com/Imageomics/sum-buddy) helps me gather and record checksums for all downloaded images. If the source CSV has a checksum column, I can then do a buddy-check to verify all expected images are downloaded intact. At a minimum, I check the number of expected images matches the number sum-buddy counts.
 
 ## Requirements
 Python 3.7+
