@@ -1,7 +1,6 @@
 # Helper functions for download
 
 import json
-import sys
 import pandas as pd
 
 
@@ -25,7 +24,7 @@ def update_log(log, index, filepath):
 
 def process_csv(csv_path, expected_cols):
     '''
-    Reads a CSV, sets all columns to lowercase (for case-insensitivity, and checks for expected columns.
+    Reads a CSV, sets all columns to lowercase (for case-insensitivity), and checks for expected columns.
     
     Parameters:
     csv_path - String. Path to the CSV.

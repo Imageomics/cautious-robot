@@ -207,6 +207,9 @@ def main():
         ignore = input(f"'{filename_col}' is missing values for {urls_no_name} URLs. Proceed with download ignoring these URLs? [y/n]: ")
         if ignore.lower() != "y":
             sys.exit("Exited without executing.")
+    
+    # Set source DataFrame for only non-null filename values
+    source_df = data_df.loc[data_df[filename_col].notna()].copy()
 
     # Check for img_dir
     img_dir = args.output_dir
@@ -224,7 +227,7 @@ def main():
     if type(args.side_length) == int:
         downsample_dest_path = img_dir + "_downsized"
         # dowload images from urls & save downsample copy
-        download_images(data_df.loc[data_df[filename_col].notna()].copy(),
+        download_images(source_df,
                         img_dir = img_dir,
                         log_filepath = log_filepath,
                         error_log_filepath = error_log_filepath,
@@ -240,7 +243,7 @@ def main():
 
     else:
         # dowload images from urls without downsample copy
-        download_images(data_df.loc[data_df[filename_col].notna()].copy(),
+        download_images(source_df,
                         img_dir = img_dir,
                         log_filepath = log_filepath,
                         error_log_filepath = error_log_filepath,
@@ -261,7 +264,7 @@ def main():
         
         # verify numbers
         checksum_df = pd.read_csv(checksum_path, low_memory = False)
-        expected_num_imgs = data_df.loc[data_df[filename_col].notna()].shape[0]
+        expected_num_imgs = source_df.shape[0]
         print(f"{checksum_df.shape[0]} images were downloaded to {img_dir} of the {expected_num_imgs} expected.")
     except Exception as e:
         print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
@@ -272,18 +275,18 @@ def main():
         # Run download verification
         buddy_check = BuddyCheck(buddy_id = "filename", buddy_col = args.checksum_algorithm)
         try:
-            missing_imgs = buddy_check.check_alignment(img_df = data_df,
+            missing_imgs = buddy_check.validate_download(source_df = source_df,
                                                     checksum_df = checksum_df,
-                                                    id_col = filename_col,
-                                                    validation_col = args.verifier_col)
+                                                    source_id_col = filename_col,
+                                                    source_validation_col = args.verifier_col)
             if missing_imgs is not None:
                 missing_imgs.to_csv(metadata_path + "_missing.csv", index = False)
-                print(f"Image mismatch: {missing_imgs.shape[0]} image(s) not aligned, see {metadata_path}_missing.csv for missing image info and check logs.")
+                print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
             else:
                 print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
         except Exception as e:
             print(f"Verification of download failed due to {type(e).__name__}: {e}.")
-            print(f"'BuddyCheck.validate_download' can be run directly on the CSVs after correcting for this error.")
+            print(f"'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
     return
 
 
