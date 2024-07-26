@@ -9,23 +9,25 @@ from cautiousrobot.utils import process_csv
 class TestBuddyCheck(unittest.TestCase):
     def setUp(self):
         self.buddy_check = BuddyCheck()
+        self.buddy_check_filename = BuddyCheck(buddy_id='filename')
 
         self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
         self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
 
         self.img_source_file.write("""filename,checksum
-                                    image1.jpg,abc123
-                                    image2.jpg,def456
-                                    image3.jpg,ghi789
-                                    """)
+image1.jpg,abc123
+image2.jpg,def456
+image3.jpg,ghi789
+""")
         self.img_source_file.close()
 
         self.checksum_source_file.write("""filename,md5
-                                    image1.jpg,abc123
-                                    image2.jpg,def456
-                                    image3.jpg,ghi789
-                                    """)
+image1.jpg,abc123
+image2.jpg,def456
+image3.jpg,ghi789
+""")
         self.checksum_source_file.close()
+        
 
     def tearDown(self):
         os.remove(self.img_source_file.name)
@@ -39,7 +41,7 @@ class TestBuddyCheck(unittest.TestCase):
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.read_csv(self.checksum_source_file.name).drop(columns=['filename'])
 
-        merged_df = self.buddy_check.merge_on_checksum(source_df, checksum_df, 'checksum')
+        merged_df = self.buddy_check_filename.merge_on_checksum(source_df, checksum_df, 'checksum')
         expected_df = pd.DataFrame({
             'filename': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
             'checksum': ['abc123', 'def456', 'ghi789'],
@@ -50,8 +52,7 @@ class TestBuddyCheck(unittest.TestCase):
     def test_merge_on_filename_checksum(self):
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        self.buddy_check.buddy_id = 'filename'
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
         expected_df = pd.DataFrame({
             'filename': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
             'checksum': ['abc123', 'def456', 'ghi789'],
@@ -62,8 +63,8 @@ class TestBuddyCheck(unittest.TestCase):
     def test_check_alignment_all_matching(self):
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
         self.assertIsNone(missing_imgs)
 
     def test_check_alignment_some_missing(self):
@@ -72,15 +73,14 @@ class TestBuddyCheck(unittest.TestCase):
             'checksum': ['abc123', 'def456', 'ghi789', 'jkl012']
         })
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        self.buddy_check.buddy_id = 'filename'
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
-        # print(missing_imgs)
+        print(checksum_df)
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
         expected_missing_imgs = pd.DataFrame({
             'filename': ['image4.jpg'],
             'checksum': ['jkl012']
         })
-        pd.testing.assert_frame_equal(missing_imgs, expected_missing_imgs)
+        pd.testing.assert_frame_equal(missing_imgs.reset_index(drop=True), expected_missing_imgs)
 
     def test_validate_download_success(self):
         missing_imgs = self.buddy_check.validate_download(
@@ -97,7 +97,7 @@ class TestBuddyCheck(unittest.TestCase):
             'checksum': ['abc123', 'def456', 'ghi789', 'jkl012']
         })
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        missing_imgs = self.buddy_check.validate_download(
+        missing_imgs = self.buddy_check_filename.validate_download(
             source_df=source_df,
             checksum_df=checksum_df,
             source_id_col="filename",
@@ -107,7 +107,7 @@ class TestBuddyCheck(unittest.TestCase):
             'filename': ['image4.jpg'],
             'checksum': ['jkl012']
         })
-        pd.testing.assert_frame_equal(missing_imgs, expected_missing_imgs)
+        pd.testing.assert_frame_equal(missing_imgs.reset_index(drop=True), expected_missing_imgs)
 
     def test_check_alignment_no_matching(self):
         source_df = pd.read_csv(self.img_source_file.name)
@@ -115,9 +115,8 @@ class TestBuddyCheck(unittest.TestCase):
             'filename': ['image4.jpg', 'image5.jpg', 'image6.jpg'],
             'md5': ['xyz123', 'uvw456', 'rst789']
         })
-        self.buddy_check.buddy_id = 'filename'
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
         self.assertIsNotNone(missing_imgs)
         self.assertEqual(missing_imgs.shape[0], 3)
 
@@ -155,8 +154,8 @@ class TestBuddyCheck(unittest.TestCase):
         })
         source_df.columns = source_df.columns.str.lower()
         checksum_df.columns = checksum_df.columns.str.lower()
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
         self.assertIsNone(missing_imgs)
 
 if __name__ == '__main__':
