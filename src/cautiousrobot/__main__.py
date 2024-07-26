@@ -139,15 +139,16 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                         shutil.copyfileobj(response.raw, out_file)
                     
                     if downsample:
+                        downsample_dir_path = downsample_path
                         if subfolders:
-                            downsample_dir = downsample_path + "/" + data[subfolders][i]
-                        if os.path.exists(downsample_dir) != True:
-                            os.makedirs(downsample_dir, exist_ok=False)
+                            downsample_dir_path = downsample_path + "/" + data[subfolders][i]
+                        if os.path.exists(downsample_dir_path) != True:
+                            os.makedirs(downsample_dir_path, exist_ok=False)
                         # Downsample & save image
                         byte_data = io.BytesIO(response.content)
                         img = Image.open(byte_data)
                         #img.save(dest_path)
-                        img.resize((downsample, downsample)).save(downsample_dir + "/" + image_name)
+                        img.resize((downsample, downsample)).save(downsample_dir_path + "/" + image_name)
             
                 # check for too many requests
                 elif response.status_code in REDO_CODE_LIST:
