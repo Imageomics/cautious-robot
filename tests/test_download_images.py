@@ -132,7 +132,7 @@ class TestDownload(unittest.TestCase):
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH)
 
         self.assertTrue(os.path.isfile(self.LOG_FILEPATH))
-        self.assertTrue(os.path.isfile(self.ERROR_LOG_FILEPATH))
+        self.assertFalse(os.path.isfile(self.ERROR_LOG_FILEPATH))
     
 class TestMainFunction(unittest.TestCase):
     @patch('cautiousrobot.__main__.parse_args')
