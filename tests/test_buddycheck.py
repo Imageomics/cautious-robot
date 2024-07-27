@@ -87,7 +87,7 @@ image3.jpg,ghi789
     def test_validate_download_success(self):
         missing_imgs = self.buddy_check.validate_download(
             source_df=pd.read_csv(self.img_source_file.name),
-            checksum_df=pd.read_csv(self.checksum_source_file.name).drop(columns=['filename']),
+            checksum_df=pd.read_csv(self.checksum_source_file.name),
             source_id_col="filename",
             source_validation_col="checksum"
         )
