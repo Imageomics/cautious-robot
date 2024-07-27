@@ -42,7 +42,7 @@ image3.jpg,ghi789
 
     def test_merge_on_checksum(self):
         source_df = pd.read_csv(self.img_source_file.name)
-        checksum_df = pd.read_csv(self.checksum_source_file.name).drop(columns=['filename'])
+        checksum_df = pd.read_csv(self.checksum_source_file.name)
 
         merged_df = self.buddy_check_filename.merge_on_checksum(source_df, checksum_df, 'checksum')
         expected_df = pd.DataFrame({
