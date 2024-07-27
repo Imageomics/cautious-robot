@@ -10,6 +10,7 @@ class TestBuddyCheck(unittest.TestCase):
     def setUp(self):
         self.buddy_check = BuddyCheck()
         self.buddy_check_filename = BuddyCheck(buddy_id='filename')
+        self.buddy_check_id_col = BuddyCheck(buddy_id = "filename", buddy_col = "sha256")
 
         self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
         self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
