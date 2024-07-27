@@ -76,7 +76,6 @@ image3.jpg,ghi789
             'checksum': ['abc123', 'def456', 'ghi789', 'jkl012']
         })
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        print(checksum_df)
         merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
         missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
         expected_missing_imgs = pd.DataFrame({
