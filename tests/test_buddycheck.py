@@ -37,6 +37,8 @@ image3.jpg,ghi789
     def test_initialization(self):
         self.assertEqual(self.buddy_check.buddy_id, None)
         self.assertEqual(self.buddy_check.buddy_col, 'md5')
+        self.assertEqual(self.buddy_check_id_col.buddy_id, 'filename')
+        self.assertEqual(self.buddy_check_id_col.buddy_col, 'sha256')
 
     def test_merge_on_checksum(self):
         source_df = pd.read_csv(self.img_source_file.name)
