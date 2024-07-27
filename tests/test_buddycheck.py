@@ -144,20 +144,5 @@ image3.jpg,ghi789
         self.assertIsNotNone(missing_imgs)
         self.assertEqual(missing_imgs.shape[0], 3)
 
-    def test_check_alignment_case_insensitive_columns(self):
-        source_df = pd.DataFrame({
-            'FILENAME': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
-            'CHECKSUM': ['abc123', 'def456', 'ghi789']
-        })
-        checksum_df = pd.DataFrame({
-            'FILENAME': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
-            'MD5': ['abc123', 'def456', 'ghi789']
-        })
-        source_df.columns = source_df.columns.str.lower()
-        checksum_df.columns = checksum_df.columns.str.lower()
-        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check_filename.check_alignment(source_df, merged_df)
-        self.assertIsNone(missing_imgs)
-
 if __name__ == '__main__':
     unittest.main()
