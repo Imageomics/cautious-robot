@@ -140,7 +140,7 @@ image3.jpg,ghi789
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.DataFrame(columns=['filename', 'md5'])
         self.buddy_check.buddy_id = 'filename'
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
+        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
         missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
         self.assertIsNotNone(missing_imgs)
         self.assertEqual(missing_imgs.shape[0], 3)
