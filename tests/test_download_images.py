@@ -53,56 +53,36 @@ class TestDownload(unittest.TestCase):
         for filename in self.DUMMY_DATA['filename']:
             self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
-    def retry_test_template(self, get_mock, status_code):
-        mock_response_retry = MagicMock()
-        mock_response_retry.status_code = status_code
-        mock_response_success = MagicMock()
-        mock_response_success.status_code = 200
-        mock_response_success.raw = BytesIO(b"fake_image_data")
-        get_mock.side_effect = [mock_response_retry] * 2 + [mock_response_success]
+    @patch('requests.get')
+    def test_success_after_retries(self, get_mock):
+        retry_status_codes = [429, 500, 502, 503, 504]
+        for status_code in retry_status_codes:
+            with self.subTest(status_code=status_code):
+                mock_response_retry = MagicMock()
+                mock_response_retry.status_code = status_code
+                mock_response_success = MagicMock()
+                mock_response_success.status_code = 200
+                mock_response_success.raw = BytesIO(b"fake_image_data")
+                get_mock.side_effect = [mock_response_retry] * 2 + [mock_response_success]
 
-        download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=3)
+                download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=3)
 
-        for filename in self.DUMMY_DATA['filename']:
-            self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
+                for filename in self.DUMMY_DATA['filename']:
+                    self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('requests.get')
-    def test_retry_429(self, get_mock):
-        self.retry_test_template(get_mock, 429)
+    def test_failure_after_retries(self, get_mock):
+        retry_status_codes = [429, 500, 502, 503, 504]
+        for status_code in retry_status_codes:
+            with self.subTest(status_code=status_code):
+                mock_response_retry = MagicMock()
+                mock_response_retry.status_code = status_code
+                get_mock.side_effect = [mock_response_retry] * 5
 
-    @patch('requests.get')
-    def test_retry_500(self, get_mock):
-        self.retry_test_template(get_mock, 500)
+                download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=5)
 
-    @patch('requests.get')
-    def test_retry_502(self, get_mock):
-        self.retry_test_template(get_mock, 502)
-
-    @patch('requests.get')
-    def test_retry_503(self, get_mock):
-        self.retry_test_template(get_mock, 503)
-
-    @patch('requests.get')
-    def test_retry_504(self, get_mock):
-        self.retry_test_template(get_mock, 504)
-
-    def failure_test_template(self, get_mock, status_code):
-        mock_response_retry = MagicMock()
-        mock_response_retry.status_code = status_code
-        get_mock.side_effect = [mock_response_retry] * 5
-
-        download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=5)
-
-        for filename in self.DUMMY_DATA['filename']:
-            self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
-
-    @patch('requests.get')
-    def test_failure_after_retries_429(self, get_mock):
-        self.failure_test_template(get_mock, 429)
-
-    @patch('requests.get')
-    def test_failure_after_retries_500(self, get_mock):
-        self.failure_test_template(get_mock, 500)
+                for filename in self.DUMMY_DATA['filename']:
+                    self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('requests.get')
     @patch('PIL.Image.open')
