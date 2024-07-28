@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock, mock_open, call
+from unittest.mock import patch, MagicMock, mock_open, call 
 import pandas as pd
 import os
 import io
@@ -84,16 +84,11 @@ class TestDownload(unittest.TestCase):
                 for filename in self.DUMMY_DATA['filename']:
                     self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
-    @patch('requests.get')
-    @patch('PIL.Image.open')
-    def test_downsampled_image_creation(self, open_mock, get_mock):
+    @patch('cautiousrobot.__main__.requests.get')
+    def test_downsampled_image_creation(self,get_mock):
         mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.raw = BytesIO(b"fake_image_data")
+        mock_response.content = b'dummy_image_data'
         get_mock.return_value = mock_response
-
-        img_mock = MagicMock()
-        open_mock.return_value = img_mock
 
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH,
                         downsample_path=self.DOWNSAMPLE_PATH, downsample=self.DOWNSAMPLE_SIZE)
