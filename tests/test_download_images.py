@@ -20,15 +20,17 @@ class TestDownload(unittest.TestCase):
         self.IMG_DIR = "test_dir"
         self.LOG_FILEPATH = "test_log_path.jsonl"
         self.ERROR_LOG_FILEPATH = "test_error_log_path.jsonl"
-        self.DOWNSAMPLE_PATH = "test_downsample_dir"
+        self.DOWNSAMPLE_DIR = self.IMG_DIR + "_downsized"
         self.DOWNSAMPLE_SIZE = 100
 
         os.makedirs(self.IMG_DIR, exist_ok=True)
-        os.makedirs(self.DOWNSAMPLE_PATH, exist_ok=True)
+        os.makedirs(self.DOWNSAMPLE_DIR, exist_ok=True)
+        for subfolder in self.DUMMY_DATA["subfolder"]:
+            os.makedirs(os.path.join(self.DOWNSAMPLE_DIR, subfolder), exist_ok=True)
 
     def tearDown(self):
         shutil.rmtree(self.IMG_DIR, ignore_errors=True)
-        shutil.rmtree(self.DOWNSAMPLE_PATH, ignore_errors=True)
+        shutil.rmtree(self.DOWNSAMPLE_DIR, ignore_errors=True)
         if os.path.exists(self.LOG_FILEPATH):
             os.remove(self.LOG_FILEPATH)
         if os.path.exists(self.ERROR_LOG_FILEPATH):
@@ -54,6 +56,20 @@ class TestDownload(unittest.TestCase):
             self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('requests.get')
+    def test_successful_download_with_subfolder(self, get_mock):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raw = BytesIO(b"fake_image_data")
+        get_mock.return_value = mock_response
+
+        download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, subfolders="subfolder")
+
+        for i, filename in enumerate(self.DUMMY_DATA['filename']):
+            subfolder = self.DUMMY_DATA['subfolder'][i]
+            self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{subfolder}/{filename}"))
+
+
+    @patch('requests.get')
     def test_success_after_retries(self, get_mock):
         retry_status_codes = [429, 500, 502, 503, 504]
         for status_code in retry_status_codes:
@@ -63,12 +79,15 @@ class TestDownload(unittest.TestCase):
                 mock_response_success = MagicMock()
                 mock_response_success.status_code = 200
                 mock_response_success.raw = BytesIO(b"fake_image_data")
-                get_mock.side_effect = [mock_response_retry] * 2 + [mock_response_success]
+                get_mock.side_effect = [
+                    mock_response_retry, mock_response_retry, mock_response_success,  # For test_file1.jpg
+                    mock_response_retry, mock_response_retry, mock_response_success   # For test_file2.jpg
+                    ]
 
                 download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=3)
 
-                for filename in self.DUMMY_DATA['filename']:
-                    self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
+            for filename in self.DUMMY_DATA['filename']:
+                self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('requests.get')
     def test_failure_after_retries(self, get_mock):
@@ -77,12 +96,15 @@ class TestDownload(unittest.TestCase):
             with self.subTest(status_code=status_code):
                 mock_response_retry = MagicMock()
                 mock_response_retry.status_code = status_code
-                get_mock.side_effect = [mock_response_retry] * 5
+                get_mock.side_effect = [
+                    mock_response_retry, mock_response_retry, mock_response_retry, mock_response_retry, mock_response_retry,  # For test_file1.jpg
+                    mock_response_retry, mock_response_retry, mock_response_retry, mock_response_retry, mock_response_retry   # For test_file2.jpg
+                    ]
 
                 download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, retry=5)
 
-                for filename in self.DUMMY_DATA['filename']:
-                    self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
+            for filename in self.DUMMY_DATA['filename']:
+                self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('cautiousrobot.__main__.requests.get')
     def test_downsampled_image_creation(self,get_mock):
@@ -91,11 +113,24 @@ class TestDownload(unittest.TestCase):
         get_mock.return_value = mock_response
 
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH,
-                        downsample_path=self.DOWNSAMPLE_PATH, downsample=self.DOWNSAMPLE_SIZE)
+                        downsample_path=self.DOWNSAMPLE_DIR, downsample=self.DOWNSAMPLE_SIZE)
 
         for filename in self.DUMMY_DATA['filename']:
-            self.assertTrue(os.path.isfile(f"{self.DOWNSAMPLE_PATH}/test_subfolder1/{filename}") or
-                            os.path.isfile(f"{self.DOWNSAMPLE_PATH}/test_subfolder2/{filename}"))    
+            self.assertTrue(os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}") or
+                            os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}"))   
+
+    @patch('cautiousrobot.__main__.requests.get')
+    def test_downsampled_image_creation_with_subfolder(self, get_mock):
+        mock_response = MagicMock()
+        mock_response.content = b'dummy_image_data'
+        get_mock.return_value = mock_response
+
+        download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, 
+                        downsample_path=self.DOWNSAMPLE_DIR, downsample=self.DOWNSAMPLE_SIZE, subfolders="subfolder")
+        
+        for i, filename in enumerate(self.DUMMY_DATA['filename']):
+            subfolder = self.DUMMY_DATA['subfolder'][i]
+            self.assertTrue(os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{subfolder}/{filename}"))
 
     @patch('requests.get')
     def test_logging(self, get_mock):
