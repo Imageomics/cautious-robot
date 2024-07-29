@@ -46,7 +46,7 @@ image3.jpg,ghi789
 
         merged_df = self.buddy_check_filename.merge_on_checksum(source_df, checksum_df, 'checksum')
         expected_df = pd.DataFrame({
-            'filename': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
+            'filename_x': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
             'checksum': ['abc123', 'def456', 'ghi789'],
             'md5': ['abc123', 'def456', 'ghi789']
         })
