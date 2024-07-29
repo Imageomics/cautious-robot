@@ -145,10 +145,17 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                         if os.path.exists(downsample_dir_path) != True:
                             os.makedirs(downsample_dir_path, exist_ok=False)
                         # Downsample & save image
-                        byte_data = io.BytesIO(response.content)
-                        img = Image.open(byte_data)
-                        #img.save(dest_path)
-                        img.resize((downsample, downsample)).save(downsample_dir_path + "/" + image_name)
+                        try:
+                            img = Image.open(f"{image_dir_path}/{image_name}")
+                            img.resize((downsample, downsample)).save(downsample_dir_path + "/" + image_name)
+                        except Exception as e:
+                            print(e)
+                            log_errors = log_response(log_errors,
+                                        index = i,
+                                        image = "downsized_" + image_name,
+                                        url = url,
+                                        response_code = str(e))
+                            update_log(log = log_errors, index = i, filepath = error_log_filepath)
             
                 # check for too many requests
                 elif response.status_code in REDO_CODE_LIST:
