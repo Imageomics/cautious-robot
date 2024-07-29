@@ -48,6 +48,7 @@ image3.jpg,ghi789
         expected_df = pd.DataFrame({
             'filename_x': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
             'checksum': ['abc123', 'def456', 'ghi789'],
+            'filename_y': ['image1.jpg', 'image2.jpg', 'image3.jpg'],
             'md5': ['abc123', 'def456', 'ghi789']
         })
         pd.testing.assert_frame_equal(merged_df, expected_df)
