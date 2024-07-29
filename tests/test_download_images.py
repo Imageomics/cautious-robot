@@ -9,12 +9,34 @@ from PIL import Image
 import requests
 import base64
 from cautiousrobot.__main__ import download_images, main
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+import threading
+
+TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
+
+class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
+    def translate_path(self, path):
+        return os.path.join(TESTDATA_DIR, os.path.relpath(path, '/'))
 
 class TestDownload(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.httpd = HTTPServer(('localhost', 9201), CustomHTTPRequestHandler)
+        cls.server_thread = threading.Thread(target=cls.httpd.serve_forever)
+        cls.server_thread.start()
+        print(f"Serving {TESTDATA_DIR} on http://localhost:9201")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.httpd.shutdown()
+        cls.server_thread.join()
+
+
     def setUp(self):
         self.DUMMY_DATA = pd.DataFrame(data={
-            "filename": ["test_file1", "test_file2"],
-            "file_url": ["http://test_url1.com/image.jpg", "http://test_url2.com/image.jpg"],
+            "filename": ["test_file1.jpg", "test_file2.jpg"],
+            "file_url": ["http://localhost:9201/images/image1.jpg", "http://localhost:9201/images/image2.png"],
             "subfolder": ["test_subfolder1", "test_subfolder2"]
         })
         self.IMG_DIR = "test_dir"
@@ -106,25 +128,17 @@ class TestDownload(unittest.TestCase):
             for filename in self.DUMMY_DATA['filename']:
                 self.assertFalse(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
-    @patch('cautiousrobot.__main__.requests.get')
-    def test_downsampled_image_creation(self,get_mock):
-        mock_response = MagicMock()
-        mock_response.content = b'dummy_image_data'
-        get_mock.return_value = mock_response
-
+    def test_downsampled_image_creation(self):
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH,
                         downsample_path=self.DOWNSAMPLE_DIR, downsample=self.DOWNSAMPLE_SIZE)
 
         for filename in self.DUMMY_DATA['filename']:
+            downsampled_path = os.path.join(self.DOWNSAMPLE_DIR, filename)
+            print(f"Checking existence of downsampled image: {downsampled_path}")
             self.assertTrue(os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}") or
                             os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}"))   
 
-    @patch('cautiousrobot.__main__.requests.get')
-    def test_downsampled_image_creation_with_subfolder(self, get_mock):
-        mock_response = MagicMock()
-        mock_response.content = b'dummy_image_data'
-        get_mock.return_value = mock_response
-
+    def test_downsampled_image_creation_with_subfolder(self):
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, 
                         downsample_path=self.DOWNSAMPLE_DIR, downsample=self.DOWNSAMPLE_SIZE, subfolders="subfolder")
         
