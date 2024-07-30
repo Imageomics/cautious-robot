@@ -138,7 +138,6 @@ class TestDownload(unittest.TestCase):
             downsampled_path = os.path.join(self.DOWNSAMPLE_DIR, filename)
             print(f"Checking existence of downsampled image: {downsampled_path}")
             self.assertTrue(os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}"))
-                            os.path.isfile(f"{self.DOWNSAMPLE_DIR}/{filename}"))   
 
     def test_downsampled_image_creation_with_subfolder(self):
         download_images(self.DUMMY_DATA, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, 
