@@ -20,6 +20,10 @@ jobs:
         run: pip install .
         shell: bash
 
-      - name: run test
-        run: python -m unittest
+      - name: install pytest
+        run: pip install pytest
+        shell: bash
+        
+      - name: run tests
+        run: pytest
         shell: bash
