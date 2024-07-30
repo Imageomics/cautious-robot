@@ -5,6 +5,7 @@ import tempfile
 import os
 from cautiousrobot import BuddyCheck
 from cautiousrobot.utils import process_csv
+from cautiousrobot.exceptions import EmptyDataFrameError
 
 class TestBuddyCheck(unittest.TestCase):
     def setUp(self):
@@ -130,20 +131,18 @@ image3.jpg,ghi789
         missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
         self.assertIsNone(missing_imgs)
 
-    def test_check_alignment_empty_img_df(self):
+    def test_validate_download_empty_img_df(self):
         source_df = pd.DataFrame(columns=['filename', 'checksum'])
         checksum_df = pd.read_csv(self.checksum_source_file.name)
-        merged_df = self.buddy_check.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
-        self.assertIsNone(missing_imgs)
+        with self.assertRaises(EmptyDataFrameError):
+            missing_imgs = self.buddy_check.validate_download(source_df, checksum_df, 'filename', 'checksum')
 
-    def test_check_alignment_empty_checksum_df(self):
+    def test_validate_download_empty_checksum_df(self):
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.DataFrame(columns=['filename', 'md5'])
-        merged_df = self.buddy_check_filename.merge_on_filename_checksum(source_df, checksum_df, 'filename', 'checksum')
-        missing_imgs = self.buddy_check.check_alignment(source_df, merged_df)
-        self.assertIsNotNone(missing_imgs)
-        self.assertEqual(missing_imgs.shape[0], 3)
+        with self.assertRaises(EmptyDataFrameError):
+            missing_imgs = self.buddy_check_filename.validate_download(source_df, checksum_df, 'filename', 'checksum')
+
 
 if __name__ == '__main__':
     unittest.main()
