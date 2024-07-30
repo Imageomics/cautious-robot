@@ -92,7 +92,8 @@ class TestDownload(unittest.TestCase):
 
 
     @patch('requests.get')
-    def test_success_after_retries(self, get_mock):
+    @patch('time.sleep', return_value=None)
+    def test_success_after_retries(self,sleep_mock, get_mock):
         retry_status_codes = [429, 500, 502, 503, 504]
         for status_code in retry_status_codes:
             with self.subTest(status_code=status_code):
@@ -112,7 +113,8 @@ class TestDownload(unittest.TestCase):
                 self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/{filename}"))
 
     @patch('requests.get')
-    def test_failure_after_retries(self, get_mock):
+    @patch('time.sleep', return_value=None)
+    def test_failure_after_retries(self, sleep_mock,get_mock):
         retry_status_codes = [429, 500, 502, 503, 504]
         for status_code in retry_status_codes:
             with self.subTest(status_code=status_code):
