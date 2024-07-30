@@ -1,4 +1,5 @@
 import pandas as pd
+from cautiousrobot.exceptions import EmptyDataFrameError
 
 
 class BuddyCheck:
@@ -74,7 +75,12 @@ class BuddyCheck:
         Returns:
         missing_imgs - DataFrame. Subset of source_df that didn't match checksum_df, None if all match.        
         '''
-        
+
+        if source_df.empty:
+            raise EmptyDataFrameError("source_df")
+        if checksum_df.empty:
+            raise EmptyDataFrameError("checksum_df")
+
         if self.buddy_id is None:
             check_type = "checksums"
             merged_df = self.merge_on_checksum(source_df, checksum_df, source_validation_col)
