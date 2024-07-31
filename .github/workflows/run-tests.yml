@@ -17,11 +17,7 @@ jobs:
           python-version: '3.11'
 
       - name: install dependencies
-        run: pip install .
-        shell: bash
-
-      - name: install pytest
-        run: pip install pytest
+        run: pip install .[dev]
         shell: bash
         
       - name: run tests
