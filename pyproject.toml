@@ -29,6 +29,10 @@ dependencies = [
     "pillow",
     "sum-buddy @ git+https://github.com/Imageomics/sum-buddy.git@v0.1.0-alpha",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
 keywords = [
     "downloader",
     "csv",
