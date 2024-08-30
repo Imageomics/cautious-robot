@@ -1,6 +1,14 @@
 # cautious-robot
 
+<img align="right" src="cautious-robot_logo.png" alt="cautious-robot logo, an image of a robot generated with Canva Magic Media" width="384"/>
+
 I am a simple downloader that downloads images from URLs in a CSV and names them by the given column (after ensuring all its values are unique). I can organize your images into subfolders based on any column in your CSV and will warn you if the parent image folder already exists before overwriting it. If you need square images for modeling, I'll create a second directory (organized in the same format) with downsized copies of your images. Patience is a virtue, so I will wait a designated time before re-requesting an image after receiving an error on my retry list; if all retries are expended or I receive another error, I log that for your review and move on. I also keep a log of all successful responses. After download, [`sum-buddy`](https://github.com/Imageomics/sum-buddy) helps me gather and record checksums for all downloaded images. If the source CSV has a checksum column, I can then do a buddy-check to verify all expected images are downloaded intact. At a minimum, I check the number of expected images matches the number sum-buddy counts.
+
+  
+<p align="right">
+  <sub><sup>The Cautious Robot Logo was designed using <a href="https://www.canva.com/ai-image-generator/">Canva Magic Media</a>.</sup></sub>
+  </p>
+
 
 ## Requirements
 Python 3.7+
