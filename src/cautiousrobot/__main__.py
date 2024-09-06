@@ -18,7 +18,7 @@ import sys
 import time
 from PIL import Image
 from sumbuddy import get_checksums
-from cautiousrobot.utils import log_response, update_log, process_csv
+from cautiousrobot.utils import log_response, update_log, process_csv, downsample_and_save_image
 from cautiousrobot.buddy_check import BuddyCheck
 
 
@@ -173,21 +173,18 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                 if os.path.exists(downsample_dir_path + "/" + image_name):
                     # Don't overwrite resized images either
                     continue
+                downsample_and_save_image(
+                    image_dir_path=image_dir_path,
+                    image_name=image_name,
+                    downsample_dir_path=downsample_dir_path,
+                    downsample_size=downsample,
+                    log_errors=log_errors,
+                    i=i,
+                    url=url,
+                    error_log_filepath=error_log_filepath
+                )
                 
-                if os.path.exists(downsample_dir_path) != True:
-                    os.makedirs(downsample_dir_path, exist_ok=False)
-                # Downsample & save image
-                try:
-                    img = Image.open(f"{image_dir_path}/{image_name}")
-                    img.resize((downsample, downsample)).save(downsample_dir_path + "/" + image_name)
-                except Exception as e:
-                    print(e)
-                    log_errors = log_response(log_errors,
-                                index = i,
-                                image = "downsized_" + image_name,
-                                url = url,
-                                response_code = str(e))
-                    update_log(log = log_errors, index = i, filepath = error_log_filepath)
+
 
     return
 
