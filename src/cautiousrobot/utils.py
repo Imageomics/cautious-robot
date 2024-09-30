@@ -47,7 +47,23 @@ def process_csv(csv_path, expected_cols):
     
     return df
 
-def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, downsample_size, log_errors, i, url, error_log_filepath):
+def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, downsample_size, log_errors, image_index, url, error_log_filepath):
+    """
+    Downsample an image and save it to the specified directory.
+
+    Parameters:
+    - image_dir_path (str): The path to the directory containing the original image.
+    - image_name (str): The name of the image to be downsampled.
+    - downsample_dir_path (str): The path to the directory where the downsampled image will be saved.
+    - downsample_size (int): The new size (both width and height) for the downsampled image.
+    - log_errors (list): A list to store errors encountered during the downsampling process.
+    - image_index (int): The index of the current image being processed, used for logging.
+    - url (str): The URL associated with the image, used for logging errors.
+    - error_log_filepath (str): The file path where error logs are stored.
+
+    Returns:
+    None
+    """    
     if not os.path.exists(downsample_dir_path):
         os.makedirs(downsample_dir_path, exist_ok=False)
     
@@ -58,9 +74,9 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         print(e)
         log_errors = log_response(
             log_errors,
-            index=i,
+            index=image_index,
             image="downsized_" + image_name,
             url=url,
             response_code=str(e)
         )
-        update_log(log=log_errors, index=i, filepath=error_log_filepath)
+        update_log(log=log_errors, index=image_index, filepath=error_log_filepath)

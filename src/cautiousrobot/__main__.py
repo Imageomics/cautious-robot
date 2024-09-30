@@ -179,7 +179,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                     downsample_dir_path=downsample_dir_path,
                     downsample_size=downsample,
                     log_errors=log_errors,
-                    i=i,
+                    image_index=i,
                     url=url,
                     error_log_filepath=error_log_filepath
                 )
