@@ -268,7 +268,7 @@ def main():
     # then verify the download if checksums in source CSV
     checksum_path = metadata_path + "_checksums.csv"
     try:
-        get_checksums(input_directory = img_dir, output_filepath = checksum_path, algorithm = args.checksum_algorithm)
+        get_checksums(input_path = img_dir, output_filepath = checksum_path, algorithm = args.checksum_algorithm)
         
         # verify numbers
         checksum_df = pd.read_csv(checksum_path, low_memory = False)
