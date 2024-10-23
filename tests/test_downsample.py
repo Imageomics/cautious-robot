@@ -14,7 +14,7 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
         self.downsample_size = 100
         self.log_errors = {} # Dictionary to store error logs
         self.error_log_filepath = "error_log.json"
-        self.url = "http://example.com/image.jpg"
+        self.file_path = "file://example.com/image.jpg"
 
     def tearDown(self):
         if os.path.exists(self.image_dir_path):
@@ -24,15 +24,13 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
         if os.path.exists(self.error_log_filepath):
             os.remove(self.error_log_filepath)
 
-    def mock_log_response_side_effect(self, log_errors, index, image, url, response_code):
+    def mock_log_response_side_effect(self, log_errors, index, image, file_path, response_code):
         """Helper function to mimic the behavior of log_response."""
-        log_errors[index] = {'image': image, 'url': url, 'response_code': response_code}
+        log_errors[index] = {'image': image, 'file_path': file_path, 'response_code': response_code}
         return log_errors
 
-    @patch("os.makedirs")
-    @patch("os.path.exists", return_value=False)
     @patch("PIL.Image.open")
-    def test_downsample_and_save_image_success(self, mock_open, mock_exists, mock_makedirs):
+    def test_downsample_and_save_image_success(self, mock_open):
         """ Test the successful downsampling and saving of an image. """ 
         
         mock_image = MagicMock(spec=Image.Image)
@@ -49,21 +47,19 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
             self.downsample_size,
             self.log_errors,
             0,  # image_index
-            self.url,
+            self.file_path,
             self.error_log_filepath
         )
         
-        mock_makedirs.assert_called_once_with(self.downsample_dir_path, exist_ok=False)
         mock_open.assert_called_once_with(f"{self.image_dir_path}/test_image.jpg")
         mock_image.resize.assert_called_once_with((self.downsample_size, self.downsample_size))
         mock_resized_image.save.assert_called_once_with(f"{self.downsample_dir_path}/test_image.jpg")
 
-    @patch("os.makedirs")
     @patch("os.path.exists", return_value=True)
     @patch("PIL.Image.open", side_effect=FileNotFoundError("File not found"))
     @patch("cautiousrobot.utils.log_response")
     @patch("cautiousrobot.utils.update_log")
-    def test_downsample_and_save_image_file_not_found(self, mock_update_log, mock_log_response, mock_open, mock_exists, mock_makedirs):
+    def test_downsample_and_save_image_file_not_found(self, mock_update_log, mock_log_response, mock_open, mock_exists):
         """ Test the behavior when the image file is not found. """
         
         mock_log_response.side_effect = self.mock_log_response_side_effect
@@ -75,17 +71,16 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
             self.downsample_size,
             self.log_errors,
             0,  # image_index
-            self.url,
+            self.file_path,
             self.error_log_filepath
         )
 
-        mock_makedirs.assert_not_called()
         mock_open.assert_called_once_with(f"{self.image_dir_path}/missing_image.jpg")
         mock_log_response.assert_called_once_with(
             self.log_errors,
             index=0,
             image="downsized_missing_image.jpg",
-            url=self.url,
+            file_path=self.file_path,
             response_code="File not found"
         )
         mock_update_log.assert_called_once_with(
@@ -98,12 +93,11 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
         self.assertIn(0, self.log_errors)
         self.assertEqual(self.log_errors[0]['response_code'], "File not found")
 
-    @patch("os.makedirs")
     @patch("os.path.exists", return_value=False)
     @patch("PIL.Image.open", side_effect=Exception("Unexpected error"))
     @patch("cautiousrobot.utils.log_response")
     @patch("cautiousrobot.utils.update_log")
-    def test_downsample_and_save_image_unexpected_error(self, mock_update_log, mock_log_response, mock_open, mock_exists, mock_makedirs):
+    def test_downsample_and_save_image_unexpected_error(self, mock_update_log, mock_log_response, mock_open, mock_exists):
         """ Test the behavior when an unexpected error occurs. """
         
         mock_log_response.side_effect = self.mock_log_response_side_effect
@@ -115,17 +109,16 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
             self.downsample_size,
             self.log_errors,
             1, 
-            self.url,
+            self.file_path,
             self.error_log_filepath
         )
 
-        mock_makedirs.assert_called_once_with(self.downsample_dir_path, exist_ok=False)
         mock_open.assert_called_once_with(f"{self.image_dir_path}/test_image.jpg")
         mock_log_response.assert_called_once_with(
             self.log_errors,
             index=1,
             image="downsized_test_image.jpg",
-            url=self.url,
+            file_path=self.file_path,
             response_code="Unexpected error"
         )
         mock_update_log.assert_called_once_with(

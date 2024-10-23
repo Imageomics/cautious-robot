@@ -173,6 +173,10 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                 if os.path.exists(downsample_dir_path + "/" + image_name):
                     # Don't overwrite resized images either
                     continue
+                
+                if not os.path.exists(downsample_dir_path):
+                    os.makedirs(downsample_dir_path, exist_ok=False)
+                
                 downsample_and_save_image(
                     image_dir_path=image_dir_path,
                     image_name=image_name,
@@ -180,7 +184,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                     downsample_size=downsample,
                     log_errors=log_errors,
                     image_index=i,
-                    url=url,
+                    file_path=url,
                     error_log_filepath=error_log_filepath
                 )
                 
