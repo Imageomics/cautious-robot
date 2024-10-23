@@ -56,7 +56,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
     - image_name (str): The name of the image to be downsampled.
     - downsample_dir_path (str): The path to the directory where the downsampled image will be saved.
     - downsample_size (int): The new size (both width and height) for the downsampled image.
-    - log_errors (list): A list to store errors encountered during the downsampling process.
+    - log_errors (dict): A dictionary to store errors encountered during the downsampling process.
     - image_index (int): The index of the current image being processed, used for logging.
     - url (str): The URL associated with the image, used for logging errors.
     - error_log_filepath (str): The file path where error logs are stored.
