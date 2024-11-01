@@ -97,7 +97,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                 log_errors = log_response(log_errors,
                                         index = i,
                                         image = image_name,
-                                        url = url,
+                                        file_path = url,
                                         response_code = "no url")
                 update_log(log = log_errors, index = i, filepath = error_log_filepath)
             
@@ -115,7 +115,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                             log_errors = log_response(log_errors,
                                             index = i,
                                             image = image_name,
-                                            url = url,
+                                            file_path = url,
                                             response_code = str(e))
                             update_log(log = log_errors, index = i, filepath = error_log_filepath)
                         continue
@@ -126,7 +126,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                         log_data = log_response(log_data,
                                             index = i,
                                             image = image_name,
-                                            url = url,
+                                            file_path = url,
                                             response_code = response.status_code
                                             )
                         update_log(log = log_data, index = i, filepath = log_filepath)
@@ -148,7 +148,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                             log_errors = log_response(log_errors,
                                             index = i,
                                             image = image_name,
-                                            url = url,
+                                            file_path= url,
                                             response_code = response.status_code)
                             update_log(log = log_errors, index = i, filepath = error_log_filepath)
     
@@ -159,7 +159,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                         log_errors = log_response(log_errors,
                                                 index = i,
                                                 image = image_name,
-                                                url = url,
+                                                file_path = url,
                                                 response_code = response.status_code)
                         update_log(log = log_errors, index = i, filepath = error_log_filepath)
     
