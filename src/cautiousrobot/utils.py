@@ -64,7 +64,8 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
     Returns:
     None
     """    
-
+    if not os.path.exists(downsample_dir_path):
+        os.makedirs(downsample_dir_path, exist_ok=False)
     
     try:
         img = Image.open(f"{image_dir_path}/{image_name}")

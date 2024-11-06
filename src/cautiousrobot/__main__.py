@@ -174,9 +174,6 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                     # Don't overwrite resized images either
                     continue
                 
-                if not os.path.exists(downsample_dir_path):
-                    os.makedirs(downsample_dir_path, exist_ok=False)
-                
                 downsample_and_save_image(
                     image_dir_path=image_dir_path,
                     image_name=image_name,
@@ -230,9 +227,7 @@ def main():
     # Check for img_dir
     img_dir = args.output_dir
     if os.path.exists(img_dir):
-        overwrite = input(f"'{img_dir}' already exists (may impact downsizing too). Overwrite? [y/n]: ")
-        if overwrite.lower() != "y":
-            sys.exit("Exited without executing.")
+        sys.exit(f"'{img_dir}' already exists. Exited without executing.")
 
     # Set location for logs
     metadata_path = csv_path.split(".")[0]
