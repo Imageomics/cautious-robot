@@ -302,7 +302,8 @@ class TestMainFunction(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             main()
         
-        self.assertEqual(cm.exception.code, "Exited without executing.")
+        # self.assertEqual(cm.exception.code, "mock_args.output_dir Exited without executing.")
+        self.assertEqual(cm.exception.code, f"'{mock_args.output_dir}' already exists. Exited without executing.")
 
 
 if __name__ == '__main__':
