@@ -18,7 +18,7 @@ import sys
 import time
 from PIL import Image
 from sumbuddy import get_checksums
-from cautiousrobot.utils import log_response, update_log, process_csv
+from cautiousrobot.utils import log_response, update_log, process_csv, downsample_and_save_image
 from cautiousrobot.buddy_check import BuddyCheck
 
 
@@ -88,99 +88,104 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
         image_name = data[filename][i]
         if subfolders:
             image_dir_path = img_dir + "/" + data[subfolders][i]
-        
-        # get image from url
-        url = data[file_url][i]
-        if not url:
-            log_errors = log_response(log_errors,
-                                    index = i,
-                                    image = image_name,
-                                    url = url,
-                                    response_code = "no url")
-            update_log(log = log_errors, index = i, filepath = error_log_filepath)
-        
-        else:
-            #download the image
-            redo = True
-            max_redos = retry
-            while redo and max_redos > 0:
-                try:
-                    response = requests.get(url, stream = True)
-                except Exception as e:
-                    redo = True
-                    max_redos -= 1
-                    if max_redos <= 0:
-                        log_errors = log_response(log_errors,
-                                        index = i,
-                                        image = image_name,
-                                        url = url,
-                                        response_code = str(e))
-                        update_log(log = log_errors, index = i, filepath = error_log_filepath)
-                    continue
-                        
-                if response.status_code == 200:
-                    redo = False
-                    # log status
-                    log_data = log_response(log_data,
-                                        index = i,
-                                        image = image_name,
-                                        url = url,
-                                        response_code = response.status_code
-                                        )
-                    update_log(log = log_data, index = i, filepath = log_filepath)
-                    
-                    #create the appropriate folders if necessary
-                    
-                    if os.path.exists(image_dir_path) != True:
-                        os.makedirs(image_dir_path, exist_ok=False)
-                    
-                    # save full size image to appropriate folder
-                    with open(f"{image_dir_path}/{image_name}", "wb") as out_file:
-                        shutil.copyfileobj(response.raw, out_file)
-                    
-                    if downsample:
-                        downsample_dir_path = downsample_path
-                        if subfolders:
-                            downsample_dir_path = downsample_path + "/" + data[subfolders][i]
-                        if os.path.exists(downsample_dir_path) != True:
-                            os.makedirs(downsample_dir_path, exist_ok=False)
-                        # Downsample & save image
-                        try:
-                            img = Image.open(f"{image_dir_path}/{image_name}")
-                            img.resize((downsample, downsample)).save(downsample_dir_path + "/" + image_name)
-                        except Exception as e:
-                            print(e)
-                            log_errors = log_response(log_errors,
-                                        index = i,
-                                        image = "downsized_" + image_name,
-                                        url = url,
-                                        response_code = str(e))
-                            update_log(log = log_errors, index = i, filepath = error_log_filepath)
-            
-                # check for too many requests
-                elif response.status_code in REDO_CODE_LIST:
-                    redo = True
-                    max_redos -= 1
-                    if max_redos <= 0:
-                        log_errors = log_response(log_errors,
-                                        index = i,
-                                        image = image_name,
-                                        url = url,
-                                        response_code = response.status_code)
-                        update_log(log = log_errors, index = i, filepath = error_log_filepath)
 
-                    else:
-                        time.sleep(wait)
-                else: #other fail, eg. 404
-                    redo = False
-                    log_errors = log_response(log_errors,
+        if not os.path.exists(image_dir_path + "/" + image_name):
+            
+            # get image from url
+            url = data[file_url][i]
+            if not url:
+                log_errors = log_response(log_errors,
+                                        index = i,
+                                        image = image_name,
+                                        file_path = url,
+                                        response_code = "no url")
+                update_log(log = log_errors, index = i, filepath = error_log_filepath)
+            
+            else:
+                #download the image
+                redo = True
+                max_redos = retry
+                while redo and max_redos > 0:
+                    try:
+                        response = requests.get(url, stream = True)
+                    except Exception as e:
+                        redo = True
+                        max_redos -= 1
+                        if max_redos <= 0:
+                            log_errors = log_response(log_errors,
                                             index = i,
                                             image = image_name,
-                                            url = url,
-                                            response_code = response.status_code)
-                    update_log(log = log_errors, index = i, filepath = error_log_filepath)
+                                            file_path = url,
+                                            response_code = str(e))
+                            update_log(log = log_errors, index = i, filepath = error_log_filepath)
+                        continue
+                            
+                    if response.status_code == 200:
+                        redo = False
+                        # log status
+                        log_data = log_response(log_data,
+                                            index = i,
+                                            image = image_name,
+                                            file_path = url,
+                                            response_code = response.status_code
+                                            )
+                        update_log(log = log_data, index = i, filepath = log_filepath)
+                        
+                        #create the appropriate folders if necessary
+                        
+                        if os.path.exists(image_dir_path) != True:
+                            os.makedirs(image_dir_path, exist_ok=False)
+                        
+                        # save full size image to appropriate folder
+                        with open(f"{image_dir_path}/{image_name}", "wb") as out_file:
+                            shutil.copyfileobj(response.raw, out_file)
 
-                del response
+                    # check for too many requests
+                    elif response.status_code in REDO_CODE_LIST:
+                        redo = True
+                        max_redos -= 1
+                        if max_redos <= 0:
+                            log_errors = log_response(log_errors,
+                                            index = i,
+                                            image = image_name,
+                                            file_path= url,
+                                            response_code = response.status_code)
+                            update_log(log = log_errors, index = i, filepath = error_log_filepath)
+    
+                        else:
+                            time.sleep(wait)
+                    else: #other fail, eg. 404
+                        redo = False
+                        log_errors = log_response(log_errors,
+                                                index = i,
+                                                image = image_name,
+                                                file_path = url,
+                                                response_code = response.status_code)
+                        update_log(log = log_errors, index = i, filepath = error_log_filepath)
+    
+                    del response
+                
+            if downsample:
+                # Since we have image resize within a try and log failure, seems reasonable to not check for the image again.
+                downsample_dir_path = downsample_path
+                if subfolders:
+                    downsample_dir_path = downsample_path + "/" + data[subfolders][i]
+                if os.path.exists(downsample_dir_path + "/" + image_name):
+                    # Don't overwrite resized images either
+                    continue
+                
+                downsample_and_save_image(
+                    image_dir_path=image_dir_path,
+                    image_name=image_name,
+                    downsample_dir_path=downsample_dir_path,
+                    downsample_size=downsample,
+                    log_errors=log_errors,
+                    image_index=i,
+                    file_path=url,
+                    error_log_filepath=error_log_filepath
+                )
+                
+
 
     return
 
@@ -222,9 +227,7 @@ def main():
     # Check for img_dir
     img_dir = args.output_dir
     if os.path.exists(img_dir):
-        overwrite = input(f"'{img_dir}' already exists (may impact downsizing too). Overwrite? [y/n]: ")
-        if overwrite.lower() != "y":
-            sys.exit("Exited without executing.")
+        sys.exit(f"'{img_dir}' already exists. Exited without executing.")
 
     # Set location for logs
     metadata_path = csv_path.split(".")[0]
