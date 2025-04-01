@@ -16,7 +16,7 @@ authors = [
 ]
 description = "Simple downloader that downloads images from URLs in a CSV and names them by the given column. Then uses sum-buddy to gather and record checksums for all downloaded images."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
