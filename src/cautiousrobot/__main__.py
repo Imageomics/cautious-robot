@@ -7,7 +7,6 @@
 
 import requests
 import shutil
-import io
 import pandas as pd
 import argparse
 import hashlib
@@ -16,7 +15,6 @@ from tqdm import tqdm
 import os
 import sys
 import time
-from PIL import Image
 from sumbuddy import get_checksums
 from cautiousrobot.utils import log_response, update_log, process_csv, downsample_and_save_image
 from cautiousrobot.buddy_check import BuddyCheck
@@ -133,7 +131,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename = 
                         
                         #create the appropriate folders if necessary
                         
-                        if os.path.exists(image_dir_path) != True:
+                        if not os.path.exists(image_dir_path):
                             os.makedirs(image_dir_path, exist_ok=False)
                         
                         # save full size image to appropriate folder
@@ -235,7 +233,7 @@ def main():
     error_log_filepath = metadata_path + "_error_log.jsonl"
 
     # Check for downsample
-    if type(args.side_length) == int:
+    if isinstance(args.side_length, int):
         downsample_dest_path = img_dir + "_downsized"
         # dowload images from urls & save downsample copy
         download_images(source_df,
@@ -297,7 +295,7 @@ def main():
                 print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
         except Exception as e:
             print(f"Verification of download failed due to {type(e).__name__}: {e}.")
-            print(f"'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
+            print("'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
     return
 
 

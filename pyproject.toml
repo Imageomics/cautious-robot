@@ -31,7 +31,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = [
+    "pytest",
+    "ruff",
+    "pre-commit"
+]
 
 keywords = [
     "downloader",
