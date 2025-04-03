@@ -1,0 +1,46 @@
+{
+  "creators": [
+    {
+      "name": "Campolongo, Elizabeth G.",
+      "orcid": "0000-0003-0846-2413"
+    },
+    {
+      "name": "Thompson, Matthew J.",
+      "orcid": "0000-0003-0583-8585"
+    },
+    {
+      "name": "Duan, Zoe",
+      "orcid": "0000-0002-8547-5907"
+    },
+    {
+      "name": "Lapp, Hilmar",
+      "orcid": "0000-0001-9107-0714"
+    }
+  ],
+  "description": "Images from CSV sequential downloader that runs and records checksums on downloaded image folder.",
+  "keywords": [
+    "imageomics",
+    "metadata",
+    "CSV",
+    "images",
+    "download",
+    "sequential download",
+    "verifier",
+    "checksums",
+    "downsized",
+    "url",
+    "downloader",
+    "sum-buddy"
+  ],
+  "license": {
+    "id": "MIT"
+  },
+  "publication_date": "2025-04-03",
+  "title": "Cautious Robot",
+  "version": "1.0.0",
+  "grants": [
+      {
+          "id": "021nxhr62::2118240"
+        }
+    ]
+}
