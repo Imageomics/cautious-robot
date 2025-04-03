@@ -11,7 +11,7 @@ I am a simple downloader that downloads images from URLs in a CSV and names them
 
 
 ## Requirements
-Python 3.7+
+Python 3.10+
 
 ## Installation
 ```bash
