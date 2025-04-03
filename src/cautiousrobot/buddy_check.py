@@ -18,7 +18,7 @@ class BuddyCheck:
         '''
         Merge source and checksum DataFrames on only checksum values.
         '''
-        print(f"merging on checksums only")
+        print("merging on checksums only")
         merged_df = pd.merge(source_df,
                              checksum_df,
                              left_on = source_validation_col,
@@ -31,7 +31,7 @@ class BuddyCheck:
         '''
         Merge source and checksum DataFrames on both filename and checksum values.
         '''
-        print(f"merging on checksums and IDs")
+        print("merging on checksums and IDs")
         merged_df = pd.merge(source_df,
                              checksum_df,
                              left_on = [source_id_col, source_validation_col],

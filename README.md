@@ -157,4 +157,22 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
  > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.jpg,mismatch
  > ```
 
+## Development
+To develop the package further:
+
+1. Clone the repository and create a branch.
+2. Install with dev dependencies:
+```bash
+pip install -e ".[dev]"
+```
+3. Install pre-commit hook:
+```bash
+pre-commit install
+pre-commit autoupdate # optionally update
+```
+4. Run tests:
+```bash
+pytest
+```
+
 [1] The test images are from the [Cuthill Gold Standard Dataset](https://huggingface.co/datasets/imageomics/Curated_GoldStandard_Hoyal_Cuthill), which was processed from Cuthill, et. al. (original dataset available at [doi:10.5061/dryad.2hp1978](https://doi.org/10.5061/dryad.2hp1978)).

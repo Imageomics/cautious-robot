@@ -25,6 +25,10 @@ jobs:
         run: pip install .[dev]
         shell: bash
         
+      - name: run Ruff linter
+        run: ruff check .
+        shell: bash
+
       - name: run tests
         run: pytest
         shell: bash

@@ -1,10 +1,8 @@
 import unittest
-from unittest.mock import patch
 import pandas as pd
 import tempfile
 import os
 from cautiousrobot import BuddyCheck
-from cautiousrobot.utils import process_csv
 from cautiousrobot.exceptions import EmptyDataFrameError
 
 class TestBuddyCheck(unittest.TestCase):
@@ -135,13 +133,13 @@ image3.jpg,ghi789
         source_df = pd.DataFrame(columns=['filename', 'checksum'])
         checksum_df = pd.read_csv(self.checksum_source_file.name)
         with self.assertRaises(EmptyDataFrameError):
-            missing_imgs = self.buddy_check.validate_download(source_df, checksum_df, 'filename', 'checksum')
+            _ = self.buddy_check.validate_download(source_df, checksum_df, 'filename', 'checksum')
 
     def test_validate_download_empty_checksum_df(self):
         source_df = pd.read_csv(self.img_source_file.name)
         checksum_df = pd.DataFrame(columns=['filename', 'md5'])
         with self.assertRaises(EmptyDataFrameError):
-            missing_imgs = self.buddy_check_filename.validate_download(source_df, checksum_df, 'filename', 'checksum')
+            _ = self.buddy_check_filename.validate_download(source_df, checksum_df, 'filename', 'checksum')
 
 
 if __name__ == '__main__':
