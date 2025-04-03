@@ -1,4 +1,4 @@
-# cautious-robot
+# cautious-robot  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15133580.svg)](https://doi.org/10.5281/zenodo.15133580)
 
 <img align="right" src="cautious-robot_logo.png" alt="cautious-robot logo, an image of a robot generated with Canva Magic Media" width="384"/>
 
