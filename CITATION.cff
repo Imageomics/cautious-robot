@@ -20,7 +20,7 @@ identifiers:
     value: "https://github.com/Imageomics/cautious-robot/releases/tag/v1.0.0"
   - description: "The GitHub URL of the commit tagged with v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/tree/<commit-hash>" #update on release
+    value: "https://github.com/Imageomics/cautious-robot/tree/e7d6718ce33fb4c1d71fd4e4bc1b7b809d5133b0"
 keywords:
   - imageomics
   - metadata
@@ -38,5 +38,5 @@ message: "If you use this software, please cite it using the metadata from this 
 repository-code: "https://github.com/Imageomics/cautious-robot"
 title: "Cautious Robot"
 version: "1.0.0"
-# doi: <DOI from Zenodo>
+doi: "10.5281/zenodo.15133580"
 type: software
