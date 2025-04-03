@@ -27,7 +27,7 @@ dependencies = [
     "argparse",
     "pandas",
     "pillow",
-    "sum-buddy @ git+https://github.com/Imageomics/sum-buddy.git@v0.2.0-alpha",
+    "sum-buddy",
 ]
 
 [project.optional-dependencies]
