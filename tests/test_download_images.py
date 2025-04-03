@@ -1,13 +1,10 @@
 import unittest
-from unittest.mock import patch, MagicMock, mock_open, call 
+from unittest.mock import patch, MagicMock
 import pandas as pd
 import os
-import io
 import shutil
 from io import BytesIO
-from PIL import Image
 import requests
-import base64
 from cautiousrobot.__main__ import download_images, main
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
@@ -302,7 +299,8 @@ class TestMainFunction(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             main()
         
-        self.assertEqual(cm.exception.code, "Exited without executing.")
+        # self.assertEqual(cm.exception.code, "mock_args.output_dir Exited without executing.")
+        self.assertEqual(cm.exception.code, f"'{mock_args.output_dir}' already exists. Exited without executing.")
 
 
 if __name__ == '__main__':
