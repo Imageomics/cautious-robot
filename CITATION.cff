@@ -13,14 +13,14 @@ authors:
   given-names: "Hilmar"
   orcid: "https://orcid.org/0000-0001-9107-0714"
 cff-version: 1.2.0
-date-released: "2024-08-02"
+date-released: "2025-04-03"
 identifiers:
-  - description: "The GitHub release URL of tag v0.0.2-alpha."
+  - description: "The GitHub release URL of tag v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v0.0.2-alpha"
-  - description: "The GitHub URL of the commit tagged with v0.0.2-alpha."
+    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v1.0.0"
+  - description: "The GitHub URL of the commit tagged with v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/tree/632103d4ddb983ac5b8d58441a5e712b3fdb159f"
+    value: "https://github.com/Imageomics/cautious-robot/tree/<commit-hash>" #update on release
 keywords:
   - imageomics
   - metadata
@@ -31,10 +31,12 @@ keywords:
   - verifier
   - checksums
   - downsized
+  - downloader
+  - url
 license: MIT
 message: "If you use this software, please cite it using the metadata from this file."
 repository-code: "https://github.com/Imageomics/cautious-robot"
 title: "Cautious Robot"
-version: "0.0.2-alpha"
+version: "1.0.0"
 # doi: <DOI from Zenodo>
 type: software
