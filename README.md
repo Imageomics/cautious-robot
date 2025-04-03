@@ -15,7 +15,7 @@ Python 3.10+
 
 ## Installation
 ```bash
-pip install git+https://github.com/Imageomics/cautious-robot
+pip install cautious-robot
 ```
 
 ## How it Works
