@@ -38,12 +38,17 @@ dev = [
 ]
 
 keywords = [
-    "downloader",
-    "csv",
+    "imageomics",
+    "metadata",
+    "CSV",
     "images",
-    "url",
+    "download",
+    "sequential",
+    "verifier",
     "checksums",
     "downsized",
+    "downloader",
+    "url",
     "sum-buddy",
 ]
 
