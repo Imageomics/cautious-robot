@@ -5,20 +5,19 @@
 # Logs saved in same folder as CSV used for download
 # Downsized images are saved in <img_dir>_downsized
 
-import requests
-import shutil
 import pandas as pd
 import argparse
 import hashlib
-
-from tqdm import tqdm
 import os
 import sys
-import time
 from sumbuddy import get_checksums
-from cautiousrobot.utils import log_response, update_log, process_csv, downsample_and_save_image
+from cautiousrobot.utils import process_csv
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+
+from tqdm import tqdm
+import time
+from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
 
 
 def parse_args():
