@@ -15,10 +15,6 @@ from cautiousrobot.utils import process_csv
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
 
-from tqdm import tqdm
-import time
-from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
-
 
 def parse_args():
     available_algorithms = ', '.join(hashlib.algorithms_available)
