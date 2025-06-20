@@ -5,7 +5,8 @@ import os
 import shutil
 from io import BytesIO
 import requests
-from cautiousrobot.__main__ import download_images, main
+from cautiousrobot.download import download_images
+from cautiousrobot.__main__ import main
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
 
