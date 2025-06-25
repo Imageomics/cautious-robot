@@ -1,8 +1,7 @@
-
 import unittest
 from unittest.mock import patch
 import pandas as pd
-from cautiousrobot.__main__ import download_images
+from cautiousrobot.download import download_images
 
 # Define constants for download call
 DUMMY_DATA = pd.DataFrame(data = {"filename": ["test_file"],

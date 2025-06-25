@@ -1,4 +1,4 @@
-from cautiousrobot.__main__ import download_images
+from cautiousrobot.download import download_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.utils import downsample_and_save_image
 
