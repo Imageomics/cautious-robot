@@ -148,7 +148,7 @@
 - Handle NaN values explicitly
 
 ### Logging and Error Reporting
-- Use structured logging with JSON format
+- Use structured logging with JSON (specifically JSONL) format
 - Include context information (image name, URL, index)
 - Provide user-friendly error messages
 - Log response codes as strings to avoid serialization issues
