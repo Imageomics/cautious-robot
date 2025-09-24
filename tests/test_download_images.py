@@ -5,7 +5,7 @@ import os
 import shutil
 from io import BytesIO
 import requests
-from cautiousrobot.download import download_images
+from cautiousrobot.download import download_images, extract_extension_from_filename, extract_extension_from_url, resolve_filename_with_extension
 from cautiousrobot.__main__ import main
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
@@ -33,7 +33,7 @@ class TestDownload(unittest.TestCase):
 
     def setUp(self):
         self.DUMMY_DATA = pd.DataFrame(data={
-            "filename": ["test_file1.jpg", "test_file2.jpg"],
+            "filename": ["test_file1.jpg", "test_file2.png"],
             "file_url": ["http://localhost:9201/images/image1.jpg", "http://localhost:9201/images/image2.png"],
             "subfolder": ["test_subfolder1", "test_subfolder2"]
         })
@@ -156,6 +156,163 @@ class TestDownload(unittest.TestCase):
 
         self.assertTrue(os.path.isfile(self.LOG_FILEPATH))
         self.assertFalse(os.path.isfile(self.ERROR_LOG_FILEPATH))
+
+    @patch('requests.get')
+    def test_numeric_filename_conversion(self, get_mock):
+        """Test that numeric filenames (like numpy.int64) are converted to strings"""
+        import numpy as np
+
+        # Create data with numeric filenames (simulating numpy.int64 from pandas)
+        numeric_data = pd.DataFrame(data={
+            "filename": [np.int64(123), np.int64(456)],
+            "file_url": ["http://localhost:9201/images/image1.jpg", "http://localhost:9201/images/image2.png"],
+            "subfolder": ["test_subfolder1", "test_subfolder2"]
+        })
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raw = BytesIO(b"fake_image_data")
+        get_mock.return_value = mock_response
+
+        # This should not raise a TypeError about concatenating str and numpy.int64
+        download_images(numeric_data, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH)
+
+        # Check that files were created with string names and extensions from URLs
+        self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/123.jpg"))
+        self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/456.png"))
+
+    @patch('requests.get')
+    def test_numeric_subfolder_conversion(self, get_mock):
+        """Test that numeric subfolders (like numpy.int64) are converted to strings"""
+        import numpy as np
+
+        # Create data with numeric subfolders (simulating numpy.int64 from pandas)
+        numeric_subfolder_data = pd.DataFrame(data={
+            "filename": ["test_file1.jpg", "test_file2.png"],
+            "file_url": ["http://localhost:9201/images/image1.jpg", "http://localhost:9201/images/image2.png"],
+            "subfolder": [np.int64(100), np.int64(200)]
+        })
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raw = BytesIO(b"fake_image_data")
+        get_mock.return_value = mock_response
+
+        # This should not raise a TypeError about concatenating str and numpy.int64
+        download_images(numeric_subfolder_data, self.IMG_DIR, self.LOG_FILEPATH, self.ERROR_LOG_FILEPATH, subfolders="subfolder")
+
+        # Check that files were created in numeric subfolder paths (converted to strings)
+        self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/100/test_file1.jpg"))
+        self.assertTrue(os.path.isfile(f"{self.IMG_DIR}/200/test_file2.png"))
+
+
+class TestExtensionHandling(unittest.TestCase):
+
+    def test_extract_extension_from_filename(self):
+        """Test extension extraction from filenames"""
+        self.assertEqual(extract_extension_from_filename("image.jpg"), ".jpg")
+        self.assertEqual(extract_extension_from_filename("image.thumb.png"), ".png")
+        self.assertEqual(extract_extension_from_filename("image"), None)
+        self.assertEqual(extract_extension_from_filename("path/to/image.gif"), ".gif")
+
+    def test_extract_extension_from_url(self):
+        """Test extension extraction from URLs"""
+        self.assertEqual(extract_extension_from_url("http://example.com/image.jpg"), ".jpg")
+        self.assertEqual(extract_extension_from_url("http://example.com/image.jpg?size=large"), ".jpg")
+        self.assertEqual(extract_extension_from_url("http://example.com/path/image.png#fragment"), ".png")
+        self.assertEqual(extract_extension_from_url("http://example.com/api/v1/asset/123"), None)
+
+    @patch('cautiousrobot.download.get_content_type_from_url')
+    def test_resolve_filename_name_has_extension_only(self, mock_get_content_type):
+        """Test when only filename has extension"""
+        result = resolve_filename_with_extension("image.jpg", "http://example.com/api/123")
+        self.assertEqual(result, "image.jpg")
+        mock_get_content_type.assert_not_called()
+
+    @patch('cautiousrobot.download.get_content_type_from_url')
+    def test_resolve_filename_url_has_extension_only(self, mock_get_content_type):
+        """Test when only URL has extension"""
+        result = resolve_filename_with_extension("123", "http://example.com/image.png")
+        self.assertEqual(result, "123.png")
+        mock_get_content_type.assert_not_called()
+
+    @patch('cautiousrobot.download.are_extensions_equivalent')
+    def test_resolve_filename_both_have_equivalent_extensions(self, mock_are_equivalent):
+        """Test when both have equivalent extensions"""
+        mock_are_equivalent.return_value = True
+        result = resolve_filename_with_extension("image.jpg", "http://example.com/image.jpeg")
+        self.assertEqual(result, "image.jpg")  # Uses name column extension
+        mock_are_equivalent.assert_called_once_with(".jpg", ".jpeg", "http://example.com/image.jpeg")
+
+    @patch('cautiousrobot.download.are_extensions_equivalent')
+    def test_resolve_filename_conflicting_extensions(self, mock_are_equivalent):
+        """Test when both have conflicting extensions"""
+        mock_are_equivalent.return_value = False
+        with self.assertRaises(ValueError) as cm:
+            resolve_filename_with_extension("image.jpg", "http://example.com/image.png")
+
+        self.assertIn("Conflicting file extensions", str(cm.exception))
+        self.assertIn(".jpg", str(cm.exception))
+        self.assertIn(".png", str(cm.exception))
+
+    @patch('cautiousrobot.download.get_content_type_from_url')
+    @patch('mimetypes.guess_extension')
+    def test_resolve_filename_infer_from_content_type(self, mock_guess_ext, mock_get_content_type):
+        """Test inferring extension from Content-Type"""
+        mock_get_content_type.return_value = "image/jpeg"
+        mock_guess_ext.return_value = ".jpg"
+
+        result = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
+        self.assertEqual(result, "123.jpg")
+
+        mock_get_content_type.assert_called_once_with("http://example.com/api/asset/123")
+        mock_guess_ext.assert_called_once_with("image/jpeg")
+
+    @patch('cautiousrobot.download.get_content_type_from_url')
+    def test_resolve_filename_no_extension_determinable(self, mock_get_content_type):
+        """Test when no extension can be determined"""
+        mock_get_content_type.return_value = None
+
+        result = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
+        self.assertEqual(result, "123")
+
+    @patch('requests.get')
+    def test_extension_handling_integration(self, mock_get):
+        """Integration test with actual download_images function"""
+        # Test data with numeric IDs and URL extensions
+        test_data = pd.DataFrame({
+            "id": [1, 2],
+            "file_url": ["http://localhost:9201/images/image1.jpg", "http://localhost:9201/images/image2.png"]
+        })
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raw = BytesIO(b"fake_image_data")
+        mock_get.return_value = mock_response
+
+        img_dir = "test_extension_dir"
+        log_filepath = "test_ext_log.jsonl"
+        error_log_filepath = "test_ext_error.jsonl"
+
+        try:
+            os.makedirs(img_dir, exist_ok=True)
+
+            download_images(
+                test_data, img_dir, log_filepath, error_log_filepath,
+                filename="id", file_url="file_url"
+            )
+
+            # Files should be saved with extensions from URLs
+            self.assertTrue(os.path.isfile(f"{img_dir}/1.jpg"))
+            self.assertTrue(os.path.isfile(f"{img_dir}/2.png"))
+
+        finally:
+            # Cleanup
+            shutil.rmtree(img_dir, ignore_errors=True)
+            if os.path.exists(log_filepath):
+                os.remove(log_filepath)
+            if os.path.exists(error_log_filepath):
+                os.remove(error_log_filepath)
     
 class TestMainFunction(unittest.TestCase):
     @patch('cautiousrobot.__main__.parse_args')
