@@ -61,7 +61,8 @@
 - `-u, --url-col`: Column with URLs (default: "file_url")
 - `-w, --wait-time`: Retry delay in seconds (default: 3)
 - `-r, --max-retries`: Maximum retry attempts for a single image (default: 5)
-- `-l, --side-length`: Pixels for square resized images
+- `-x, --starting-idx`: Index of DataFrame from CSV at which to start download (default: 0)
+- `-l, --side-length`: Pixels per side for square resized images
 - `-a, --checksum-algorithm`: Hash algorithm for checksums
 - `-v, --verifier-col`: Column with expected checksums for validation
 
