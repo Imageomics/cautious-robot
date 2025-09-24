@@ -5,11 +5,143 @@ import requests
 import shutil
 import os
 import time
+import mimetypes
+from urllib.parse import urlparse
 from tqdm import tqdm
 from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
 
 # Constants
 REDO_CODE_LIST = [429, 500, 502, 503, 504]
+
+
+def extract_extension_from_filename(filename):
+    """
+    Extract file extension from filename/path using os.path.splitext.
+
+    Parameters:
+    - filename (str): The filename or path
+
+    Returns:
+    - str or None: The file extension (with dot) or None if no extension
+    """
+    _, ext = os.path.splitext(filename)
+    return ext if ext else None
+
+
+def extract_extension_from_url(url):
+    """
+    Extract file extension from URL path using urllib.parse and os.path.splitext.
+    Ignores query parameters and fragments.
+
+    Parameters:
+    - url (str): The URL
+
+    Returns:
+    - str or None: The file extension (with dot) or None if no extension
+    """
+    parsed = urlparse(url)
+    _, ext = os.path.splitext(parsed.path)
+    return ext if ext else None
+
+
+def get_content_type_from_url(url):
+    """
+    Get Content-Type from URL using HTTP HEAD request.
+
+    Parameters:
+    - url (str): The URL to check
+
+    Returns:
+    - str or None: The Content-Type (main type only, without parameters) or None if unavailable
+    """
+    try:
+        response = requests.head(url, timeout=10)
+        content_type = response.headers.get('content-type', '')
+        # Split off parameters like '; charset=utf-8'
+        return content_type.split(';')[0].strip() if content_type else None
+    except Exception:
+        return None
+
+
+def are_extensions_equivalent(ext1, ext2, url):
+    """
+    Check if two extensions are effectively equivalent by comparing their MIME types
+    and the actual Content-Type served by the URL.
+
+    Parameters:
+    - ext1 (str): First extension (with dot)
+    - ext2 (str): Second extension (with dot)
+    - url (str): URL to check actual Content-Type
+
+    Returns:
+    - bool: True if extensions are equivalent, False otherwise
+    """
+    # Quick check - if normalized extensions are identical, they're equivalent
+    if ext1.lower() == ext2.lower():
+        return True
+
+    # Get MIME types for both extensions
+    mime1 = mimetypes.guess_type(f"file{ext1}")[0]
+    mime2 = mimetypes.guess_type(f"file{ext2}")[0]
+
+    # If MIME types are different, they're not equivalent
+    if mime1 != mime2 or not mime1:
+        return False
+
+    # Get actual Content-Type from server to verify
+    actual_content_type = get_content_type_from_url(url)
+
+    # All should match for true equivalency
+    return mime1 == actual_content_type
+
+
+def resolve_filename_with_extension(base_filename, url):
+    """
+    Resolve the final filename with proper extension by checking both
+    the filename and URL, handling conflicts, and inferring from HTTP headers if needed.
+
+    Parameters:
+    - base_filename (str): The base filename from the image name column
+    - url (str): The URL to download from
+
+    Returns:
+    - str: Final filename with extension
+
+    Raises:
+    - ValueError: If conflicting extensions are found that are not equivalent
+    """
+    name_ext = extract_extension_from_filename(base_filename)
+    url_ext = extract_extension_from_url(url)
+
+    # Both have extensions - check for conflicts
+    if name_ext and url_ext:
+        if are_extensions_equivalent(name_ext, url_ext, url):
+            # Use name column extension (user preference)
+            return base_filename
+        else:
+            raise ValueError(
+                f"Conflicting file extensions found: filename has '{name_ext}' "
+                f"but URL suggests '{url_ext}'. These are not equivalent for the "
+                f"content served by {url}"
+            )
+
+    # Only name has extension
+    if name_ext:
+        return base_filename
+
+    # Only URL has extension
+    if url_ext:
+        return base_filename + url_ext
+
+    # Neither has extension - try to infer from Content-Type
+    content_type = get_content_type_from_url(url)
+    if content_type:
+        inferred_ext = mimetypes.guess_extension(content_type)
+        if inferred_ext:
+            return base_filename + inferred_ext
+
+    # No extension can be determined
+    return base_filename
 
 
 def create_image_directory(image_dir_path):
@@ -26,26 +158,32 @@ def create_image_directory(image_dir_path):
         os.makedirs(image_dir_path, exist_ok=False)
 
 
-def get_image_path(img_dir, subfolders, data, i, filename):
+def get_image_path(img_dir, subfolders, data, i, filename, file_url):
     """
     Determine the full path for an image based on subfolder configuration.
-    
+    Resolves the final filename with proper extension.
+
     Parameters:
     - img_dir (str): Base directory for images
     - subfolders (str): Column name for subfolder organization (can be None)
     - data (DataFrame): DataFrame containing image data
     - i (int): Current row index
     - filename (str): Column name for filename
-    
+    - file_url (str): Column name for file URL
+
     Returns:
     - tuple: (image_dir_path, image_name)
     """
     image_dir_path = img_dir
-    image_name = data[filename][i]
-    
+    base_filename = str(data[filename][i])
+    url = data[file_url][i]
+
+    # Resolve filename with proper extension
+    image_name = resolve_filename_with_extension(base_filename, url)
+
     if subfolders:
-        image_dir_path = img_dir + "/" + data[subfolders][i]
-    
+        image_dir_path = img_dir + "/" + str(data[subfolders][i])
+
     return image_dir_path, image_name
 
 
@@ -231,7 +369,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
             continue
             
         # Get image path and name
-        image_dir_path, image_name = get_image_path(img_dir, subfolders, data, i, filename)
+        image_dir_path, image_name = get_image_path(img_dir, subfolders, data, i, filename, file_url)
         
         # Skip if image already exists
         if os.path.exists(image_dir_path + "/" + image_name):
