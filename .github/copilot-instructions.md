@@ -44,7 +44,7 @@
 - Include tests for edge cases (empty files, network errors, etc.)
 
 ### Dependencies Management
-- Core dependencies: `requests`, `pandas`, `pillow`, `sum-buddy`
+- Core dependencies: `requests`, `pandas`, `pillow`, `sum-buddy`, `argparse`
 - Development dependencies: `pytest`, `ruff`, `pre-commit`
 - Use `pyproject.toml` for project configuration
 - Pin dependency versions for reproducible builds
