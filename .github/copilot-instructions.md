@@ -63,7 +63,7 @@
 - `-r, --max-retries`: Maximum retry attempts for a single image (default: 5)
 - `-x, --starting-idx`: Index of DataFrame from CSV at which to start download (default: 0)
 - `-l, --side-length`: Pixels per side for square resized images
-- `-a, --checksum-algorithm`: Hash algorithm for checksums
+- `-a, --checksum-algorithm`: Hash algorithm for checksums (default: "md5")
 - `-v, --verifier-col`: Column with expected checksums for validation
 
 ### CSV Format Expectations
