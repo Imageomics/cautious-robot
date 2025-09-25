@@ -260,15 +260,15 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
     - tuple: (log_data, log_errors, success)
     """
     redo = True
-    max_redos = retry
-    
-    while redo and max_redos > 0:
+    attempts_remaining = retry
+
+    while redo and attempts_remaining > 0:
         try:
             response = requests.get(url, stream=True)
         except Exception as e:
             redo = True
-            max_redos -= 1
-            if max_redos <= 0:
+            attempts_remaining -= 1
+            if attempts_remaining <= 0:
                 log_errors = log_response(log_errors,
                                         index=i,
                                         image=image_name,
@@ -297,8 +297,8 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
             
         elif response.status_code in REDO_CODE_LIST:
             redo = True
-            max_redos -= 1
-            if max_redos <= 0:
+            attempts_remaining -= 1
+            if attempts_remaining <= 0:
                 log_errors = log_response(log_errors,
                                         index=i,
                                         image=image_name,
@@ -308,7 +308,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
             else:
                 # Exponential backoff: longer waits for 403 (rate limiting)
                 if response.status_code == 403:
-                    backoff_wait = wait * (2 ** (retry - max_redos))  # 2x, 4x, 8x, etc.
+                    backoff_wait = wait * (2 ** (retry - attempts_remaining))  # 2x, 4x, 8x, etc.
                     time.sleep(backoff_wait)
                 else:
                     time.sleep(wait)
