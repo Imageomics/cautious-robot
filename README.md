@@ -86,14 +86,14 @@ head -n 9 examples/HCGSD_testNA_checksums.csv
  > Output:
  > ```console
  > filepath,filename,md5
- > examples/test_images/10429021_V_lowres.jpg,10429021_V_lowres.jpg,c6aeb9d2f6db412ff5be0eb0b5435b83
- > examples/test_images/10428595_D_lowres.jpg,10428595_D_lowres.jpg,55882a0f3fdf8a68579c07254395653b
- > examples/test_images/10428972_V_lowres.jpg,10428972_V_lowres.jpg,0047e7454ce444f67fee1c90cc3ba9cb
- > examples/test_images/10428803_D_lowres.jpg,10428803_D_lowres.jpg,d8bfb73f2d3556390de04aa98822b815
- > examples/test_images/10428169_V_lowres.jpg,10428169_V_lowres.jpg,042c9dc294d589ce3f140f14ddab0166
- > examples/test_images/10428321_D_lowres.jpg,10428321_D_lowres.jpg,fbeeed30274e424831b06360b587ceb3
- > examples/test_images/10428140_V_lowres.jpg,10428140_V_lowres.jpg,c11538f2de5a5e2d6013fc800848d43a
- > examples/test_images/10428250_V_lowres.jpg,10428250_V_lowres.jpg,14ac99b1a9913a9d420f21b94d6136d6
+ > examples/test_images/10429021_V_lowres.png,10429021_V_lowres.png,c6aeb9d2f6db412ff5be0eb0b5435b83
+ > examples/test_images/10428595_D_lowres.png,10428595_D_lowres.png,55882a0f3fdf8a68579c07254395653b
+ > examples/test_images/10428321_D_lowres.png,10428321_D_lowres.png,fbeeed30274e424831b06360b587ceb3
+ > examples/test_images/10428250_V_lowres.png,10428250_V_lowres.png,14ac99b1a9913a9d420f21b94d6136d6
+ > examples/test_images/10428140_V_lowres.png,10428140_V_lowres.png,c11538f2de5a5e2d6013fc800848d43a
+ > examples/test_images/10428803_D_lowres.png,10428803_D_lowres.png,d8bfb73f2d3556390de04aa98822b815
+ > examples/test_images/10428169_V_lowres.png,10428169_V_lowres.png,042c9dc294d589ce3f140f14ddab0166
+ > examples/test_images/10428972_V_lowres.png,10428972_V_lowres.png,0047e7454ce444f67fee1c90cc3ba9cb
  > ```
 
 - **Download Images to Subfolders Based on Column Value:**
@@ -110,7 +110,7 @@ cautious-robot -i examples/HCGSD_testNA.csv -o examples/test_images_subdirs --su
  > 8 images were downloaded to examples/test_images_subdirs of the 8 expected.
  > ```
 ```
-ls examples/test_images
+ls examples/test_images_subdirs
 ```
  > Output:
  > ```console
@@ -123,14 +123,14 @@ head -n 9 examples/HCGSD_testNA_checksums.csv
  > Output:
  > ```console
  > filepath,filename,md5
- > examples/test_images_subdirs/erato/10429021_V_lowres.jpg,10429021_V_lowres.jpg,c6aeb9d2f6db412ff5be0eb0b5435b83
- > examples/test_images_subdirs/erato/10428595_D_lowres.jpg,10428595_D_lowres.jpg,55882a0f3fdf8a68579c07254395653b
- > examples/test_images_subdirs/erato/10428972_V_lowres.jpg,10428972_V_lowres.jpg,0047e7454ce444f67fee1c90cc3ba9cb
- > examples/test_images_subdirs/erato/10428803_D_lowres.jpg,10428803_D_lowres.jpg,d8bfb73f2d3556390de04aa98822b815
- > examples/test_images_subdirs/melpomene/10428169_V_lowres.jpg,10428169_V_lowres.jpg,042c9dc294d589ce3f140f14ddab0166
- > examples/test_images_subdirs/melpomene/10428321_D_lowres.jpg,10428321_D_lowres.jpg,fbeeed30274e424831b06360b587ceb3
- > examples/test_images_subdirs/melpomene/10428140_V_lowres.jpg,10428140_V_lowres.jpg,c11538f2de5a5e2d6013fc800848d43a
- > examples/test_images_subdirs/melpomene/10428250_V_lowres.jpg,10428250_V_lowres.jpg,14ac99b1a9913a9d420f21b94d6136d6
+ > examples/test_images_subdirs/melpomene/10428321_D_lowres.png,10428321_D_lowres.png,fbeeed30274e424831b06360b587ceb3
+ > examples/test_images_subdirs/melpomene/10428250_V_lowres.png,10428250_V_lowres.png,14ac99b1a9913a9d420f21b94d6136d6
+ > examples/test_images_subdirs/melpomene/10428140_V_lowres.png,10428140_V_lowres.png,c11538f2de5a5e2d6013fc800848d43a
+ > examples/test_images_subdirs/melpomene/10428169_V_lowres.png,10428169_V_lowres.png,042c9dc294d589ce3f140f14ddab0166
+ > examples/test_images_subdirs/erato/10429021_V_lowres.png,10429021_V_lowres.png,c6aeb9d2f6db412ff5be0eb0b5435b83
+ > examples/test_images_subdirs/erato/10428595_D_lowres.png,10428595_D_lowres.png,55882a0f3fdf8a68579c07254395653b
+ > examples/test_images_subdirs/erato/10428803_D_lowres.png,10428803_D_lowres.png,d8bfb73f2d3556390de04aa98822b815
+ > examples/test_images_subdirs/erato/10428972_V_lowres.png,10428972_V_lowres.png,0047e7454ce444f67fee1c90cc3ba9cb
  > ```
 
 - **Image Checksum Mismatch:** one value is intentionally altered in the source CSV
@@ -154,7 +154,7 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
  > Output:
  > ```console
  > nhm_specimen,species,subspecies,sex,file_url,filename,md5
- > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.jpg,mismatch
+ > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.png,mismatch
  > ```
 
 ## Development
