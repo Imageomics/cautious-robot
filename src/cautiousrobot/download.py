@@ -112,16 +112,15 @@ def resolve_filename_with_extension(base_filename, url):
     - url (str): The URL to download from (can be None/empty)
 
     Returns:
-    - str: Final filename with extension
-
-    Raises:
-    - ValueError: If conflicting extensions are found that are not equivalent
+    - tuple: (filename_or_None, error_message_or_None)
+             If successful: (resolved_filename, None)
+             If conflict: (None, error_message)
     """
     name_ext = extract_extension_from_filename(base_filename)
 
     # If URL is missing/invalid, just return the base filename
     if is_url_missing_or_invalid(url):
-        return base_filename
+        return base_filename, None
 
     url_ext = extract_extension_from_url(url)
 
@@ -129,31 +128,32 @@ def resolve_filename_with_extension(base_filename, url):
     if name_ext and url_ext:
         if are_extensions_equivalent(name_ext, url_ext, url):
             # Use name column extension (user preference)
-            return base_filename
+            return base_filename, None
         else:
-            raise ValueError(
-                f"Conflicting file extensions found: filename has '{name_ext}' "
-                f"but URL suggests '{url_ext}'. These are not equivalent for the "
-                f"content served by {url}"
+            error_msg = (
+                f"Mismatching extensions in input data may cause unexpected behavior: "
+                f"filename has '{name_ext}' but URL suggests '{url_ext}'. "
+                f"These extensions are not equivalent for content served by {url}"
             )
+            return None, error_msg
 
     # Only name has extension
     if name_ext:
-        return base_filename
+        return base_filename, None
 
     # Only URL has extension
     if url_ext:
-        return base_filename + url_ext
+        return base_filename + url_ext, None
 
     # Neither has extension - try to infer from Content-Type
     content_type = get_content_type_from_url(url)
     if content_type:
         inferred_ext = mimetypes.guess_extension(content_type)
         if inferred_ext:
-            return base_filename + inferred_ext
+            return base_filename + inferred_ext, None
 
     # No extension can be determined
-    return base_filename
+    return base_filename, None
 
 
 def create_image_directory(image_dir_path):
@@ -184,19 +184,24 @@ def get_image_path(img_dir, subfolders, data, i, filename, file_url):
     - file_url (str): Column name for file URL
 
     Returns:
-    - tuple: (image_dir_path, image_name)
+    - tuple: (image_dir_path, image_name, error_message)
+             If successful: (path, name, None)
+             If extension conflict: (None, None, error_message)
     """
     image_dir_path = img_dir
     base_filename = str(data[filename][i])
     url = data[file_url][i]
 
     # Resolve filename with proper extension
-    image_name = resolve_filename_with_extension(base_filename, url)
+    image_name, error_msg = resolve_filename_with_extension(base_filename, url)
+
+    if error_msg:
+        return None, None, error_msg
 
     if subfolders:
         image_dir_path = img_dir + "/" + str(data[subfolders][i])
 
-    return image_dir_path, image_name
+    return image_dir_path, image_name, None
 
 
 def is_url_missing_or_invalid(url):
@@ -218,15 +223,16 @@ def is_url_missing_or_invalid(url):
     return False
 
 
-def handle_invalid_url(log_errors, i, image_name, url, error_log_filepath):
+def handle_download_skip(log_errors, i, image_name, url, error_code, error_log_filepath):
     """
-    Handle cases where the URL is missing or otherwise invalid.
+    Handle cases where download must be skipped due to data issues.
 
     Parameters:
     - log_errors (dict): Dictionary to store error logs
     - i (int): Current row index
     - image_name (str): Name of the image
-    - url (str): URL that is invalid or null
+    - url (str): URL from the CSV
+    - error_code (str): Specific error code ("invalid url", "extension mismatch", etc.)
     - error_log_filepath (str): Path to error log file
 
     Returns:
@@ -236,7 +242,7 @@ def handle_invalid_url(log_errors, i, image_name, url, error_log_filepath):
                             index=i,
                             image=image_name,
                             file_path=str(url) if url else "N/A",
-                            response_code="invalid url")
+                            response_code=error_code)
     update_log(log=log_errors, index=i, filepath=error_log_filepath)
     return log_errors
 
@@ -411,11 +417,17 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
         if is_url_missing_or_invalid(url):
             # Use a basic filename for logging since we can't resolve the full path yet
             base_filename = str(data[filename][i])
-            log_errors = handle_invalid_url(log_errors, i, base_filename, url, error_log_filepath)
+            log_errors = handle_download_skip(log_errors, i, base_filename, url, "invalid url", error_log_filepath)
             continue
 
         # Get image path and name (now safe since URL is validated)
-        image_dir_path, image_name = get_image_path(img_dir, subfolders, data, i, filename, file_url)
+        image_dir_path, image_name, extension_error = get_image_path(img_dir, subfolders, data, i, filename, file_url)
+
+        # Handle extension mismatch
+        if extension_error:
+            base_filename = str(data[filename][i])
+            log_errors = handle_download_skip(log_errors, i, base_filename, url, "extension mismatch", error_log_filepath)
+            continue
 
         # Skip if image already exists
         if os.path.exists(image_dir_path + "/" + image_name):
