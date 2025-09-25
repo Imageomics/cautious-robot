@@ -206,7 +206,7 @@ def get_image_path(img_dir, subfolders, data, i, filename, file_url):
 
 def is_url_missing_or_invalid(url):
     """
-    Check if a URL is missing, invalid, or NaN.
+    Check if a URL is missing or invalid.
 
     Parameters:
     - url: The URL value to check
@@ -223,15 +223,15 @@ def is_url_missing_or_invalid(url):
     return False
 
 
-def handle_missing_url(log_errors, i, image_name, url, error_log_filepath):
+def handle_invalid_url(log_errors, i, image_name, url, error_log_filepath):
     """
-    Handle cases where the URL is missing or empty.
+    Handle cases where the URL is missing or otherwise invalid.
 
     Parameters:
     - log_errors (dict): Dictionary to store error logs
     - i (int): Current row index
     - image_name (str): Name of the image
-    - url (str): URL that is missing
+    - url (str): URL that is missing or otherwise invalid
     - error_log_filepath (str): Path to error log file
 
     Returns:
@@ -241,7 +241,7 @@ def handle_missing_url(log_errors, i, image_name, url, error_log_filepath):
                             index=i,
                             image=image_name,
                             file_path=str(url) if url else "N/A",
-                            response_code="no url")
+                            response_code="invalid url")
     update_log(log=log_errors, index=i, filepath=error_log_filepath)
     return log_errors
 
@@ -416,7 +416,7 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
         if is_url_missing_or_invalid(url):
             # Use a basic filename for logging since we can't resolve the full path yet
             base_filename = str(data[filename][i])
-            log_errors = handle_missing_url(log_errors, i, base_filename, url, error_log_filepath)
+            log_errors = handle_invalid_url(log_errors, i, base_filename, url, error_log_filepath)
             continue
 
         # Get image path and name (now safe since URL is validated)
