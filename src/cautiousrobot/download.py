@@ -10,17 +10,10 @@ import pandas as pd
 from urllib.parse import urlparse
 from tqdm import tqdm
 from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
-from cautiousrobot.__about__ import __version__
 
 # Constants
 REDO_CODE_LIST = [403, 429, 500, 502, 503, 504]
 
-# Headers for legitimate requests
-def get_headers():
-    """Get HTTP headers that properly identify this package."""
-    return {
-        'User-Agent': f'cautious-robot/{__version__} (https://github.com/Imageomics/cautious-robot)'
-    }
 
 
 def extract_extension_from_filename(filename):
@@ -67,7 +60,7 @@ def get_content_type_from_url(url):
         return None
 
     try:
-        response = requests.head(url, timeout=10, headers=get_headers())
+        response = requests.head(url, timeout=10)
         content_type = response.headers.get('content-type', '')
         # Split off parameters like '; charset=utf-8'
         return content_type.split(';')[0].strip() if content_type else None
@@ -271,7 +264,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
     
     while redo and max_redos > 0:
         try:
-            response = requests.get(url, stream=True, headers=get_headers())
+            response = requests.get(url, stream=True)
         except Exception as e:
             redo = True
             max_redos -= 1
