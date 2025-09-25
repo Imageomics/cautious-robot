@@ -17,7 +17,7 @@ date-released: "2025-09-25"
 identifiers:
   - description: "The GitHub release URL of tag v1.1.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v1.0.1"
+    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v1.1.0"
   - description: "The GitHub URL of the commit tagged with v1.1.0."
     type: url
     value: "https://github.com/Imageomics/cautious-robot/tree/<commit-hash>" # update on release
