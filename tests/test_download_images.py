@@ -1,8 +1,10 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
+import numpy as np
 import os
 import shutil
+import tempfile
 from io import BytesIO
 import requests
 from cautiousrobot.download import download_images, extract_extension_from_filename, extract_extension_from_url, resolve_filename_with_extension
@@ -160,7 +162,6 @@ class TestDownload(unittest.TestCase):
     @patch('requests.get')
     def test_numeric_filename_conversion(self, get_mock):
         """Test that numeric filenames (like numpy.int64) are converted to strings"""
-        import numpy as np
 
         # Create data with numeric filenames (simulating numpy.int64 from pandas)
         numeric_data = pd.DataFrame(data={
@@ -184,7 +185,6 @@ class TestDownload(unittest.TestCase):
     @patch('requests.get')
     def test_numeric_subfolder_conversion(self, get_mock):
         """Test that numeric subfolders (like numpy.int64) are converted to strings"""
-        import numpy as np
 
         # Create data with numeric subfolders (simulating numpy.int64 from pandas)
         numeric_subfolder_data = pd.DataFrame(data={
@@ -290,12 +290,10 @@ class TestExtensionHandling(unittest.TestCase):
         mock_response.raw = BytesIO(b"fake_image_data")
         mock_get.return_value = mock_response
 
-        img_dir = "test_extension_dir"
-        log_filepath = "test_ext_log.jsonl"
-        error_log_filepath = "test_ext_error.jsonl"
-
-        try:
-            os.makedirs(img_dir, exist_ok=True)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            img_dir = os.path.join(temp_dir, "images")
+            log_filepath = os.path.join(temp_dir, "log.jsonl")
+            error_log_filepath = os.path.join(temp_dir, "error.jsonl")
 
             download_images(
                 test_data, img_dir, log_filepath, error_log_filepath,
@@ -305,14 +303,6 @@ class TestExtensionHandling(unittest.TestCase):
             # Files should be saved with extensions from URLs
             self.assertTrue(os.path.isfile(f"{img_dir}/1.jpg"))
             self.assertTrue(os.path.isfile(f"{img_dir}/2.png"))
-
-        finally:
-            # Cleanup
-            shutil.rmtree(img_dir, ignore_errors=True)
-            if os.path.exists(log_filepath):
-                os.remove(log_filepath)
-            if os.path.exists(error_log_filepath):
-                os.remove(error_log_filepath)
     
 class TestMainFunction(unittest.TestCase):
     @patch('cautiousrobot.__main__.parse_args')
