@@ -12,6 +12,8 @@ from tqdm import tqdm
 from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
 
 # Constants
+# 403 (Forbidden) is included here because some APIs appear use it to signal rate limiting.
+# In such cases, retrying with exponential backoff might succeed once the rate limit resets.
 REDO_CODE_LIST = [403, 429, 500, 502, 503, 504]
 
 
