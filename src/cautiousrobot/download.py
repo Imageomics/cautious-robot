@@ -6,12 +6,21 @@ import shutil
 import os
 import time
 import mimetypes
+import pandas as pd
 from urllib.parse import urlparse
 from tqdm import tqdm
 from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
+from cautiousrobot.__about__ import __version__
 
 # Constants
-REDO_CODE_LIST = [429, 500, 502, 503, 504]
+REDO_CODE_LIST = [403, 429, 500, 502, 503, 504]
+
+# Headers for legitimate requests
+def get_headers():
+    """Get HTTP headers that properly identify this package."""
+    return {
+        'User-Agent': f'cautious-robot/{__version__} (https://github.com/Imageomics/cautious-robot)'
+    }
 
 
 def extract_extension_from_filename(filename):
@@ -54,8 +63,11 @@ def get_content_type_from_url(url):
     Returns:
     - str or None: The Content-Type (main type only, without parameters) or None if unavailable
     """
+    if is_url_missing_or_invalid(url):
+        return None
+
     try:
-        response = requests.head(url, timeout=10)
+        response = requests.head(url, timeout=10, headers=get_headers())
         content_type = response.headers.get('content-type', '')
         # Split off parameters like '; charset=utf-8'
         return content_type.split(';')[0].strip() if content_type else None
@@ -102,7 +114,7 @@ def resolve_filename_with_extension(base_filename, url):
 
     Parameters:
     - base_filename (str): The base filename from the image name column
-    - url (str): The URL to download from
+    - url (str): The URL to download from (can be None/empty)
 
     Returns:
     - str: Final filename with extension
@@ -111,6 +123,11 @@ def resolve_filename_with_extension(base_filename, url):
     - ValueError: If conflicting extensions are found that are not equivalent
     """
     name_ext = extract_extension_from_filename(base_filename)
+
+    # If URL is missing/invalid, just return the base filename
+    if is_url_missing_or_invalid(url):
+        return base_filename
+
     url_ext = extract_extension_from_url(url)
 
     # Both have extensions - check for conflicts
@@ -187,24 +204,43 @@ def get_image_path(img_dir, subfolders, data, i, filename, file_url):
     return image_dir_path, image_name
 
 
+def is_url_missing_or_invalid(url):
+    """
+    Check if a URL is missing, invalid, or NaN.
+
+    Parameters:
+    - url: The URL value to check
+
+    Returns:
+    - bool: True if URL is missing/invalid, False otherwise
+    """
+    if pd.isna(url):
+        return True
+    if not url:
+        return True
+    if str(url).lower().strip() in ['nan', 'none', 'null', '']:
+        return True
+    return False
+
+
 def handle_missing_url(log_errors, i, image_name, url, error_log_filepath):
     """
     Handle cases where the URL is missing or empty.
-    
+
     Parameters:
     - log_errors (dict): Dictionary to store error logs
     - i (int): Current row index
     - image_name (str): Name of the image
     - url (str): URL that is missing
     - error_log_filepath (str): Path to error log file
-    
+
     Returns:
     - dict: Updated log_errors dictionary
     """
     log_errors = log_response(log_errors,
                             index=i,
                             image=image_name,
-                            file_path=url,
+                            file_path=str(url) if url else "N/A",
                             response_code="no url")
     update_log(log=log_errors, index=i, filepath=error_log_filepath)
     return log_errors
@@ -235,7 +271,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
     
     while redo and max_redos > 0:
         try:
-            response = requests.get(url, stream=True)
+            response = requests.get(url, stream=True, headers=get_headers())
         except Exception as e:
             redo = True
             max_redos -= 1
@@ -277,7 +313,14 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
                                         response_code=response.status_code)
                 update_log(log=log_errors, index=i, filepath=error_log_filepath)
             else:
-                time.sleep(wait)
+                # Exponential backoff: longer waits for 403 (rate limiting)
+                if response.status_code == 403:
+                    backoff_wait = wait * (2 ** (retry - max_redos))  # 2x, 4x, 8x, etc.
+                    time.sleep(backoff_wait)
+                else:
+                    time.sleep(wait)
+                del response
+                continue
         else:  # Other failures (e.g., 404)
             redo = False
             log_errors = log_response(log_errors,
@@ -286,7 +329,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
                                     file_path=url,
                                     response_code=response.status_code)
             update_log(log=log_errors, index=i, filepath=error_log_filepath)
-        
+
         del response
     
     return log_data, log_errors, False
@@ -367,18 +410,20 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
     for i in tqdm(data.index):
         if i < starting_index:
             continue
-            
-        # Get image path and name
+
+        # Get URL and handle missing URLs first (before any path operations)
+        url = data[file_url][i]
+        if is_url_missing_or_invalid(url):
+            # Use a basic filename for logging since we can't resolve the full path yet
+            base_filename = str(data[filename][i])
+            log_errors = handle_missing_url(log_errors, i, base_filename, url, error_log_filepath)
+            continue
+
+        # Get image path and name (now safe since URL is validated)
         image_dir_path, image_name = get_image_path(img_dir, subfolders, data, i, filename, file_url)
-        
+
         # Skip if image already exists
         if os.path.exists(image_dir_path + "/" + image_name):
-            continue
-        
-        # Get URL and handle missing URLs
-        url = data[file_url][i]
-        if not url:
-            log_errors = handle_missing_url(log_errors, i, image_name, url, error_log_filepath)
             continue
         
         # Download the image
