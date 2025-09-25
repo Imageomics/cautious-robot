@@ -226,7 +226,7 @@ def handle_invalid_url(log_errors, i, image_name, url, error_log_filepath):
     - log_errors (dict): Dictionary to store error logs
     - i (int): Current row index
     - image_name (str): Name of the image
-    - url (str): URL that is missing or otherwise invalid
+    - url (str): URL that is invalid or null
     - error_log_filepath (str): Path to error log file
 
     Returns:
