@@ -225,35 +225,39 @@ class TestExtensionHandling(unittest.TestCase):
     @patch('cautiousrobot.download.get_content_type_from_url')
     def test_resolve_filename_name_has_extension_only(self, mock_get_content_type):
         """Test when only filename has extension"""
-        result = resolve_filename_with_extension("image.jpg", "http://example.com/api/123")
-        self.assertEqual(result, "image.jpg")
+        filename, error = resolve_filename_with_extension("image.jpg", "http://example.com/api/123")
+        self.assertEqual(filename, "image.jpg")
+        self.assertIsNone(error)
         mock_get_content_type.assert_not_called()
 
     @patch('cautiousrobot.download.get_content_type_from_url')
     def test_resolve_filename_url_has_extension_only(self, mock_get_content_type):
         """Test when only URL has extension"""
-        result = resolve_filename_with_extension("123", "http://example.com/image.png")
-        self.assertEqual(result, "123.png")
+        filename, error = resolve_filename_with_extension("123", "http://example.com/image.png")
+        self.assertEqual(filename, "123.png")
+        self.assertIsNone(error)
         mock_get_content_type.assert_not_called()
 
     @patch('cautiousrobot.download.are_extensions_equivalent')
     def test_resolve_filename_both_have_equivalent_extensions(self, mock_are_equivalent):
         """Test when both have equivalent extensions"""
         mock_are_equivalent.return_value = True
-        result = resolve_filename_with_extension("image.jpg", "http://example.com/image.jpeg")
-        self.assertEqual(result, "image.jpg")  # Uses name column extension
+        filename, error = resolve_filename_with_extension("image.jpg", "http://example.com/image.jpeg")
+        self.assertEqual(filename, "image.jpg")  # Uses name column extension
+        self.assertIsNone(error)
         mock_are_equivalent.assert_called_once_with(".jpg", ".jpeg", "http://example.com/image.jpeg")
 
     @patch('cautiousrobot.download.are_extensions_equivalent')
     def test_resolve_filename_conflicting_extensions(self, mock_are_equivalent):
         """Test when both have conflicting extensions"""
         mock_are_equivalent.return_value = False
-        with self.assertRaises(ValueError) as cm:
-            resolve_filename_with_extension("image.jpg", "http://example.com/image.png")
+        filename, error = resolve_filename_with_extension("image.jpg", "http://example.com/image.png")
 
-        self.assertIn("Conflicting file extensions", str(cm.exception))
-        self.assertIn(".jpg", str(cm.exception))
-        self.assertIn(".png", str(cm.exception))
+        self.assertIsNone(filename)
+        self.assertIsNotNone(error)
+        self.assertIn("Mismatching extensions", error)
+        self.assertIn(".jpg", error)
+        self.assertIn(".png", error)
 
     @patch('cautiousrobot.download.get_content_type_from_url')
     @patch('mimetypes.guess_extension')
@@ -262,8 +266,9 @@ class TestExtensionHandling(unittest.TestCase):
         mock_get_content_type.return_value = "image/jpeg"
         mock_guess_ext.return_value = ".jpg"
 
-        result = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
-        self.assertEqual(result, "123.jpg")
+        filename, error = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
+        self.assertEqual(filename, "123.jpg")
+        self.assertIsNone(error)
 
         mock_get_content_type.assert_called_once_with("http://example.com/api/asset/123")
         mock_guess_ext.assert_called_once_with("image/jpeg")
@@ -273,8 +278,9 @@ class TestExtensionHandling(unittest.TestCase):
         """Test when no extension can be determined"""
         mock_get_content_type.return_value = None
 
-        result = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
-        self.assertEqual(result, "123")
+        filename, error = resolve_filename_with_extension("123", "http://example.com/api/asset/123")
+        self.assertEqual(filename, "123")
+        self.assertIsNone(error)
 
     @patch('requests.get')
     def test_extension_handling_integration(self, mock_get):
