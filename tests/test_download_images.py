@@ -423,11 +423,14 @@ class TestMainFunction(unittest.TestCase):
         
         self.assertEqual(cm.exception.code, "Exited without executing.")
 
+    @patch('cautiousrobot.utils.check_existing_images')
+    @patch('cautiousrobot.utils.gather_file_paths')
     @patch('cautiousrobot.__main__.parse_args')
     @patch('cautiousrobot.__main__.process_csv')
     @patch('builtins.input', return_value='n')
     @patch('os.path.exists', return_value=True)
-    def test_main_directory_exists(self, mock_exists, mock_input, mock_process_csv, mock_parse_args):
+    @patch('os.path.isdir', return_value=True)
+    def test_main_directory_exists(self, mock_isdir, mock_exists, mock_input, mock_process_csv, mock_parse_args, mock_gather, mock_check_existing):
         mock_args = MagicMock()
         mock_args.input_file = 'test.csv'
         mock_args.img_name_col = 'filename_col'
@@ -449,12 +452,17 @@ class TestMainFunction(unittest.TestCase):
         })
         
         mock_process_csv.return_value = mock_data
+        mock_check_existing.return_value = (mock_data, mock_data)
 
         with self.assertRaises(SystemExit) as cm:
             main()
         
-        # self.assertEqual(cm.exception.code, "mock_args.output_dir Exited without executing.")
-        self.assertEqual(cm.exception.code, f"'{mock_args.output_dir}' already exists. Exited without executing.")
+
+        expected_message = (
+            f"The directory {mock_args.output_dir} and subdirectories (if any) contain no files. \n"
+            "Please provide a directory with files."
+        )
+        self.assertEqual(cm.exception.code, expected_message)
 
 
 if __name__ == '__main__':
