@@ -78,7 +78,7 @@ cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
  > Calculating md5 checksums on examples/test_images: 100%|███████████████████████████████████████████| 16/16 [00:00<00:00, 3133.00it/s]
  > md5 checksums for examples/test_images written to examples/HCGSD_testNA_checksums.csv
- > 8 images were downloaded to examples/test_images of the 8 expected.
+ > There are 8 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
  > ```
 ```
 head -n 9 examples/HCGSD_testNA_checksums.csv
@@ -107,7 +107,7 @@ cautious-robot -i examples/HCGSD_testNA.csv -o examples/test_images_subdirs --su
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
  > Calculating md5 checksums on examples/test_images_subdirs: 100%|█████████████████████████████████████████████| 8/8 [00:00<00:00, 3106.60it/s]
  > md5 checksums for examples/test_images_subdirs written to examples/HCGSD_testNA_checksums.csv
- > 8 images were downloaded to examples/test_images_subdirs of the 8 expected.
+ > There are 8 files in examples/test_images_subdirs. Based on examples/HCGSD_testNA.csv, there should be 8 images.
  > ```
 ```
 ls examples/test_images_subdirs
@@ -144,7 +144,7 @@ cautious-robot -i examples/HCGSD_test_MD5_mismatch.csv -o examples/test_images_m
  > Download logs are in examples/HCGSD_test_MD5_mismatch_log.jsonl and examples/HCGSD_test_MD5_mismatch_error_log.jsonl.
  > Calculating md5 checksums on examples/test_images_md5_mismatch: 100%|████████████████████████████████| 8/8 [00:00<00:00, 4159.98it/s]
  > md5 checksums for examples/test_images_md5_mismatch written to examples/HCGSD_test_MD5_mismatch_checksums.csv
- > 8 images were downloaded to examples/test_images_md5_mismatch of the 8 expected.
+ > There are 8 files in examples/test_images_md5_mismatch. Based on examples/HCGSD_test_MD5_mismatch.csv, there should be 8 images.
  > Image mismatch: 1 image(s) not aligned, see examples/HCGSD_test_MD5_mismatch_missing.csv for missing image info and check logs.
  > ```
 ```
@@ -156,6 +156,33 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
  > nhm_specimen,species,subspecies,sex,file_url,filename,md5
  > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.png,mismatch
  > ```
+
+- **Download Partially Existing Images:** some (or all) images may already exist in the output directory
+```bash
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # 1. Download the images first
+rm ./examples/test_images/104281* # 2. Remove some of the images
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # 3. Download the same set of images
+```
+
+ > Output:
+ > ```console
+ > There are 6 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
+ > 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [02:32<00:00, 76.36s/it]
+ > Images downloaded from examples/HCGSD_testNA.csv to examples/test_images.
+ > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
+ > Calculating md5 checksums on examples/test_images_md5_mismatch: 100%|████████████████████████████████| 8/8 [00:00<00:00, 4159.98it/s]
+ > md5 checksums for examples/test_images written to examples/HCGSD_testNA_checksums.csv
+ > There are 8 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
+ > ```
+```bash 
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # Attempt to download the same set of images
+```
+
+ > Output:
+ > ```console
+ > 'examples/test_images' already contains all images. Exited without executing.
+ > ```
+
 
 ## Development
 To develop the package further:
