@@ -83,7 +83,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
         
-def check_exisiting_images(csv_path, img_dir, source_df, filename_col):
+def check_existing_images(csv_path, img_dir, source_df, filename_col):
     """
     Checks which files from the CSV already exist in the image directory.
 
@@ -98,24 +98,24 @@ def check_exisiting_images(csv_path, img_dir, source_df, filename_col):
         # Directory doesn't exist, so nothing to check
         source_df["in_img_dir"] = False
         return source_df, source_df
-    
-    exisiting_files = gather_file_paths(img_dir)
-    existing_filenames = [os.path.basename(f) for f in exisiting_files]
-    
+
+    existing_files = gather_file_paths(img_dir)
+    existing_filenames = [os.path.basename(f) for f in existing_files]
+
     # Add boolean column
     source_df["in_img_dir"] = source_df[filename_col].isin(existing_filenames)
     
     # Create filtered DataFrame
     missing_df = source_df[~source_df["in_img_dir"]].copy()
     
-    # Print directory status message
-    num_existing = sum(source_df["in_img_dir"])
-    expected_num = source_df.shape[0]
-    print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
-    
     # Exit if all images are already there
     if missing_df.empty:
         sys.exit(f"'{img_dir}' already contains all images. Exited without executing.")
-
+    else:
+        # Print directory status message - pre-download
+        num_existing = sum(source_df["in_img_dir"])
+        expected_num = source_df.shape[0]
+        print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
+        
     return source_df, missing_df
     
