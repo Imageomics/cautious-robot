@@ -14,6 +14,7 @@ from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot.utils import check_exisiting_images
 
 
 def parse_args():
@@ -160,9 +161,10 @@ def main():
     # Set source DataFrame for only non-null filename values
     source_df = data_df.loc[data_df[filename_col].notna()].copy()
 
-    # Validate output directory
+    # Validate and handle existing output directory
     img_dir = args.output_dir
-    validate_output_directory(img_dir)
+    # validate_output_directory(img_dir)
+    source_df, filtered_df = check_exisiting_images(csv_path, img_dir, source_df, filename_col)
 
     # Set up log paths
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)
@@ -171,7 +173,7 @@ def main():
     if isinstance(args.side_length, int):
         downsample_dest_path = img_dir + "_downsized"
         # Download images from urls & save downsample copy
-        download_images(source_df,
+        download_images(filtered_df,
                        img_dir=img_dir,
                        log_filepath=log_filepath,
                        error_log_filepath=error_log_filepath,
@@ -186,7 +188,7 @@ def main():
         print(f"Images downloaded from {csv_path} to {img_dir}, with downsampled images in {downsample_dest_path}.")
     else:
         # Download images from urls without downsample copy
-        download_images(source_df,
+        download_images(filtered_df,
                        img_dir=img_dir,
                        log_filepath=log_filepath,
                        error_log_filepath=error_log_filepath,
