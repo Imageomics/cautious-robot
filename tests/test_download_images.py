@@ -454,7 +454,7 @@ class TestMainFunction(unittest.TestCase):
         mock_process_csv.return_value = mock_data
         mock_check_existing.return_value = (mock_data, mock_data)
 
-        with self.assertRaises(SystemExit) as cm:
+        with self.assertRaises(SystemExit):
             main()
         
 
