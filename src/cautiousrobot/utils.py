@@ -90,9 +90,18 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col):
     Adds a new boolean column `in_img_dir` to source_df indicating which images
     are already in the directory.
 
+    If all images already exist in the directory, the function will exit early
+    by calling `sys.exit()`, and no further processing will occur.
+
+    Parameters:
+        csv_path (str): Path to the CSV file containing image information.
+        img_dir (str): Path to the directory where images are stored.
+        source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
+        filename_col (str): Name of the column in source_df that contains image filenames.
+
     Returns:
-        updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir'
-        missing_df (pd.DataFrame): DataFrame filtered to only files not present
+        updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
+        missing_df (pd.DataFrame): DataFrame filtered to only files not present in img_dir.
     """
     if not os.path.exists(img_dir):
         # Directory doesn't exist, so nothing to check
