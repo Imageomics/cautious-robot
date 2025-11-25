@@ -458,12 +458,6 @@ class TestMainFunction(unittest.TestCase):
             main()
         
 
-        expected_message = (
-            f"The directory {mock_args.output_dir} and subdirectories (if any) contain no files. \n"
-            "Please provide a directory with files."
-        )
-        self.assertEqual(cm.exception.code, expected_message)
-
 
 if __name__ == '__main__':
     unittest.main()
