@@ -170,7 +170,7 @@ cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test
  > 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [02:32<00:00, 76.36s/it]
  > Images downloaded from examples/HCGSD_testNA.csv to examples/test_images.
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
- > Calculating md5 checksums on examples/test_images_md5_mismatch: 100%|████████████████████████████████| 8/8 [00:00<00:00, 4159.98it/s]
+ > Calculating md5 checksums on examples/test_images: 100%|████████████████████████████████| 8/8 [00:00<00:00, 4159.98it/s]
  > md5 checksums for examples/test_images written to examples/HCGSD_testNA_checksums.csv
  > There are 8 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
  > ```
