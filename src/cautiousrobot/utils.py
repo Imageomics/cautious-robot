@@ -83,7 +83,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
         
-def check_existing_images(csv_path, img_dir, source_df, filename_col):
+def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders_col = None):
     """
     Checks which files from the CSV already exist in the image directory.
 
@@ -98,6 +98,7 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col):
         img_dir (str): Path to the directory where images are stored.
         source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
         filename_col (str): Name of the column in source_df that contains image filenames.
+        subfolders_col (str): Name of the column in source_df that contains subfolder names. (optional)
 
     Returns:
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
@@ -109,10 +110,21 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col):
         return source_df, source_df
 
     existing_files = gather_file_paths(img_dir)
-    existing_filenames = [os.path.basename(f) for f in existing_files]
+    existing_full_paths = {os.path.relpath(f, img_dir) for f in existing_files}
 
-    # Add boolean column
-    source_df["in_img_dir"] = source_df[filename_col].isin(existing_filenames)
+    if subfolders_col:
+        # Replicate the download logic: subfolder/filename
+        source_df["expected_path"] = (
+            source_df[subfolders_col].astype(str) + os.sep + source_df[filename_col].astype(str)
+        )
+    else:
+        # Flat directory: just the filename
+        source_df["expected_path"] = source_df[filename_col].astype(str)
+    
+    source_df["in_img_dir"] = source_df["expected_path"].isin(existing_full_paths)
+    
+    # Clean up the temporary column before returning.
+    source_df = source_df.drop(columns=["expected_path"])
     
     # Create filtered DataFrame
     missing_df = source_df[~source_df["in_img_dir"]].copy()

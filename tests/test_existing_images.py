@@ -25,7 +25,7 @@ class TestCheckExistingImages(unittest.TestCase):
         mock_exists.assert_called_once_with(self.img_dir)
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=["/fake/path/a.jpg"])
+    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/a.jpg"])
     @patch("cautiousrobot.utils.print")
     def test_some_files_exist(self, mock_print, mock_gather, mock_exists):
         """Should mark existing files correctly and print status."""
@@ -41,7 +41,7 @@ class TestCheckExistingImages(unittest.TestCase):
         self.assertIn("There are 1 files", mock_print.call_args[0][0])
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=["/fake/path/a.jpg", "/fake/path/b.jpg", "/fake/path/c.jpg"])
+    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/a.jpg", "test_images/b.jpg", "test_images/c.jpg"])
     def test_all_files_exist_exits(self, mock_gather, mock_exists):
         """If all images exist, should exit early with proper message."""
         with self.assertRaises(SystemExit) as cm:
