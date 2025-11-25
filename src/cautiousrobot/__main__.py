@@ -163,7 +163,6 @@ def main():
 
     # Validate and handle existing output directory
     img_dir = args.output_dir
-    # validate_output_directory(img_dir)
     source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col)
 
     # Set up log paths
