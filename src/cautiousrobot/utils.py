@@ -6,6 +6,7 @@ import pandas as pd
 import os
 from PIL import Image
 from sumbuddy import gather_file_paths
+from sumbuddy.exceptions import EmptyInputDirectoryError
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -109,7 +110,13 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         source_df["in_img_dir"] = False
         return source_df, source_df
 
-    existing_files = gather_file_paths(img_dir)
+    try:
+        existing_files = gather_file_paths(img_dir)
+    except EmptyInputDirectoryError:
+        # If the directory exists but is empty, sumbuddy raises an error.
+        # We catch it and treat it as an empty file list.
+        existing_files = []
+    
     existing_full_paths = {os.path.relpath(f, img_dir) for f in existing_files}
 
     if subfolders_col:
@@ -139,4 +146,3 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
         
     return source_df, missing_df
-    
