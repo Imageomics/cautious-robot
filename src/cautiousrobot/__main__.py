@@ -11,12 +11,9 @@ import hashlib
 import os
 import sys
 from sumbuddy import get_checksums
-from cautiousrobot.utils import process_csv
+from cautiousrobot.utils import process_csv, check_existing_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
-from cautiousrobot.utils import check_existing_images
-
-
 def parse_args():
     available_algorithms = ', '.join(hashlib.algorithms_available)
 
