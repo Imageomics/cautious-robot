@@ -49,7 +49,7 @@ class TestCheckExistingImages(unittest.TestCase):
                 self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
             )
 
-        self.assertIn("already contains all images", str(cm.exception))
+        self.assertIn("already contains all images", cm.exception.code)
         mock_exists.assert_called_once_with(self.img_dir)
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
