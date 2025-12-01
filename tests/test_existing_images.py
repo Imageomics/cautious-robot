@@ -15,7 +15,7 @@ class TestCheckExistingImages(unittest.TestCase):
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=False)
     def test_directory_does_not_exist(self, mock_exists):
-        """If image directory doesn't exist, all images marked missing."""
+        """If image directory doesn't exist, all images marked as not in directory."""
         updated_df, missing_df = check_existing_images(
             self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
         )
