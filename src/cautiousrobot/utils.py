@@ -105,10 +105,13 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
         missing_df (pd.DataFrame): DataFrame filtered to only files not present in img_dir.
     """
+    # Create a copy to avoid modifying the original DataFrame
+    df = source_df.copy()
+    
     if not os.path.exists(img_dir):
         # Directory doesn't exist, so nothing to check
-        source_df["in_img_dir"] = False
-        return source_df, source_df
+        df["in_img_dir"] = False
+        return df, df
 
     try:
         existing_files = gather_file_paths(img_dir)
@@ -121,29 +124,29 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
 
     if subfolders:
         # We use a generic join here, but the apply(os.path.normpath) below fixes it for the specific OS
-        raw_paths = source_df[subfolders].astype(str) + os.sep + source_df[filename_col].astype(str)
+        raw_paths = df[subfolders].astype(str) + os.sep + df[filename_col].astype(str)
 
         # This converts '/' to '\' on Windows, or vice versa, ensuring a match
-        source_df["expected_path"] = raw_paths.apply(os.path.normpath)
+        df["expected_path"] = raw_paths.apply(os.path.normpath)
     else:
         # Normalize even simple filenames just in case they contain pathing characters
-        source_df["expected_path"] = source_df[filename_col].astype(str).apply(os.path.normpath)
+        df["expected_path"] = df[filename_col].astype(str).apply(os.path.normpath)
     
-    source_df["in_img_dir"] = source_df["expected_path"].isin(existing_full_paths)
+    df["in_img_dir"] = df["expected_path"].isin(existing_full_paths)
     
     # Clean up the temporary column before returning.
-    source_df = source_df.drop(columns=["expected_path"])
+    df = df.drop(columns=["expected_path"])
     
     # Create filtered DataFrame
-    missing_df = source_df[~source_df["in_img_dir"]].copy()
+    missing_df = df[~df["in_img_dir"]].copy()
     
     # Exit if all images are already there
     if missing_df.empty:
         sys.exit(f"'{img_dir}' already contains all images. Exited without executing.")
     else:
         # Print directory status message - pre-download
-        num_existing = sum(source_df["in_img_dir"])
-        expected_num = source_df.shape[0]
+        num_existing = sum(df["in_img_dir"])
+        expected_num = df.shape[0]
         print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
         
-    return source_df, missing_df
+    return df, missing_df
