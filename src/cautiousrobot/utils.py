@@ -117,16 +117,17 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         # We catch it and treat it as an empty file list.
         existing_files = []
     
-    existing_full_paths = {os.path.relpath(f, img_dir) for f in existing_files}
+    existing_full_paths = {os.path.normpath(os.path.relpath(f, img_dir)) for f in existing_files}
 
     if subfolders:
-        # Replicate the download logic: subfolder/filename
-        source_df["expected_path"] = (
-            source_df[subfolders].astype(str) + os.sep + source_df[filename_col].astype(str)
-        )
+        # We use a generic join here, but the apply(os.path.normpath) below fixes it for the specific OS
+        raw_paths = source_df[subfolders].astype(str) + os.sep + source_df[filename_col].astype(str)
+
+        # This converts '/' to '\' on Windows, or vice versa, ensuring a match
+        source_df["expected_path"] = raw_paths.apply(os.path.normpath)
     else:
-        # Flat directory: just the filename
-        source_df["expected_path"] = source_df[filename_col].astype(str)
+        # Normalize even simple filenames just in case they contain pathing characters
+        source_df["expected_path"] = source_df[filename_col].astype(str).apply(os.path.normpath)
     
     source_df["in_img_dir"] = source_df["expected_path"].isin(existing_full_paths)
     
