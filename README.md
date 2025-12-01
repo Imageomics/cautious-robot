@@ -147,7 +147,7 @@ cautious-robot -i examples/HCGSD_test_MD5_mismatch.csv -o examples/test_images_m
  > There are 8 files in examples/test_images_md5_mismatch. Based on examples/HCGSD_test_MD5_mismatch.csv, there should be 8 images.
  > Image mismatch: 1 image(s) not aligned, see examples/HCGSD_test_MD5_mismatch_missing.csv for missing image info and check logs.
  > ```
-```
+```bash
 # Check on that mis-aligned image
 head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
 ```
