@@ -159,9 +159,12 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
 
 - **Download Partially Existing Images:** some (or all) images may already exist in the output directory
 ```bash
-cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # 1. Download the images first
-rm ./examples/test_images/104281* # 2. Remove some of the images
-cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # 3. Download the same set of images
+# 1. Download the images
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
+# 2. Remove some of the images
+rm ./examples/test_images/104281
+# 3. Download the same set of images to get only those removed at 2
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
 ```
 
  > Output:
