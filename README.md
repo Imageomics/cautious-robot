@@ -178,7 +178,8 @@ cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test
  > There are 8 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
  > ```
 ```bash 
-cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images # Attempt to download the same set of images
+# Attempt to download the same set of images
+cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
 ```
 
  > Output:
