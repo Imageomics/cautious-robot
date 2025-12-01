@@ -66,6 +66,24 @@ class TestCheckExistingImages(unittest.TestCase):
         mock_print.assert_called_once()
         self.assertIn("There are 0 files", mock_print.call_args[0][0])
 
+    @patch("cautiousrobot.utils.os.path.exists", return_value=True)
+    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/species1/a.jpg", "test_images/shouldnotcount/b.jpg"])
+    def test_subfolders_handling(self, mock_gather, mock_exists):
+        """When `subfolders` is provided, expected paths should be constructed and matched."""
+        sub_df = pd.DataFrame({
+            "subfolder": ["species1", "species2"],
+            self.filename_col: ["a.jpg", "b.jpg"]
+        })
+
+        updated_df, missing_df = check_existing_images(
+            self.csv_path, self.img_dir, sub_df.copy(), self.filename_col, subfolders="subfolder"
+        )
+
+        # species1/a.jpg should be marked present, species2/b.jpg missing
+        self.assertTrue(updated_df.loc[0, "in_img_dir"])
+        self.assertFalse(updated_df.loc[1, "in_img_dir"])
+        self.assertEqual(len(missing_df), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
