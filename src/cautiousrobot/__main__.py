@@ -102,7 +102,7 @@ def process_checksums(img_dir, metadata_path, args, source_df):
         
         # Verify numbers
         checksum_df = pd.read_csv(checksum_path, low_memory=False)
-        expected_num_imgs = source_df.shape[0]
+        expected_num_imgs = source_df.shape[0] - (args.starting_idx)
         print(f"There are {checksum_df.shape[0]} files in {img_dir}. Based on {args.input_file}, there should be {expected_num_imgs} images.")
         
         return checksum_df, expected_num_imgs
@@ -161,7 +161,7 @@ def main():
 
     # Validate and handle existing output directory
     img_dir = args.output_dir
-    source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
+    source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders, args.starting_idx)
 
     # Set up log paths
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)

@@ -84,7 +84,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
         
-def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders = None):
+def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders = None, starting_idx = 0):
     """
     Checks which files from the CSV already exist in the image directory.
 
@@ -100,6 +100,7 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
         filename_col (str): Name of the column in source_df that contains image filenames.
         subfolders (str): Name of the column in source_df that contains subfolder names. (optional)
+        starting_idx (int): Index to start checking from. (optional)
 
     Returns:
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
@@ -111,6 +112,10 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     if not os.path.exists(img_dir):
         # Directory doesn't exist, so nothing to check
         df["in_img_dir"] = False
+        
+        # If we have a starting index, we still need to mark the skipped ones as True
+        if starting_idx > 0:
+             df.iloc[:starting_idx, df.columns.get_loc("in_img_dir")] = True
         return df, df
 
     try:
@@ -131,8 +136,13 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     else:
         # Normalize even simple filenames just in case they contain pathing characters
         df["expected_path"] = df[filename_col].astype(str).apply(os.path.normpath)
+        
+    # Determine which expected paths physically exist
+    expected_present = df["expected_path"].isin(existing_full_paths)
+    df["in_img_dir"] = expected_present.copy()
     
-    df["in_img_dir"] = df["expected_path"].isin(existing_full_paths)
+    if starting_idx > 0:
+        df.iloc[:starting_idx, df.columns.get_loc("in_img_dir")] = True
     
     # Clean up the temporary column before returning.
     df = df.drop(columns=["expected_path"])
@@ -145,8 +155,8 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         sys.exit(f"'{img_dir}' already contains all images. Exited without executing.")
     else:
         # Print directory status message - pre-download
-        num_existing = sum(df["in_img_dir"])
-        expected_num = df.shape[0]
+        num_existing = len(existing_files)
+        expected_num = df.shape[0] - (starting_idx)
         print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
         
     return df, missing_df
