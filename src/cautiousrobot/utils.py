@@ -84,7 +84,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
         
-def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders_col = None):
+def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders = None):
     """
     Checks which files from the CSV already exist in the image directory.
 
@@ -99,7 +99,7 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         img_dir (str): Path to the directory where images are stored.
         source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
         filename_col (str): Name of the column in source_df that contains image filenames.
-        subfolders_col (str): Name of the column in source_df that contains subfolder names. (optional)
+        subfolders (str): Name of the column in source_df that contains subfolder names. (optional)
 
     Returns:
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
@@ -119,10 +119,10 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     
     existing_full_paths = {os.path.relpath(f, img_dir) for f in existing_files}
 
-    if subfolders_col:
+    if subfolders:
         # Replicate the download logic: subfolder/filename
         source_df["expected_path"] = (
-            source_df[subfolders_col].astype(str) + os.sep + source_df[filename_col].astype(str)
+            source_df[subfolders].astype(str) + os.sep + source_df[filename_col].astype(str)
         )
     else:
         # Flat directory: just the filename
