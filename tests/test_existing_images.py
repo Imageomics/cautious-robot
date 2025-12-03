@@ -17,7 +17,7 @@ class TestCheckExistingImages(unittest.TestCase):
     def test_directory_does_not_exist(self, mock_exists):
         """If image directory doesn't exist, all images marked as not in directory."""
         updated_df, filtered_df = check_existing_images(
-            self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
+            self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
         self.assertFalse(any(updated_df["in_img_dir"]))
@@ -30,7 +30,7 @@ class TestCheckExistingImages(unittest.TestCase):
     def test_some_files_exist(self, mock_print, mock_gather, mock_exists):
         """Should mark existing files correctly and print status."""
         updated_df, filtered_df = check_existing_images(
-            self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
+            self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
         self.assertTrue(updated_df.loc[0, "in_img_dir"])   # a.jpg exists
@@ -46,7 +46,7 @@ class TestCheckExistingImages(unittest.TestCase):
         """If all images exist, should exit early with proper message."""
         with self.assertRaises(SystemExit) as cm:
             check_existing_images(
-                self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
+                self.csv_path, self.img_dir, self.sample_df, self.filename_col
             )
 
         self.assertIn("already contains all images", cm.exception.code)
@@ -58,7 +58,7 @@ class TestCheckExistingImages(unittest.TestCase):
     def test_no_files_exist(self, mock_print, mock_gather, mock_exists):
         """If no files exist, should mark all as missing and print message."""
         updated_df, filtered_df = check_existing_images(
-            self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
+            self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
         self.assertFalse(any(updated_df["in_img_dir"]))
@@ -76,7 +76,7 @@ class TestCheckExistingImages(unittest.TestCase):
         })
 
         updated_df, filtered_df = check_existing_images(
-            self.csv_path, self.img_dir, sub_df.copy(), self.filename_col, subfolders="subfolder"
+            self.csv_path, self.img_dir, sub_df, self.filename_col, subfolders="subfolder"
         )
 
         # species1/a.jpg should be marked present, species2/b.jpg missing
