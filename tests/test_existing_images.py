@@ -16,12 +16,12 @@ class TestCheckExistingImages(unittest.TestCase):
     @patch("cautiousrobot.utils.os.path.exists", return_value=False)
     def test_directory_does_not_exist(self, mock_exists):
         """If image directory doesn't exist, all images marked as not in directory."""
-        updated_df, missing_df = check_existing_images(
+        updated_df, filtered_df = check_existing_images(
             self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
         )
 
         self.assertFalse(any(updated_df["in_img_dir"]))
-        self.assertEqual(len(missing_df), len(self.sample_df))
+        self.assertEqual(len(filtered_df), len(self.sample_df))
         mock_exists.assert_called_once_with(self.img_dir)
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
@@ -29,14 +29,14 @@ class TestCheckExistingImages(unittest.TestCase):
     @patch("cautiousrobot.utils.print")
     def test_some_files_exist(self, mock_print, mock_gather, mock_exists):
         """Should mark existing files correctly and print status."""
-        updated_df, missing_df = check_existing_images(
+        updated_df, filtered_df = check_existing_images(
             self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
         )
 
         self.assertTrue(updated_df.loc[0, "in_img_dir"])   # a.jpg exists
         self.assertFalse(updated_df.loc[1, "in_img_dir"])  # b.jpg missing
         self.assertFalse(updated_df.loc[2, "in_img_dir"])  # c.jpg missing
-        self.assertEqual(len(missing_df), 2)
+        self.assertEqual(len(filtered_df), 2)
         mock_print.assert_called_once()
         self.assertIn("There are 1 files", mock_print.call_args[0][0])
 
@@ -57,12 +57,12 @@ class TestCheckExistingImages(unittest.TestCase):
     @patch("cautiousrobot.utils.print")
     def test_no_files_exist(self, mock_print, mock_gather, mock_exists):
         """If no files exist, should mark all as missing and print message."""
-        updated_df, missing_df = check_existing_images(
+        updated_df, filtered_df = check_existing_images(
             self.csv_path, self.img_dir, self.sample_df.copy(), self.filename_col
         )
 
         self.assertFalse(any(updated_df["in_img_dir"]))
-        self.assertEqual(len(missing_df), len(self.sample_df))
+        self.assertEqual(len(filtered_df), len(self.sample_df))
         mock_print.assert_called_once()
         self.assertIn("There are 0 files", mock_print.call_args[0][0])
 
@@ -75,14 +75,14 @@ class TestCheckExistingImages(unittest.TestCase):
             self.filename_col: ["a.jpg", "b.jpg"]
         })
 
-        updated_df, missing_df = check_existing_images(
+        updated_df, filtered_df = check_existing_images(
             self.csv_path, self.img_dir, sub_df.copy(), self.filename_col, subfolders="subfolder"
         )
 
         # species1/a.jpg should be marked present, species2/b.jpg missing
         self.assertTrue(updated_df.loc[0, "in_img_dir"])
         self.assertFalse(updated_df.loc[1, "in_img_dir"])
-        self.assertEqual(len(missing_df), 1)
+        self.assertEqual(len(filtered_df), 1)
 
 
 if __name__ == "__main__":

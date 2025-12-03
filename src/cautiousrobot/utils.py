@@ -104,7 +104,7 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
 
     Returns:
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
-        missing_df (pd.DataFrame): DataFrame filtered to only files not present in img_dir.
+        filtered_df (pd.DataFrame): DataFrame filtered to only files not present in img_dir.
     """
     # Create a copy to avoid modifying the original DataFrame
     df = source_df.copy()
@@ -148,10 +148,10 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     df = df.drop(columns=["expected_path"])
     
     # Create filtered DataFrame
-    missing_df = df[~df["in_img_dir"]].copy()
+    filtered_df = df[~df["in_img_dir"]].copy()
     
     # Exit if all images are already there
-    if missing_df.empty:
+    if filtered_df.empty:
         sys.exit(f"'{img_dir}' already contains all images. Exited without executing.")
     else:
         # Print directory status message - pre-download
@@ -159,4 +159,4 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         expected_num = df.shape[0] - (starting_idx)
         print(f"There are {num_existing} files in {img_dir}. Based on {csv_path}, there should be {expected_num} images.")
         
-    return df, missing_df
+    return df, filtered_df
