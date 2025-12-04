@@ -56,7 +56,7 @@ class TestCheckExistingImages(unittest.TestCase):
     @patch("cautiousrobot.utils.gather_file_paths", return_value=[])
     @patch("cautiousrobot.utils.print")
     def test_no_files_exist(self, mock_print, mock_gather, mock_exists):
-        """If no files exist, should mark all as missing and print message."""
+        """If no files exist, should mark all as not in directory and print message."""
         updated_df, filtered_df = check_existing_images(
             self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
