@@ -116,7 +116,9 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         # If we have a starting index, we still need to mark the skipped ones as True
         if starting_idx > 0:
              df.iloc[:starting_idx, df.columns.get_loc("in_img_dir")] = True
-        return df, df
+        # Return the updated df and the filtered dataframe of items that still need downloading
+        filtered_df = df[~df["in_img_dir"]].copy()
+        return df, filtered_df
 
     try:
         existing_files = gather_file_paths(img_dir)
