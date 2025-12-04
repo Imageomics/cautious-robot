@@ -1,4 +1,4 @@
-# Copilot Instructions for cautious-robot
+# Project Guide for cautious-robot
 
 ## Project Overview
 
