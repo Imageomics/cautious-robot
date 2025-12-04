@@ -96,7 +96,7 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
 
     Parameters:
         csv_path (str): Path to the CSV file containing image information.
-        img_dir (str): Path to the directory where images are stored.
+        img_dir (str): Path to the directory where images are to be stored.
         source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
         filename_col (str): Name of the column in source_df that contains image filenames.
         subfolders (str): Name of the column in source_df that contains subfolder names. (optional)
