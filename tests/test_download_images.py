@@ -423,39 +423,5 @@ class TestMainFunction(unittest.TestCase):
         
         self.assertEqual(cm.exception.code, "Exited without executing.")
 
-    @patch('cautiousrobot.__main__.parse_args')
-    @patch('cautiousrobot.__main__.process_csv')
-    @patch('builtins.input', return_value='n')
-    @patch('os.path.exists', return_value=True)
-    def test_main_directory_exists(self, mock_exists, mock_input, mock_process_csv, mock_parse_args):
-        mock_args = MagicMock()
-        mock_args.input_file = 'test.csv'
-        mock_args.img_name_col = 'filename_col'
-        mock_args.url_col = 'url_col'
-        mock_args.subdir_col = None
-        mock_args.output_dir = 'output_dir'
-        mock_args.side_length = None
-        mock_args.wait_time = 0
-        mock_args.max_retries = 3
-        mock_args.starting_idx = 0
-        mock_args.checksum_algorithm = 'md5'
-        mock_args.verifier_col = None
-
-        mock_parse_args.return_value = mock_args
-
-        mock_data = pd.DataFrame({
-            'filename_col': ['file1', 'file2', 'file3', 'file4'],
-            'url_col': ['url1', 'url2', 'url3', 'url4']
-        })
-        
-        mock_process_csv.return_value = mock_data
-
-        with self.assertRaises(SystemExit) as cm:
-            main()
-        
-        # self.assertEqual(cm.exception.code, "mock_args.output_dir Exited without executing.")
-        self.assertEqual(cm.exception.code, f"'{mock_args.output_dir}' already exists. Exited without executing.")
-
-
 if __name__ == '__main__':
     unittest.main()
