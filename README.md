@@ -153,8 +153,8 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
 ```
  > Output:
  > ```console
- > nhm_specimen,species,subspecies,sex,file_url,filename,md5
- > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.png,mismatch
+ > nhm_specimen,species,subspecies,sex,file_url,filename,md5,in_img_dir
+ > 10428972,erato,petiverana,male,https://github.com/Imageomics/dashboard-prototype/raw/main/test_data/images/ventral_images/10428972_V_lowres.png,10428972_V_lowres.png,mismatch,False
  > ```
 
 - **Download Partially Existing Images:** some (or all) images may already exist in the output directory
@@ -169,7 +169,7 @@ cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test
 
  > Output:
  > ```console
- > There are 6 files in examples/test_images. Based on examples/HCGSD_testNA.csv, there should be 8 images.
+ > There are 6 of the desired files already in examples/test_images. Based on examples/HCGSD_testNA.csv, 2 images should be downloaded.
  > 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [02:32<00:00, 76.36s/it]
  > Images downloaded from examples/HCGSD_testNA.csv to examples/test_images.
  > Download logs are in examples/HCGSD_testNA_log.jsonl and examples/HCGSD_testNA_error_log.jsonl.
