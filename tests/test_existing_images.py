@@ -38,7 +38,7 @@ class TestCheckExistingImages(unittest.TestCase):
         self.assertFalse(updated_df.loc[2, "in_img_dir"])  # c.jpg missing
         self.assertEqual(len(filtered_df), 2)
         mock_print.assert_called_once()
-        self.assertIn("There are 1 of desired files", mock_print.call_args[0][0])
+        self.assertIn("There are 1 of the desired files", mock_print.call_args[0][0])
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
     @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/a.jpg", "test_images/b.jpg", "test_images/c.jpg"])
@@ -64,7 +64,7 @@ class TestCheckExistingImages(unittest.TestCase):
         self.assertFalse(any(updated_df["in_img_dir"]))
         self.assertEqual(len(filtered_df), len(self.sample_df))
         mock_print.assert_called_once()
-        self.assertIn("There are 0 of desired files", mock_print.call_args[0][0])
+        self.assertIn("There are 0 of the desired files", mock_print.call_args[0][0])
 
     @patch("cautiousrobot.utils.os.path.exists", return_value=True)
     @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/species1/a.jpg", "test_images/shouldnotcount/b.jpg"])

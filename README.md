@@ -162,7 +162,7 @@ head -n 2 examples/HCGSD_test_MD5_mismatch_missing.csv
 # 1. Download the images
 cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
 # 2. Remove some of the images
-rm ./examples/test_images/104281
+rm ./examples/test_images/104281*
 # 3. Download the same set of images to get only those removed at 2
 cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
 ```

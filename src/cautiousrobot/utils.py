@@ -158,6 +158,6 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     else:
         # Print directory status message - pre-download
         num_existing = len(existing_files)
-        print(f"There are {num_existing} of desired files in {img_dir}. Based on {csv_path}, {filtered_df.shape[0]} images should be downloaded.")
+        print(f"There are {num_existing} of the desired files already in {img_dir}. Based on {csv_path}, {filtered_df.shape[0]} images should be downloaded.")
         
     return df, filtered_df
