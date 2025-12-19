@@ -59,7 +59,7 @@
 
 ### Optional Arguments
 - `-s, --subdir-col`: Column name for subdirectory organization
-- `-n, --img-name-col`: Column for image filenames (default: "filename")
+- `-n, --img-name-col`: C olumn for image filenames (default: "filename")
 - `-u, --url-col`: Column with URLs (default: "file_url")
 - `-w, --wait-time`: Retry delay in seconds (default: 3)
 - `-r, --max-retries`: Maximum retry attempts for a single image (default: 5)
@@ -165,3 +165,16 @@
 ### Basic Usage
 ```bash
 cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
+```
+
+### With Subdirectories and Checksums
+```bash
+cautious-robot -i data.csv -o images -s species -a sha256 -v expected_sha256
+```
+
+### With Downsampling
+```bash
+cautious-robot -i data.csv -o images -l 512
+```
+
+When implementing features or fixing bugs, consider the tool's primary use case in scientific image processing workflows, where data integrity and reliable downloads are critical.
