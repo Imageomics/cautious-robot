@@ -11,6 +11,7 @@
 - Comprehensive logging of downloads and errors
 - CSV validation and data integrity checks
 - Support for organizing downloads into subdirectories
+- Smart download resumption by checking for existing files
 
 ## Architecture and Code Organization
 
@@ -25,6 +26,7 @@
 - `BuddyCheck` - Main class for validating downloads against expected checksums
 - `download_images()` - Core function for downloading images with progress tracking
 - `process_csv()` - Validates and processes input CSV files
+- `check_existing_images()` - Filters out images that have already been downloaded to the target directory
 - `downsample_and_save_image()` - Handles image resizing operations
 
 ## Development Guidelines
@@ -61,7 +63,6 @@
 - `-u, --url-col`: Column with URLs (default: "file_url")
 - `-w, --wait-time`: Retry delay in seconds (default: 3)
 - `-r, --max-retries`: Maximum retry attempts for a single image (default: 5)
-- `-x, --starting-idx`: Index of DataFrame from CSV at which to start download (default: 0)
 - `-l, --side-length`: Pixels per side for square resized images
 - `-a, --checksum-algorithm`: Hash algorithm for checksums (default: "md5")
 - `-v, --verifier-col`: Column with expected checksums for validation
@@ -78,7 +79,7 @@
 - Verify CSV file extension
 - Check for required columns in CSV
 - Validate filename uniqueness
-- Prevent overwriting existing output directories
+- Check for existing images in output directory to skip re-downloads
 - Handle missing filenames with user prompts
 
 ### Download Reliability
@@ -164,16 +165,3 @@
 ### Basic Usage
 ```bash
 cautious-robot --input-file examples/HCGSD_testNA.csv --output-dir examples/test_images
-```
-
-### With Subdirectories and Checksums
-```bash
-cautious-robot -i data.csv -o images -s species -a sha256 -v expected_sha256
-```
-
-### With Downsampling
-```bash
-cautious-robot -i data.csv -o images -l 512
-```
-
-When implementing features or fixing bugs, consider the tool's primary use case in scientific image processing workflows, where data integrity and reliable downloads are critical.
