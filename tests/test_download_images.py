@@ -328,7 +328,6 @@ class TestMainFunction(unittest.TestCase):
         mock_args.side_length = None
         mock_args.wait_time = 0
         mock_args.max_retries = 3
-        mock_args.starting_idx = 0
         mock_args.checksum_algorithm = 'md5'
         mock_args.verifier_col = None
 

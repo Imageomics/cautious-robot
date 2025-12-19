@@ -383,7 +383,7 @@ def process_downsampling(data, i, image_name, image_dir_path, downsample_path,
 
 def download_images(data, img_dir, log_filepath, error_log_filepath, filename="filename",
                    subfolders=None, downsample_path=None, downsample=None,
-                   file_url="file_url", wait=3, retry=5, starting_index=0):
+                   file_url="file_url", wait=3, retry=5):
     """
     Download images to img_dir and downsampled images to a chosen downsized image path.
 
@@ -399,7 +399,6 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
     - file_url (str): Name of column to use for image urls (default: 'file_url')
     - wait (int): Seconds to wait between retries for an image (default: 3)
     - retry (int): Max number of times to retry downloading an image (default: 5)
-    - starting_index (int): Index at which to start the download (default: 0)
     
     Returns:
     - None
@@ -409,8 +408,6 @@ def download_images(data, img_dir, log_filepath, error_log_filepath, filename="f
 
     # Process each row in the DataFrame
     for i in tqdm(data.index):
-        if i < starting_index:
-            continue
 
         # Get URL and handle missing URLs first (before any path operations)
         url = data[file_url][i]

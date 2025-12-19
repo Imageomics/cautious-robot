@@ -84,7 +84,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
         
-def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders = None, starting_idx = 0):
+def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders = None):
     """
     Checks which files from the CSV already exist in the image directory.
 
@@ -100,7 +100,6 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         source_df (pd.DataFrame): DataFrame loaded from the CSV, containing image metadata.
         filename_col (str): Name of the column in source_df that contains image filenames.
         subfolders (str): Name of the column in source_df that contains subfolder names. (optional)
-        starting_idx (int): Index to start checking from. (optional)
 
     Returns:
         updated_df (pd.DataFrame): DataFrame with new column 'in_img_dir' indicating presence in img_dir.
@@ -113,9 +112,6 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
         # Directory doesn't exist, so nothing to check
         df["in_img_dir"] = False
         
-        # If we have a starting index, we still need to mark the skipped ones as True
-        if starting_idx > 0:
-             df.iloc[:starting_idx, df.columns.get_loc("in_img_dir")] = True
         # Return the updated df and the filtered dataframe of items that still need downloading
         filtered_df = df[~df["in_img_dir"]].copy()
         return df, filtered_df
@@ -142,9 +138,6 @@ def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders
     # Determine which expected paths physically exist
     expected_present = df["expected_path"].isin(existing_full_paths)
     df["in_img_dir"] = expected_present.copy()
-    
-    if starting_idx > 0:
-        df.iloc[:starting_idx, df.columns.get_loc("in_img_dir")] = True
     
     # Clean up the temporary column before returning.
     df = df.drop(columns=["expected_path"])
