@@ -29,7 +29,7 @@ After downloading the images, cautious-robot calls [`sum-buddy`](https://github.
 ### Command Line Usage
 ```
 usage: cautious-robot [-h] -i [INPUT_FILE] -o [OUTPUT_DIR] [-s [SUBDIR_COL]] [-n [IMG_NAME_COL]] [-u [URL_COL]] [-w WAIT_TIME]
-                      [-r MAX_RETRIES] [-l SIDE_LENGTH] [-x STARTING_IDX] [-a CHECKSUM_ALGORITHM] [-v [VERIFIER_COL]]
+                      [-r MAX_RETRIES] [-l SIDE_LENGTH] [-a CHECKSUM_ALGORITHM] [-v [VERIFIER_COL]]
 
 options:
   -h, --help            show this help message and exit
@@ -53,8 +53,6 @@ optional arguments:
                         max times to retry download on a single image (default: 5)
   -l SIDE_LENGTH, --side-length SIDE_LENGTH
                         number of pixels per side for resized square images (default: no resized images created)
-  -x STARTING_IDX, --starting-idx STARTING_IDX
-                        index of CSV at which to start download (default: 0)
   -a CHECKSUM_ALGORITHM, --checksum-algorithm CHECKSUM_ALGORITHM
                         checksum algorithm to use on images (default: md5, available: sha256, sha384, md5-sha1, blake2b, sha512,
                         sha1, sm3, sha3_256, sha512_256, sha224, sha3_224, ripemd160, sha3_384, shake_128, blake2s, md5, sha3_512,

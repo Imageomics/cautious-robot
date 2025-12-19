@@ -37,7 +37,6 @@ def parse_args():
     opt_args.add_argument("-l", "--side-length", required = False,
                         help = "number of pixels per side for resized square images (default: no resized images created)",
                         type = int)
-    opt_args.add_argument("-x", "--starting-idx", default = 0, help = "index of CSV at which to start download (default: 0)", type = int)
     opt_args.add_argument("-a", "--checksum-algorithm", default = 'md5', #choices = available_algorithms,
                         help = f"checksum algorithm to use on images (default: md5, available: {available_algorithms})"
                         )
@@ -161,7 +160,7 @@ def main():
 
     # Validate and handle existing output directory
     img_dir = args.output_dir
-    source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders, args.starting_idx)
+    source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
 
     # Set up log paths
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)
@@ -180,8 +179,7 @@ def main():
                        downsample=args.side_length,
                        file_url=url_col,
                        wait=args.wait_time,
-                       retry=args.max_retries,
-                       starting_index=args.starting_idx)
+                       retry=args.max_retries)
         print(f"Images downloaded from {csv_path} to {img_dir}, with downsampled images in {downsample_dest_path}.")
     else:
         # Download images from urls without downsample copy
@@ -193,8 +191,7 @@ def main():
                        subfolders=subfolders,
                        file_url=url_col,
                        wait=args.wait_time,
-                       retry=args.max_retries,
-                       starting_index=args.starting_idx)
+                       retry=args.max_retries)
         print(f"Images downloaded from {csv_path} to {img_dir}.")
     
     print(f"Download logs are in {log_filepath} and {error_log_filepath}.")
