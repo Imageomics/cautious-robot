@@ -14,13 +14,21 @@ from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv, check_existing_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot import __version__
 
 def parse_args():
     available_algorithms = ', '.join(hashlib.algorithms_available)
 
     parser = argparse.ArgumentParser()
     # Use argument groups for required vs optional (both get short flags too) https://bugs.python.org/issue9694#msg132327
-    # Required arguments
+    # Optional arguments
+    parser.add_argument(
+    "--version",
+    action="version",
+    version=f"%(prog)s {__version__}",
+    help="Show version number and exit",
+)
+     # Required arguments
     req_args = parser.add_argument_group("required arguments")
     req_args.add_argument("-i", "--input-file", required = True, help = "path to CSV file with urls.", nargs = "?")
     req_args.add_argument("-o", "--output-dir", required = True, help = "main directory to download images into.", nargs = "?")
