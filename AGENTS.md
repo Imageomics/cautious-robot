@@ -59,7 +59,7 @@
 
 ### Optional Arguments
 - `-s, --subdir-col`: Column name for subdirectory organization
-- `-n, --img-name-col`: C olumn for image filenames (default: "filename")
+- `-n, --img-name-col`: Column for image filenames (default: "filename")
 - `-u, --url-col`: Column with URLs (default: "file_url")
 - `-w, --wait-time`: Retry delay in seconds (default: 3)
 - `-r, --max-retries`: Maximum retry attempts for a single image (default: 5)
