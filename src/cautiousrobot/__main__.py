@@ -14,7 +14,7 @@ from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv, check_existing_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
-from cautiousrobot import __version__
+from cautiousrobot.__about__ import __version__
 
 def parse_args():
     available_algorithms = ', '.join(hashlib.algorithms_available)

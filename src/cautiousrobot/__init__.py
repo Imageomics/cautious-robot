@@ -1,4 +1,3 @@
-__version__ = "1.1.0"
 from cautiousrobot.download import download_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.utils import downsample_and_save_image
