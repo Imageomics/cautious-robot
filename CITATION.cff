@@ -9,18 +9,22 @@ authors:
 - family-names: "Duan"
   given-names: "Yuehua"
   orcid: "https://orcid.org/0000-0002-8547-5907"
+- family-names: "Frasure"
+  given-names: "Emerson"
+- family-names: "Li"
+  given-names: "Dahlia"
 - family-names: "Lapp"
   given-names: "Hilmar"
   orcid: "https://orcid.org/0000-0001-9107-0714"
 cff-version: 1.2.0
-date-released: "2025-09-25"
+date-released: "2026-01-22"
 identifiers:
-  - description: "The GitHub release URL of tag v1.1.0."
+  - description: "The GitHub release URL of tag v2.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v1.1.0"
-  - description: "The GitHub URL of the commit tagged with v1.1.0."
+    value: "https://github.com/Imageomics/cautious-robot/releases/tag/v2.0.0"
+  - description: "The GitHub URL of the commit tagged with v2.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/tree/332a9eb498139f80213bf1b134e565c68ea9c0d0"
+    value: "https://github.com/Imageomics/cautious-robot/tree/<commit-hash>" # update on release
 keywords:
   - imageomics
   - metadata
@@ -37,6 +41,6 @@ license: MIT
 message: "If you use this software, please cite it using the metadata from this file."
 repository-code: "https://github.com/Imageomics/cautious-robot"
 title: "Cautious Robot"
-version: "1.1.0"
+version: "2.0.0"
 doi: "10.5281/zenodo.15133580"
 type: software
