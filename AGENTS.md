@@ -53,11 +53,14 @@
 
 ## CLI Interface Patterns
 
+The help menu (`-h`, `--help`) can be used to confirm available arguments.
+
 ### Required Arguments
 - `-i, --input-file`: Path to CSV file with URLs
 - `-o, --output-dir`: Directory for downloaded images
 
 ### Optional Arguments
+- `--version`: Returns version of the most recent release, will bypass required arguments
 - `-s, --subdir-col`: Column name for subdirectory organization
 - `-n, --img-name-col`: Column for image filenames (default: "filename")
 - `-u, --url-col`: Column with URLs (default: "file_url")
