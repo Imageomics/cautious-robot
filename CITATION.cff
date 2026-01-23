@@ -24,7 +24,7 @@ identifiers:
     value: "https://github.com/Imageomics/cautious-robot/releases/tag/v2.0.0"
   - description: "The GitHub URL of the commit tagged with v2.0.0."
     type: url
-    value: "https://github.com/Imageomics/cautious-robot/tree/<commit-hash>" # update on release
+    value: "https://github.com/Imageomics/cautious-robot/tree/214fc693fb8418672bbabaf20850bcf9ccef48b2"
 keywords:
   - imageomics
   - metadata
