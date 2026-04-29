@@ -63,7 +63,7 @@ optional arguments:
 
 #### CLI Examples
 
-Sample CSVs [1] are provided in the `examples/` directory to test the CLI.
+Sample CSVs[^1] are provided in the `examples/` directory to test the CLI.
 
 - **Defaults:**
 ```
@@ -199,9 +199,10 @@ pip install -e ".[dev]"
 pre-commit install
 pre-commit autoupdate # optionally update
 ```
-4. Run tests:
+4. Run tests[^2]:
 ```bash
 pytest
 ```
 
-[1] The test images are from the [Cuthill Gold Standard Dataset](https://huggingface.co/datasets/imageomics/Curated_GoldStandard_Hoyal_Cuthill), which was processed from Cuthill, et. al. (original dataset available at [doi:10.5061/dryad.2hp1978](https://doi.org/10.5061/dryad.2hp1978)).
+[^1]: The example CSVs and associated images are from the [Cuthill Gold Standard Dataset](https://huggingface.co/datasets/imageomics/Curated_GoldStandard_Hoyal_Cuthill), which was processed from Cuthill, et. al. (original dataset available at [doi:10.5061/dryad.2hp1978](https://doi.org/10.5061/dryad.2hp1978)).
+[^2]: The test images (`tests/testdata/images/`) are from the [Rare Species dataset](https://huggingface.co/datasets/imageomics/rare-species) (`treeoflife_id`: `8511cb36-ea18-419a-b938-e6316e1855d4` &  `94c53a1f-6bd9-469f-85b9-b2ce93e90c21`), Original source Smithsonian Institution, NMNH, `image1` from Invertebrate Zoology, CC-0 by Patricia Perez, & `image2` from Entomology, CC-0 by Pixel Acuity LLC.
