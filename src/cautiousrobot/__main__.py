@@ -14,6 +14,13 @@ from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv, check_existing_images
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot.validation import (
+    validate_csv_extension,
+    validate_output_directory,
+    validate_filename_uniqueness,
+    handle_missing_filenames,
+    setup_expected_columns,
+)
 from cautiousrobot.__about__ import __version__
 
 def parse_args():
@@ -51,46 +58,6 @@ def parse_args():
     opt_args.add_argument("-v", "--verifier-col", required = False, help = "name of column in source CSV with checksums (same hash as -a) to verify download", nargs = "?")
     
     return parser.parse_args()
-
-
-def validate_csv_extension(csv_path):
-    """Validate that the input file has a .csv extension."""
-    if not csv_path.endswith(".csv"):
-        sys.exit("Expected CSV for input file; extension should be '.csv'")
-
-
-def setup_expected_columns(args):
-    """Set up the expected columns dictionary for CSV processing."""
-    subfolders = args.subdir_col
-    expected_cols = {
-        "filename_col": args.img_name_col.lower(),
-        "url_col": args.url_col.lower()
-    }
-    if subfolders:
-        subfolders = subfolders.lower()
-        expected_cols["subfolders"] = subfolders
-    return expected_cols, subfolders
-
-
-def validate_filename_uniqueness(data_df, filename_col):
-    """Validate that the filename column contains unique values."""
-    if data_df.loc[data_df[filename_col].notna()].shape[0] != data_df[filename_col].nunique():
-        sys.exit(f"{filename_col} is not a unique identifier for this dataset, please choose a column with unique values for filenames.")
-
-
-def handle_missing_filenames(data_df, filename_col, url_col):
-    """Handle cases where URLs exist but filenames are missing."""
-    urls_no_name = len(data_df.loc[(data_df[filename_col].isna() & (data_df[url_col].notna()))])
-    if urls_no_name > 0:
-        ignore = input(f"'{filename_col}' is missing values for {urls_no_name} URLs. Proceed with download ignoring these URLs? [y/n]: ")
-        if ignore.lower() != "y":
-            sys.exit("Exited without executing.")
-
-
-def validate_output_directory(img_dir):
-    """Validate that the output directory doesn't already exist."""
-    if os.path.exists(img_dir):
-        sys.exit(f"'{img_dir}' already exists. Exited without executing.")
 
 
 def setup_log_paths(csv_path):
