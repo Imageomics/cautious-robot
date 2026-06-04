@@ -10,12 +10,6 @@ def validate_csv_extension(csv_path):
         sys.exit("Expected CSV for input file; extension should be '.csv'")
 
 
-def validate_output_directory(img_dir):
-    """Validate that the output directory doesn't already exist."""
-    if os.path.exists(img_dir):
-        sys.exit(f"'{img_dir}' already exists. Exited without executing.")
-
-
 def validate_filename_uniqueness(data_df, filename_col):
     """Validate that the filename column contains unique values."""
     if data_df.loc[data_df[filename_col].notna()].shape[0] != data_df[filename_col].nunique():
