@@ -1,4 +1,4 @@
-#CSV validation and input handling functions.
+# CSV validation and input handling functions.
 
 import sys
 
