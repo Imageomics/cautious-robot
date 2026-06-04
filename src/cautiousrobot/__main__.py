@@ -8,7 +8,6 @@
 import pandas as pd
 import argparse
 import hashlib
-import os
 import sys
 from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv, check_existing_images
@@ -16,7 +15,6 @@ from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
 from cautiousrobot.validation import (
     validate_csv_extension,
-    validate_output_directory,
     validate_filename_uniqueness,
     handle_missing_filenames,
     setup_expected_columns,
