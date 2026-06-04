@@ -1,6 +1,5 @@
 #CSV validation and input handling functions.
 
-import os
 import sys
 
 
