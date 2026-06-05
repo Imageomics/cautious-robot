@@ -226,7 +226,7 @@ class TestVerifyDownloads(unittest.TestCase):
         mock_buddy_check_class.return_value = mock_buddy_check
         mock_buddy_check.validate_download.return_value = missing_df
 
-        with patch('builtins.print'):
+        with patch('builtins.print') as mock_print:
             with patch.object(pd.DataFrame, 'to_csv'):
                 verify_downloads(
                     self.args,
