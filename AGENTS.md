@@ -19,7 +19,8 @@
 - `__main__.py` - Main entry point with CLI argument parsing and workflow orchestration
 - `download.py` - Core image downloading functionality with retry logic
 - `buddy_check.py` - Checksum validation and download verification using BuddyCheck class
-- `utils.py` - Helper functions for CSV processing, logging, and image downsampling
+- `utils.py` - Helper functions for CSV processing, logging, and existing image checks
+- `downsample_and_save.py` - Image processing and downsampling functionality
 - `exceptions.py` - Custom exception classes
 
 ### Key Classes and Functions
@@ -27,7 +28,7 @@
 - `download_images()` - Core function for downloading images with progress tracking
 - `process_csv()` - Validates and processes input CSV files
 - `check_existing_images()` - Filters out images that have already been downloaded to the target directory
-- `downsample_and_save_image()` - Handles image resizing operations
+- `downsample_and_save_image()` - Handles image resizing and downsampling operations
 
 ## Development Guidelines
 
