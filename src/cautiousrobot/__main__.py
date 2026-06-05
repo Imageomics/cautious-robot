@@ -5,7 +5,6 @@
 # Logs saved in same folder as CSV used for download
 # Downsized images are saved in <img_dir>_downsized
 
-import pandas as pd
 import argparse
 import hashlib
 import os

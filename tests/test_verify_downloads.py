@@ -226,8 +226,8 @@ class TestVerifyDownloads(unittest.TestCase):
         mock_buddy_check_class.return_value = mock_buddy_check
         mock_buddy_check.validate_download.return_value = missing_df
 
-        with patch('builtins.print') as mock_print:
-            with patch.object(pd.DataFrame, 'to_csv') as mock_to_csv:
+        with patch('builtins.print'):
+            with patch.object(pd.DataFrame, 'to_csv'):
                 verify_downloads(
                     self.args,
                     self.source_df,
@@ -379,10 +379,9 @@ class TestProcessChecksumsEdgeCases(unittest.TestCase):
             "file_url": ["http://example.com/img1.jpg", "http://example.com/img2.png"]
         })
 
-        with patch('builtins.print') as mock_print:
-            result_df, expected_num = process_checksums(
-                self.img_dir, self.metadata_path, self.args, source_df
-            )
+        result_df, expected_num = process_checksums(
+            self.img_dir, self.metadata_path, self.args, source_df
+        )
 
         # Should still return the dataframes even with mismatched counts
         self.assertIsNotNone(result_df)
