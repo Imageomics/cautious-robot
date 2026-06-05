@@ -18,6 +18,7 @@
 ### Core Modules
 - `__main__.py` - Main entry point with CLI argument parsing and workflow orchestration
 - `download.py` - Core image downloading functionality with retry logic
+- `verify_downloads.py` - Checksum processing and download verification using BuddyCheck
 - `buddy_check.py` - Checksum validation and download verification using BuddyCheck class
 - `utils.py` - Helper functions for CSV processing, logging, and image downsampling
 - `exceptions.py` - Custom exception classes
@@ -27,6 +28,8 @@
 - `download_images()` - Core function for downloading images with progress tracking
 - `process_csv()` - Validates and processes input CSV files
 - `check_existing_images()` - Filters out images that have already been downloaded to the target directory
+- `process_checksums()` - Generates checksums for downloaded images using sum-buddy
+- `verify_downloads()` - Verifies downloaded images match expected checksums using BuddyCheck
 - `downsample_and_save_image()` - Handles image resizing operations
 
 ## Development Guidelines
