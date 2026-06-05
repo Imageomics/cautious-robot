@@ -1,4 +1,5 @@
-# CSV validation and input handling functions.
+# Validation module for CSV and CLI arguments
+# Extracted from __main__.py
 
 import sys
 
@@ -7,6 +8,13 @@ def validate_csv_extension(csv_path):
     """Validate that the input file has a .csv extension."""
     if not csv_path.endswith(".csv"):
         sys.exit("Expected CSV for input file; extension should be '.csv'")
+
+
+def validate_output_directory(img_dir):
+    """Validate that the output directory doesn't already exist."""
+    import os
+    if os.path.exists(img_dir):
+        sys.exit(f"'{img_dir}' already exists. Exited without executing.")
 
 
 def validate_filename_uniqueness(data_df, filename_col):

@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import os
 from PIL import Image
-from cautiousrobot.utils import downsample_and_save_image
+from cautiousrobot.downsample_and_save import downsample_and_save_image
 
 class TestDownsampleAndSaveImage(unittest.TestCase):
     """Test the downsample_and_save_image function."""
@@ -56,8 +56,8 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
 
     @patch("os.path.exists", return_value=True)
     @patch("PIL.Image.open", side_effect=FileNotFoundError("File not found"))
-    @patch("cautiousrobot.utils.log_response")
-    @patch("cautiousrobot.utils.update_log")
+    @patch("cautiousrobot.downsample_and_save.log_response")
+    @patch("cautiousrobot.downsample_and_save.update_log")
     def test_downsample_and_save_image_file_not_found(self, mock_update_log, mock_log_response, mock_open, mock_exists):
         """ Test the behavior when the image file is not found. """
         
@@ -94,8 +94,8 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
 
     @patch("os.path.exists", return_value=False)
     @patch("PIL.Image.open", side_effect=Exception("Unexpected error"))
-    @patch("cautiousrobot.utils.log_response")
-    @patch("cautiousrobot.utils.update_log")
+    @patch("cautiousrobot.downsample_and_save.log_response")
+    @patch("cautiousrobot.downsample_and_save.update_log")
     def test_downsample_and_save_image_unexpected_error(self, mock_update_log, mock_log_response, mock_open, mock_exists):
         """ Test the behavior when an unexpected error occurs. """
         

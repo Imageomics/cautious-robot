@@ -20,7 +20,8 @@
 - `validation.py` - CSV validation and input handling functions
 - `download.py` - Core image downloading functionality with retry logic
 - `buddy_check.py` - Checksum validation and download verification using BuddyCheck class
-- `utils.py` - Helper functions for CSV processing, logging, and image downsampling
+- `utils.py` - Helper functions for CSV processing and logging
+- `downsample_and_save.py` - Image downsampling and resizing operations
 - `exceptions.py` - Custom exception classes
 
 ### Key Classes and Functions
@@ -28,7 +29,7 @@
 - `download_images()` - Core function for downloading images with progress tracking
 - `process_csv()` - Validates and processes input CSV files
 - `check_existing_images()` - Filters out images that have already been downloaded to the target directory
-- `downsample_and_save_image()` - Handles image resizing operations
+- `downsample_and_save_image()` (in `downsample_and_save.py`) - Handles image resizing operations
 
 ## Development Guidelines
 
