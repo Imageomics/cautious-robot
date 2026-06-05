@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
-import sys
 
 from cautiousrobot.validation import (
     validate_csv_extension,
