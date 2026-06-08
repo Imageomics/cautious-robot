@@ -1,5 +1,5 @@
 """
-Unit tests for the verify_downloads module.
+Unit tests for BuddyCheck checksum helpers.
 
 Tests checksum processing and download verification functionality.
 """
@@ -10,7 +10,7 @@ import pandas as pd
 import tempfile
 import os
 from argparse import Namespace
-from cautiousrobot.verify_downloads import process_checksums, verify_downloads
+from cautiousrobot.buddy_check import process_checksums, verify_downloads
 
 
 class TestProcessChecksums(unittest.TestCase):
@@ -40,7 +40,7 @@ class TestProcessChecksums(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_success(self, mock_get_checksums):
         """Test successful checksum processing."""
         # Create a temporary checksum file
@@ -66,7 +66,7 @@ class TestProcessChecksums(unittest.TestCase):
         self.assertEqual(expected_num, 2)
         pd.testing.assert_frame_equal(result_df, checksum_df)
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_failure(self, mock_get_checksums):
         """Test checksum processing when get_checksums fails."""
         mock_get_checksums.side_effect = Exception("Checksum calculation failed")
@@ -84,7 +84,7 @@ class TestProcessChecksums(unittest.TestCase):
             "Checksum calculation failed."
         )
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_different_algorithm(self, mock_get_checksums):
         """Test checksum processing with different algorithm."""
         checksum_path = self.metadata_path + "_checksums.csv"
@@ -108,7 +108,7 @@ class TestProcessChecksums(unittest.TestCase):
         )
         self.assertIsNotNone(result_df)
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_prints_count_message(self, mock_get_checksums):
         """Test that process_checksums prints the count message."""
         checksum_path = self.metadata_path + "_checksums.csv"
@@ -182,9 +182,8 @@ class TestVerifyDownloads(unittest.TestCase):
         # Should not print anything when verifier_col is None
         mock_print.assert_not_called()
 
-    @patch('cautiousrobot.verify_downloads.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_success_no_missing(self, mock_buddy_check_class):
-        """Test successful verification with no missing images."""
         self.args.verifier_col = "md5"
 
         mock_buddy_check = MagicMock()
@@ -211,9 +210,8 @@ class TestVerifyDownloads(unittest.TestCase):
             any("Buddy check successful" in str(call) for call in printed_messages)
         )
 
-    @patch('cautiousrobot.verify_downloads.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_with_missing_images(self, mock_buddy_check_class):
-        """Test verification when missing images are found."""
         self.args.verifier_col = "md5"
 
         # Create a missing images DataFrame
@@ -244,9 +242,8 @@ class TestVerifyDownloads(unittest.TestCase):
             any("_missing.csv" in str(call) for call in printed_messages)
         )
 
-    @patch('cautiousrobot.verify_downloads.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_exception_handling(self, mock_buddy_check_class):
-        """Test exception handling in verify_downloads."""
         self.args.verifier_col = "md5"
 
         mock_buddy_check = MagicMock()
@@ -270,9 +267,8 @@ class TestVerifyDownloads(unittest.TestCase):
             any("ValueError" in str(call) for call in printed_messages)
         )
 
-    @patch('cautiousrobot.verify_downloads.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_uses_correct_algorithm(self, mock_buddy_check_class):
-        """Test that verify_downloads uses the correct checksum algorithm."""
         self.args.verifier_col = "md5"
         self.args.checksum_algorithm = "sha256"
 
@@ -294,7 +290,7 @@ class TestVerifyDownloads(unittest.TestCase):
             buddy_id="filename", buddy_col="sha256"
         )
 
-    @patch('cautiousrobot.verify_downloads.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_calls_buddy_check_with_correct_params(self, mock_buddy_check_class):
         """Test that verify_downloads calls BuddyCheck.validate_download with correct parameters."""
         self.args.verifier_col = "md5"
@@ -342,7 +338,7 @@ class TestProcessChecksumsEdgeCases(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir)
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_empty_source_df(self, mock_get_checksums):
         """Test process_checksums with empty source DataFrame."""
         checksum_path = self.metadata_path + "_checksums.csv"
@@ -364,7 +360,7 @@ class TestProcessChecksumsEdgeCases(unittest.TestCase):
         self.assertIsNotNone(result_df)
         self.assertEqual(expected_num, 0)
 
-    @patch('cautiousrobot.verify_downloads.get_checksums')
+    @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_mismatched_counts(self, mock_get_checksums):
         """Test process_checksums when checksum count differs from source count."""
         checksum_path = self.metadata_path + "_checksums.csv"

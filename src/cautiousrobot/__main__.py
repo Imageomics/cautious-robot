@@ -11,7 +11,7 @@ import os
 import sys
 from cautiousrobot.utils import process_csv, check_existing_images
 from cautiousrobot.download import download_images
-from cautiousrobot.verify_downloads import process_checksums, verify_downloads
+from cautiousrobot.buddy_check import process_checksums, verify_downloads
 from cautiousrobot.__about__ import __version__
 
 def parse_args():
