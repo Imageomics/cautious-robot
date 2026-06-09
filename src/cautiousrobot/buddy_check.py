@@ -119,7 +119,7 @@ def process_checksums(img_dir, metadata_path, args, source_df):
               None if checksum calculation failed.
 
     Notes:
-        Catches exceptions raised during checksum calculation and prints an error message with instructions to console.
+        Catches exceptions raised during checksum calculation and prints an error message with instructions to console and returns (None, None).
     """
     checksum_path = metadata_path + "_checksums.csv"
     try:
