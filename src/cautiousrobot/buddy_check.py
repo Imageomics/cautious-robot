@@ -118,8 +118,8 @@ def process_checksums(img_dir, metadata_path, args, source_df):
             - expected_num_imgs (int or None): Expected number of images based on source_df,
               None if checksum calculation failed.
 
-    Raises:
-        Prints error messages to console if checksum calculation fails.
+    Notes:
+        Catches exceptions raised during checksum calculation and prints an error message with instructions to console.
     """
     checksum_path = metadata_path + "_checksums.csv"
     try:
@@ -170,8 +170,8 @@ def verify_downloads(
     Returns:
         None: Prints verification results to console.
 
-    Raises:
-        Prints error messages to console if verification fails.
+    Notes:
+        Catches exceptions raised during verification and prints an error message with instructions to console.
     """
     if not args.verifier_col:
         return
