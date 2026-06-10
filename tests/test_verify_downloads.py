@@ -217,7 +217,7 @@ class TestVerifyDownloads(unittest.TestCase):
         # Create a missing images DataFrame
         missing_df = pd.DataFrame({
             "filename": ["image3.jpg"],
-            "status": ["missing"]
+            "md5": ["fakehash3"]
         })
 
         mock_buddy_check = MagicMock()
