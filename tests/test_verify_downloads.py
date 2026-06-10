@@ -269,7 +269,7 @@ class TestVerifyDownloads(unittest.TestCase):
 
     @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_uses_correct_algorithm(self, mock_buddy_check_class):
-        self.args.verifier_col = "md5"
+        self.args.verifier_col = "hash"
         self.args.checksum_algorithm = "sha256"
 
         mock_buddy_check = MagicMock()
