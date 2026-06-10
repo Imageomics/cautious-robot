@@ -176,7 +176,7 @@ def verify_downloads(
     if not args.verifier_col:
         return
 
-    buddy_check = BuddyCheck(buddy_id="filename", buddy_col=args.checksum_algorithm)
+    buddy_check = BuddyCheck(buddy_id=filename_col, buddy_col=args.checksum_algorithm)
     try:
         missing_imgs = buddy_check.validate_download(
             source_df=source_df,

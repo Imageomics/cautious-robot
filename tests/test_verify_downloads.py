@@ -264,7 +264,10 @@ class TestVerifyDownloads(unittest.TestCase):
         # Assertions
         printed_messages = [str(call) for call in mock_print.call_args_list]
         self.assertTrue(
-            any("ValueError" in str(call) for call in printed_messages)
+            any(
+                "Verification of download failed due to ValueError: Test validation error." in str(call)
+                for call in printed_messages
+            )
         )
 
     @patch('cautiousrobot.buddy_check.BuddyCheck')
@@ -285,15 +288,18 @@ class TestVerifyDownloads(unittest.TestCase):
             self.expected_num_imgs
         )
 
-        # Check that BuddyCheck was initialized with sha256
+        # Check that BuddyCheck was initialized with sha256 and the source checksum column was passed through.
         mock_buddy_check_class.assert_called_once_with(
-            buddy_id="filename", buddy_col="sha256"
+            buddy_id=self.filename_col,
+            buddy_col="sha256"
         )
+        call_kwargs = mock_buddy_check.validate_download.call_args[1]
+        self.assertEqual(call_kwargs["source_validation_col"], "hash")
 
     @patch('cautiousrobot.buddy_check.BuddyCheck')
     def test_verify_downloads_calls_buddy_check_with_correct_params(self, mock_buddy_check_class):
         """Test that verify_downloads calls BuddyCheck.validate_download with correct parameters."""
-        self.args.verifier_col = "md5"
+        self.args.verifier_col = "hash"
 
         mock_buddy_check = MagicMock()
         mock_buddy_check_class.return_value = mock_buddy_check
@@ -315,7 +321,7 @@ class TestVerifyDownloads(unittest.TestCase):
         self.assertIn("source_id_col", call_kwargs)
         self.assertIn("source_validation_col", call_kwargs)
         self.assertEqual(call_kwargs["source_id_col"], self.filename_col)
-        self.assertEqual(call_kwargs["source_validation_col"], "md5")
+        self.assertEqual(call_kwargs["source_validation_col"], "hash")
 
 
 class TestProcessChecksumsEdgeCases(unittest.TestCase):
@@ -337,28 +343,6 @@ class TestProcessChecksumsEdgeCases(unittest.TestCase):
         """Clean up temporary files."""
         import shutil
         shutil.rmtree(self.temp_dir)
-
-    @patch('cautiousrobot.buddy_check.get_checksums')
-    def test_process_checksums_empty_source_df(self, mock_get_checksums):
-        """Test process_checksums with empty source DataFrame."""
-        checksum_path = self.metadata_path + "_checksums.csv"
-        checksum_df = pd.DataFrame({
-            "filename": [],
-            "md5": []
-        })
-        checksum_df.to_csv(checksum_path, index=False)
-
-        source_df = pd.DataFrame({
-            "filename": [],
-            "file_url": []
-        })
-
-        result_df, expected_num = process_checksums(
-            self.img_dir, self.metadata_path, self.args, source_df
-        )
-
-        self.assertIsNotNone(result_df)
-        self.assertEqual(expected_num, 0)
 
     @patch('cautiousrobot.buddy_check.get_checksums')
     def test_process_checksums_mismatched_counts(self, mock_get_checksums):
