@@ -349,7 +349,7 @@ class TestVerifyDownloads(unittest.TestCase):
         )
 
         mock_buddy_check_class.assert_called_once_with(
-            buddy_id=custom_filename_col,
+            buddy_id="filename",
             buddy_col="md5"
         )
         call_kwargs = mock_buddy_check.validate_download.call_args[1]
