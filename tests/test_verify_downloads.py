@@ -309,13 +309,16 @@ class TestVerifyDownloads(unittest.TestCase):
         """Test that verify_downloads calls BuddyCheck.validate_download with correct parameters."""
         self.args.verifier_col = "hash"
 
+        source_df = self.source_df.copy()
+        source_df["hash"] = source_df["md5"]
+
         mock_buddy_check = MagicMock()
         mock_buddy_check_class.return_value = mock_buddy_check
         mock_buddy_check.validate_download.return_value = None
 
         verify_downloads(
             self.args,
-            self.source_df,
+            source_df,
             self.checksum_df,
             self.filename_col,
             self.metadata_path,
