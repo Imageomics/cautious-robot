@@ -323,6 +323,39 @@ class TestVerifyDownloads(unittest.TestCase):
         self.assertEqual(call_kwargs["source_id_col"], self.filename_col)
         self.assertEqual(call_kwargs["source_validation_col"], "hash")
 
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
+    def test_verify_downloads_with_custom_filename_col(self, mock_buddy_check_class):
+        """Test verify_downloads works when filename_col is not 'filename'."""
+        self.args.verifier_col = "md5"
+        custom_filename_col = "img_name"
+
+        source_df = pd.DataFrame({
+            custom_filename_col: ["image1.jpg", "image2.png"],
+            "file_url": ["http://example.com/img1.jpg", "http://example.com/img2.png"],
+            "md5": ["abc123", "def456"]
+        })
+
+        mock_buddy_check = MagicMock()
+        mock_buddy_check_class.return_value = mock_buddy_check
+        mock_buddy_check.validate_download.return_value = None
+
+        verify_downloads(
+            self.args,
+            source_df,
+            self.checksum_df,
+            custom_filename_col,
+            self.metadata_path,
+            self.expected_num_imgs
+        )
+
+        mock_buddy_check_class.assert_called_once_with(
+            buddy_id=custom_filename_col,
+            buddy_col="md5"
+        )
+        call_kwargs = mock_buddy_check.validate_download.call_args[1]
+        self.assertEqual(call_kwargs["source_id_col"], custom_filename_col)
+        self.assertEqual(call_kwargs["source_validation_col"], "md5")
+
 
 class TestProcessChecksumsEdgeCases(unittest.TestCase):
     """Test edge cases for process_checksums."""
