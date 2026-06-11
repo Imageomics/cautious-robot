@@ -275,14 +275,22 @@ class TestVerifyDownloads(unittest.TestCase):
         self.args.verifier_col = "hash"
         self.args.checksum_algorithm = "sha256"
 
+        # Use fixtures that match the requested verifier/checksum columns.
+        source_df = self.source_df.copy()
+        source_df["hash"] = ["abc123sha", "def456sha"]
+        checksum_df = pd.DataFrame({
+            "filename": ["image1.jpg", "image2.png"],
+            "sha256": ["abc123sha", "def456sha"],
+        })
+
         mock_buddy_check = MagicMock()
         mock_buddy_check_class.return_value = mock_buddy_check
         mock_buddy_check.validate_download.return_value = None
 
         verify_downloads(
             self.args,
-            self.source_df,
-            self.checksum_df,
+            source_df,
+            checksum_df,
             self.filename_col,
             self.metadata_path,
             self.expected_num_imgs
