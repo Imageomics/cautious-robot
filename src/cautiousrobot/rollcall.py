@@ -75,10 +75,3 @@ class RollCall:
         return df, filtered_df
 
 
-_rollcall = RollCall()
-
-validate_csv_extension = _rollcall.validate_csv_extension
-validate_filename_uniqueness = _rollcall.validate_filename_uniqueness
-handle_missing_filenames = _rollcall.handle_missing_filenames
-setup_expected_columns = _rollcall.setup_expected_columns
-check_existing_images = _rollcall.check_existing_images

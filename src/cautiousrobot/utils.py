@@ -1,13 +1,9 @@
 # Helper functions for download
 
 import json
-import sys
 import pandas as pd
 import os
 from PIL import Image
-from sumbuddy import gather_file_paths
-from sumbuddy.exceptions import EmptyInputDirectoryError
-from cautiousrobot.rollcall import RollCall
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -84,7 +80,3 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
             response_code=str(e)
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
-        
-def check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders=None):
-    """Legacy wrapper for RollCall.check_existing_images."""
-    return RollCall().check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
