@@ -10,15 +10,10 @@ import argparse
 import hashlib
 import sys
 from sumbuddy import get_checksums
-from cautiousrobot.utils import process_csv, check_existing_images
+from cautiousrobot.utils import process_csv
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
-from cautiousrobot.validation import (
-    validate_csv_extension,
-    validate_filename_uniqueness,
-    handle_missing_filenames,
-    setup_expected_columns,
-)
+from cautiousrobot.rollcall import RollCall
 from cautiousrobot.__about__ import __version__
 
 def parse_args():
@@ -112,11 +107,13 @@ def main():
     args = parse_args()
     csv_path = args.input_file
     
+    roll_call = RollCall()
+
     # Validate CSV extension
-    validate_csv_extension(csv_path)
+    roll_call.validate_csv_extension(csv_path)
 
     # Set up expected columns and process CSV
-    expected_cols, subfolders = setup_expected_columns(args)
+    expected_cols, subfolders = roll_call.setup_expected_columns(args)
     try:
         data_df = process_csv(csv_path, expected_cols)
     except Exception as missing_cols:
@@ -125,15 +122,15 @@ def main():
     # Validate data and handle missing filenames
     filename_col = expected_cols["filename_col"]
     url_col = expected_cols["url_col"]
-    validate_filename_uniqueness(data_df, filename_col)
-    handle_missing_filenames(data_df, filename_col, url_col)
+    roll_call.validate_filename_uniqueness(data_df, filename_col)
+    roll_call.handle_missing_filenames(data_df, filename_col, url_col)
     
     # Set source DataFrame for only non-null filename values
     source_df = data_df.loc[data_df[filename_col].notna()].copy()
 
     # Validate and handle existing output directory
     img_dir = args.output_dir
-    source_df, filtered_df = check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
+    source_df, filtered_df = roll_call.check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
 
     # Set up log paths
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)
