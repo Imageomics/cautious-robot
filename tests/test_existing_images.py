@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from unittest.mock import patch
-from cautiousrobot.rollcall import RollCall
+from cautiousrobot.roll_call import RollCall
 
 
 class TestCheckExistingImages(unittest.TestCase):

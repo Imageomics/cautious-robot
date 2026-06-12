@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from cautiousrobot.rollcall import RollCall
+from cautiousrobot.roll_call import RollCall
 
 
 class TestValidateCsvExtension(unittest.TestCase):

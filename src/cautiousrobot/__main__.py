@@ -13,7 +13,7 @@ from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
-from cautiousrobot.rollcall import RollCall
+from cautiousrobot.roll_call import RollCall
 from cautiousrobot.__about__ import __version__
 
 def parse_args():
