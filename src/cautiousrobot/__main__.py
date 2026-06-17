@@ -107,7 +107,7 @@ def main():
     args = parse_args()
     csv_path = args.input_file
     
-    roll_call = RollCall()
+    roll_call = RollCall(csv_path)
 
     # Validate CSV extension
     roll_call.validate_csv_extension(csv_path)
@@ -123,7 +123,7 @@ def main():
     filename_col = expected_cols["filename_col"]
     url_col = expected_cols["url_col"]
     roll_call.validate_filename_uniqueness(data_df, filename_col)
-    roll_call.handle_missing_filenames(data_df, filename_col, url_col)
+    missing_filenames = roll_call.handle_missing_filenames(data_df, filename_col, url_col)
     
     # Set source DataFrame for only non-null filename values
     source_df = data_df.loc[data_df[filename_col].notna()].copy()

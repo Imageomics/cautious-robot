@@ -138,104 +138,90 @@ class TestValidateFilenameUniqueness(unittest.TestCase):
 
 
 class TestHandleMissingFilenames(unittest.TestCase):
-    """Test handling of missing filename values."""
+    """Test handling of missing filename values under new non-interactive behavior."""
 
     def setUp(self):
-        """Set up test fixtures."""
         self.filename_col = "filename"
         self.url_col = "file_url"
-        self.rollcall = RollCall()
+        # RollCall now requires csv_path for saving missing CSVs
+        self.rollcall = RollCall(csv_path="testdata.csv")
 
-    def test_no_missing_filenames(self):
-        """Should not prompt if all filenames are present."""
+    @patch("builtins.print")
+    def test_no_missing_filenames(self, mock_print):
+        """Should not print anything when no filenames are missing."""
         df = pd.DataFrame({
             self.filename_col: ["image1.jpg", "image2.jpg"],
             self.url_col: ["http://url1.com", "http://url2.com"]
         })
-        with patch("builtins.input") as mock_input:
-            self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            mock_input.assert_not_called()
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
+        self.assertIsNone(result)
+        mock_print.assert_not_called()
 
-    def test_missing_filenames_with_urls_user_accepts(self):
-        """Should continue when user answers 'y' to missing filenames prompt."""
+    @patch("builtins.print")
+    def test_missing_filenames_prints_when_five_or_fewer(self, mock_print):
+        """Should print missing rows when count <= 5."""
         df = pd.DataFrame({
-            self.filename_col: ["image1.jpg", None, "image3.jpg"],
-            self.url_col: ["http://url1.com", "http://url2.com", "http://url3.com"]
+            self.filename_col: [None, None, "img3.jpg"],
+            self.url_col: ["url1", "url2", "url3"]
         })
-        with patch("builtins.input", return_value="y"):
-            try:
-                self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            except SystemExit:
-                self.fail("Should not exit when user answers 'y'")
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
 
-    def test_missing_filenames_with_urls_user_declines(self):
-        """Should exit when user answers 'n' to missing filenames prompt."""
+        self.assertEqual(len(result), 2)
+        mock_print.assert_called()  # printed the missing rows
+
+    @patch("pandas.DataFrame.to_csv")
+    @patch("builtins.print")
+    def test_missing_filenames_saved_when_more_than_five(self, mock_print, mock_to_csv):
+        """Should save missing rows to CSV when count > 5."""
         df = pd.DataFrame({
-            self.filename_col: ["image1.jpg", None, "image3.jpg"],
-            self.url_col: ["http://url1.com", "http://url2.com", "http://url3.com"]
+            self.filename_col: [None] * 6,
+            self.url_col: ["url"] * 6
         })
-        with patch("builtins.input", return_value="n"):
-            with self.assertRaises(SystemExit) as cm:
-                self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            self.assertIn("Exited", cm.exception.code)
 
-    def test_missing_filenames_user_input_case_insensitive(self):
-        """Should accept 'Y' or other case variations for yes response."""
-        df = pd.DataFrame({
-            self.filename_col: ["image1.jpg", None],
-            self.url_col: ["http://url1.com", "http://url2.com"]
-        })
-        with patch("builtins.input", return_value="Y"):
-            try:
-                self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            except SystemExit:
-                self.fail("Should accept 'Y' as valid yes response")
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
 
-    def test_missing_filenames_prompt_shows_count(self):
-        """Should show number of missing filenames in prompt."""
-        df = pd.DataFrame({
-            self.filename_col: ["img1.jpg", None, None, "img4.jpg"],
-            self.url_col: ["url1", "url2", "url3", "url4"]
-        })
-        with patch("builtins.input", return_value="n") as mock_input:
-            with self.assertRaises(SystemExit):
-                self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            # Check that the input prompt includes the count
-            call_args = mock_input.call_args[0][0]
-            self.assertIn("2", call_args)
+        self.assertEqual(len(result), 6)
+        mock_to_csv.assert_called_once()
+        args, kwargs = mock_to_csv.call_args
+        self.assertIn("testdata_missing_filenames.csv", args[0])
 
-    def test_missing_filenames_no_urls(self):
-        """Should not prompt if no URLs exist (no missing filenames to handle)."""
+    @patch("builtins.print")
+    def test_missing_filenames_no_urls(self, mock_print):
+        """Should not print anything when URLs are missing (no actionable missing filenames)."""
         df = pd.DataFrame({
-            self.filename_col: ["image1.jpg", None, "image3.jpg"],
+            self.filename_col: ["img1.jpg", None, "img3.jpg"],
             self.url_col: [None, None, None]
         })
-        with patch("builtins.input") as mock_input:
-            self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            mock_input.assert_not_called()
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
 
-    def test_missing_filenames_mixed_urls_and_filenames(self):
-        """Should only count rows with URLs but missing filenames."""
-        df = pd.DataFrame({
-            self.filename_col: [None, "image2.jpg", None, "image4.jpg"],
-            self.url_col: ["http://url1.com", None, "http://url3.com", "http://url4.com"]
-        })
-        with patch("builtins.input", return_value="n") as mock_input:
-            with self.assertRaises(SystemExit):
-                self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            # Should count 2 URLs without filenames (rows 0 and 2)
-            call_args = mock_input.call_args[0][0]
-            self.assertIn("2", call_args)
+        self.assertIsNone(result)
+        mock_print.assert_not_called()
 
-    def test_missing_filenames_empty_dataframe(self):
-        """Should not prompt if dataframe is empty."""
+    @patch("builtins.print")
+    def test_missing_filenames_empty_dataframe(self, mock_print):
+        """Should not print anything for empty dataframe."""
         df = pd.DataFrame({
             self.filename_col: [],
             self.url_col: []
         })
-        with patch("builtins.input") as mock_input:
-            self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
-            mock_input.assert_not_called()
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
+
+        self.assertIsNone(result)
+        mock_print.assert_not_called()
+
+    @patch("builtins.print")
+    def test_missing_filenames_returns_correct_subset(self, mock_print):
+        """Should return only rows with missing filenames and valid URLs."""
+        df = pd.DataFrame({
+            self.filename_col: [None, "img2.jpg", None, "img4.jpg"],
+            self.url_col: ["url1", None, "url3", "url4"]
+        })
+
+        result = self.rollcall.handle_missing_filenames(df, self.filename_col, self.url_col)
+
+        # Only rows 0 and 2 qualify
+        self.assertEqual(len(result), 2)
+        self.assertListEqual(result.index.tolist(), [0, 2])
 
 
 class TestSetupExpectedColumns(unittest.TestCase):

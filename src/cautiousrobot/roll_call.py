@@ -9,9 +9,12 @@ from sumbuddy.exceptions import EmptyInputDirectoryError
 class RollCall:
     """Pre-download validation and directory verification."""
 
+    def __init__(self, csv_path=None):
+        self.csv_path = csv_path
+
     def validate_csv_extension(self, csv_path):
         """Validate that the input file has a .csv extension."""
-        if not csv_path.endswith(".csv"):
+        if not csv_path.lower().endswith(".csv"):
             sys.exit("Expected CSV for input file; extension should be '.csv'")
 
     def validate_filename_uniqueness(self, data_df, filename_col):
@@ -21,12 +24,26 @@ class RollCall:
 
     def handle_missing_filenames(self, data_df, filename_col, url_col):
         """Handle cases where URLs exist but filenames are missing."""
-        urls_no_name = len(data_df.loc[(data_df[filename_col].isna() & (data_df[url_col].notna()))])
-        if urls_no_name > 0:
-            ignore = input(f"'{filename_col}' is missing values for {urls_no_name} URLs. Proceed with download ignoring these URLs? [y/n]: ")
-            if ignore.lower() != "y":
-                sys.exit("Exited without executing.")
-
+        # Rows where filename is missing but URL exists
+        missing = data_df.loc[data_df[filename_col].isna() & data_df[url_col].notna()]
+        if missing.empty:
+            return None
+        # Save path follows BuddyCheck pattern: <csv_basename>_missing_filenames.csv
+        csv_base = os.path.splitext(self.csv_path)[0]
+        save_path = f"{csv_base}_missing_filenames.csv"
+        if len(missing) <= 5:
+            print("\n❗ Missing filenames detected (showing all):")
+            print(missing)
+        else:
+            missing.to_csv(save_path, index=False)
+            print(
+                f"\n❗ Missing filenames detected for {len(missing)} rows.\n"
+                f"Because there are more than 5, they were saved to:\n  {save_path}\n"
+                f"Please correct the CSV and re-run."
+            )
+        # Return missing rows for reference
+        return missing
+    
     def setup_expected_columns(self, args):
         """Set up the expected columns dictionary for CSV processing."""
         subfolders = args.subdir_col
