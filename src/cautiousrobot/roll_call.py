@@ -135,3 +135,20 @@ class RollCall:
             "Use --ignore-duplicates to allow downloading duplicates."
         )
 
+    def print_download_summary(self, img_dir, downsample_dir, subfolders, num_images):
+        """Print a summary of where images and downsized images will be saved."""
+        print("\n📦 Download Summary")
+        print("--------------------")
+        print(f"Images will be downloaded to: {img_dir}")
+
+        if downsample_dir:
+            print(f"Downsampled images will be saved to: {downsample_dir}")
+        else:
+            print("Downsampled images: not requested")
+
+        if subfolders:
+            print(f"Subfolders enabled: {subfolders}")
+        else:
+            print("Subfolders: none")
+
+        print(f"Images to download: {num_images}\n")

@@ -140,6 +140,18 @@ def main():
     img_dir = args.output_dir
     source_df, filtered_df = roll_call.check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)
 
+    # Prepare summary info
+    num_images = filtered_df.shape[0]
+    downsample_dir = img_dir + "_downsized" if isinstance(args.side_length, int) else None
+
+    # Print RollCall summary
+    roll_call.print_download_summary(
+        img_dir=img_dir,
+        downsample_dir=downsample_dir,
+        subfolders=subfolders,
+        num_images=num_images
+    )
+
     # Set up log paths
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)
 

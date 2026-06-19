@@ -433,5 +433,89 @@ class TestPreviewOrSave(unittest.TestCase):
         self.assertIn("testdata_test_label.csv", args[0])
         mock_print.assert_called()
 
+class TestPrintDownloadSummary(unittest.TestCase):
+    """Tests for RollCall.print_download_summary."""
+
+    def setUp(self):
+        self.rollcall = RollCall(csv_path="testdata.csv")
+
+    @patch("builtins.print")
+    def test_summary_with_downsampling_and_subfolders(self, mock_print):
+        """Should print full summary including downsized path and subfolders."""
+        self.rollcall.print_download_summary(
+            img_dir="/images",
+            downsample_dir="/images_downsized",
+            subfolders="species",
+            num_images=42
+        )
+
+        printed = " ".join(call.args[0] for call in mock_print.call_args_list)
+
+        self.assertIn("Images will be downloaded to: /images", printed)
+        self.assertIn("Downsampled images will be saved to: /images_downsized", printed)
+        self.assertIn("Subfolders enabled: species", printed)
+        self.assertIn("Images to download: 42", printed)
+
+    @patch("builtins.print")
+    def test_summary_without_downsampling(self, mock_print):
+        """Should indicate that downsampling is not requested."""
+        self.rollcall.print_download_summary(
+            img_dir="/images",
+            downsample_dir=None,
+            subfolders=None,
+            num_images=10
+        )
+
+        printed = " ".join(call.args[0] for call in mock_print.call_args_list)
+
+        self.assertIn("Images will be downloaded to: /images", printed)
+        self.assertIn("Downsampled images: not requested", printed)
+        self.assertIn("Subfolders: none", printed)
+        self.assertIn("Images to download: 10", printed)
+
+    @patch("builtins.print")
+    def test_summary_with_subfolders_only(self, mock_print):
+        """Should print subfolder info even without downsampling."""
+        self.rollcall.print_download_summary(
+            img_dir="/images",
+            downsample_dir=None,
+            subfolders="category",
+            num_images=5
+        )
+
+        printed = " ".join(call.args[0] for call in mock_print.call_args_list)
+
+        self.assertIn("Subfolders enabled: category", printed)
+        self.assertIn("Images to download: 5", printed)
+
+    @patch("builtins.print")
+    def test_summary_zero_images(self, mock_print):
+        """Should correctly print zero image count."""
+        self.rollcall.print_download_summary(
+            img_dir="/images",
+            downsample_dir=None,
+            subfolders=None,
+            num_images=0
+        )
+
+        printed = " ".join(call.args[0] for call in mock_print.call_args_list)
+        self.assertIn("Images to download: 0", printed)
+
+    @patch("builtins.print")
+    def test_summary_formatting_header(self, mock_print):
+        """Should print the summary header and separator."""
+        self.rollcall.print_download_summary(
+            img_dir="/images",
+            downsample_dir=None,
+            subfolders=None,
+            num_images=1
+        )
+
+        printed_lines = [call.args[0] for call in mock_print.call_args_list]
+
+        self.assertIn("📦 Download Summary", printed_lines[0])
+        self.assertIn("--------------------", printed_lines[1])
+
+
 if __name__ == "__main__":
     unittest.main()
