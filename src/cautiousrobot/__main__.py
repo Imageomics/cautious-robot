@@ -128,6 +128,14 @@ def main():
     # Set source DataFrame for only non-null filename values
     source_df = data_df.loc[data_df[filename_col].notna()].copy()
 
+    # If a verifier column is provided, check for duplicate checksums before downloading
+    if args.verifier_col:
+        roll_call.check_duplicate_checksums(
+            data_df=source_df,
+            hash_col=args.verifier_col.lower(),
+            ignore_duplicates=getattr(args, "ignore_duplicates", False)
+        )
+
     # Validate and handle existing output directory
     img_dir = args.output_dir
     source_df, filtered_df = roll_call.check_existing_images(csv_path, img_dir, source_df, filename_col, subfolders)

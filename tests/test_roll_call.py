@@ -337,6 +337,101 @@ class TestSetupExpectedColumns(unittest.TestCase):
         self.assertEqual(expected_cols["url_col"], "url")
         self.assertEqual(expected_cols["subfolders"], "folder")
 
+class TestCheckDuplicateChecksums(unittest.TestCase):
+    """Tests for RollCall.check_duplicate_checksums."""
+
+    def setUp(self):
+        self.rollcall = RollCall(csv_path="testdata.csv")
+
+    @patch("builtins.print")
+    def test_no_duplicates(self, mock_print):
+        """Should not exit when no duplicate checksums exist."""
+        df = pd.DataFrame({"hash": ["a", "b", "c"]})
+
+        try:
+            self.rollcall.check_duplicate_checksums(df, "hash")
+        except SystemExit:
+            self.fail("Unexpected SystemExit for no duplicates")
+
+        mock_print.assert_called_once()  # "✔ No duplicate checksums detected."
+
+    @patch("builtins.print")
+    def test_duplicates_without_ignore(self, mock_print):
+        """Should exit when duplicates exist and ignore flag is False."""
+        df = pd.DataFrame({"hash": ["a", "a", "b"]})
+
+        with self.assertRaises(SystemExit):
+            self.rollcall.check_duplicate_checksums(df, "hash", ignore_duplicates=False)
+
+        # Should have printed preview/save message
+        mock_print.assert_called()
+
+    @patch("builtins.print")
+    def test_duplicates_with_ignore(self, mock_print):
+        """Should not exit when duplicates exist and ignore flag is True."""
+        df = pd.DataFrame({"hash": ["a", "a", "b"]})
+
+        try:
+            self.rollcall.check_duplicate_checksums(df, "hash", ignore_duplicates=True)
+        except SystemExit:
+            self.fail("Unexpected SystemExit when ignore_duplicates=True")
+
+        # Should print warning
+        self.assertTrue(any("ignore-duplicates" in call.args[0] for call in mock_print.call_args_list))
+
+    @patch("builtins.print")
+    def test_preview_mode_for_small_duplicate_set(self, mock_print):
+        """Should print preview when <=5 duplicate rows."""
+        df = pd.DataFrame({"hash": ["x", "x", "x"]})
+
+        with self.assertRaises(SystemExit):
+            self.rollcall.check_duplicate_checksums(df, "hash")
+
+        # Should print the DataFrame preview
+        mock_print.assert_called()
+
+    @patch("pandas.DataFrame.to_csv")
+    @patch("builtins.print")
+    def test_save_mode_for_large_duplicate_set(self, mock_print, mock_to_csv):
+        """Should save CSV when >5 duplicate rows."""
+        df = pd.DataFrame({"hash": ["x"] * 10})
+
+        with self.assertRaises(SystemExit):
+            self.rollcall.check_duplicate_checksums(df, "hash")
+
+        mock_to_csv.assert_called_once()
+        args, kwargs = mock_to_csv.call_args
+        self.assertIn("testdata_duplicate_checksums.csv", args[0])
+
+class TestPreviewOrSave(unittest.TestCase):
+    """Tests for RollCall._preview_or_save."""
+
+    def setUp(self):
+        self.rollcall = RollCall(csv_path="testdata.csv")
+
+    @patch("builtins.print")
+    @patch("pandas.DataFrame.to_csv")
+    def test_preview_small_dataframe(self, mock_to_csv, mock_print):
+        """Should print when <=5 rows."""
+        df = pd.DataFrame({"x": [1, 2, 3]})
+
+        self.rollcall._preview_or_save("test_label", df)
+
+        mock_print.assert_called()
+        mock_to_csv.assert_not_called()
+
+    @patch("builtins.print")
+    @patch("pandas.DataFrame.to_csv")
+    def test_save_large_dataframe(self, mock_to_csv, mock_print):
+        """Should save CSV when >5 rows."""
+        df = pd.DataFrame({"x": list(range(10))})
+
+        self.rollcall._preview_or_save("test_label", df)
+
+        mock_to_csv.assert_called_once()
+        args, kwargs = mock_to_csv.call_args
+        self.assertIn("testdata_test_label.csv", args[0])
+        mock_print.assert_called()
 
 if __name__ == "__main__":
     unittest.main()

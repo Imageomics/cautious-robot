@@ -91,4 +91,47 @@ class RollCall:
 
         return df, filtered_df
 
+    def _preview_or_save(self, label, df):
+        """Print up to 5 rows or save to CSV if larger."""
+        if len(df) <= 5:
+            print(f"\n❗ {label.replace('_', ' ').title()} detected (showing all):")
+            print(df)
+        else:
+            csv_base = os.path.splitext(self.csv_path)[0]
+            save_path = f"{csv_base}_{label}.csv"
+            df.to_csv(save_path, index=False)
+            print(
+                f"\n❗ {len(df)} {label.replace('_', ' ')} detected.\n"
+                f"Full list saved to:\n  {save_path}\n"
+            )
+            
+    def check_duplicate_checksums(self, data_df, hash_col, ignore_duplicates=False):
+        """Detect duplicate checksum values and optionally block execution."""
+
+        # Only consider non-null hashes
+        dupes = (
+            data_df[data_df[hash_col].notna()]
+            .groupby(hash_col)
+            .filter(lambda x: len(x) > 1)
+        )
+
+        if dupes.empty:
+            print("✔ No duplicate checksums detected.")
+            return
+
+        # If duplicates exist, preview or save
+        self._preview_or_save("duplicate_checksums", dupes)
+
+        if ignore_duplicates:
+            print(
+                f"\n⚠ Duplicate checksums detected ({len(dupes)} rows), "
+                f"but --ignore-duplicates was passed. Continuing.\n"
+            )
+            return
+
+        # Default behavior: block execution
+        sys.exit(
+            "❗ Duplicate checksums detected. "
+            "Use --ignore-duplicates to allow downloading duplicates."
+        )
 
