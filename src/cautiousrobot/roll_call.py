@@ -28,13 +28,13 @@ class RollCall:
         missing = data_df.loc[data_df[filename_col].isna() & data_df[url_col].notna()]
         if missing.empty:
             return None
-        # Save path follows BuddyCheck pattern: <csv_basename>_missing_filenames.csv
-        csv_base = os.path.splitext(self.csv_path)[0]
-        save_path = f"{csv_base}_missing_filenames.csv"
         if len(missing) <= 5:
             print("\n❗ Missing filenames detected (showing all):")
             print(missing)
         else:
+            # Save path follows BuddyCheck pattern: <csv_basename>_missing_filenames.csv
+            csv_base = os.path.splitext(self.csv_path)[0]
+            save_path = f"{csv_base}_missing_filenames.csv"
             missing.to_csv(save_path, index=False)
             print(
                 f"\n❗ Missing filenames detected for {len(missing)} rows.\n"
