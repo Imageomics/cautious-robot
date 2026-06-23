@@ -1,9 +1,8 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
-import os
+
 from cautiousrobot.roll_call import RollCall
-from sumbuddy.exceptions import EmptyInputDirectoryError
 
 
 class TestRollCall(unittest.TestCase):
