@@ -80,46 +80,55 @@ class RollCall:
         """Checks which files from the CSV already exist in the image directory."""
         df = source_df.copy()
 
+        # Case 1: Directory does not exist
         if not os.path.exists(img_dir):
             logger.info(f"Image directory '{img_dir}' does not exist; all images will be downloaded.")
             df["in_img_dir"] = False
-            return df, df
+            return df, df.copy()
 
+        # Case 2: Directory exists but may be empty
         try:
             existing_files = gather_file_paths(img_dir)
         except EmptyInputDirectoryError:
-            logger.warning(f"Image directory '{img_dir}' is empty.")
+            logger.info(f"Image directory '{img_dir}' is empty; all images will be downloaded.")
             existing_files = []
 
+        # Normalize existing paths relative to img_dir
         existing_full_paths = {
             os.path.normpath(os.path.relpath(f, img_dir))
             for f in existing_files
         }
 
+        # Build expected relative paths
         if subfolders:
             raw_paths = df[subfolders].astype(str) + os.sep + df[filename_col].astype(str)
             df["expected_path"] = raw_paths.apply(os.path.normpath)
         else:
             df["expected_path"] = df[filename_col].astype(str).apply(os.path.normpath)
 
+        # Compare expected vs actual
         df["in_img_dir"] = df["expected_path"].isin(existing_full_paths)
         df = df.drop(columns=["expected_path"])
         filtered_df = df[~df["in_img_dir"]].copy()
 
+        # Case 3: All images already present
         if filtered_df.empty:
-            msg = f"'{img_dir}' already contains all images. Exited without executing."
+            msg = f"'{img_dir}' already contains all images listed in '{csv_path}'. Exiting."
             logger.info(msg)
             sys.exit(msg)
 
-        num_existing = len(existing_files)
+        # Summary logging
+        num_present = df["in_img_dir"].sum()
+        num_missing = filtered_df.shape[0]
+
         logger.info(
-            f"{num_existing} files already exist in {img_dir}. "
-            f"{filtered_df.shape[0]} images still need downloading."
+            f"{num_present} of the images listed in '{csv_path}' already exist in '{img_dir}'. "
+            f"{num_missing} images still need downloading."
         )
 
         print(
-            f"There are {num_existing} of the desired files already in {img_dir}. "
-            f"Based on {csv_path}, {filtered_df.shape[0]} images should be downloaded."
+            f"There are {num_present} of the desired files already in {img_dir}. "
+            f"Based on {csv_path}, {num_missing} images should be downloaded."
         )
 
         return df, filtered_df
@@ -127,8 +136,11 @@ class RollCall:
     def _preview_or_save(self, label, df):
         """Print up to 5 rows or save to CSV if larger."""
         if len(df) <= 5:
-            logger.warning(f"{label} detected ({len(df)} rows). Previewing.")
-            print(f"\n❗ {label.replace('_', ' ').title()} detected (showing all):")
+            logger.warning(
+                f"Detected {len(df)} rows with {label.replace('_', ' ')}. "
+                f"Saved details to {save_path}."
+            )
+            print(f"\n {label.replace('_', ' ').title()} detected (showing all):")
             print(df)
         else:
             csv_base = os.path.splitext(self.csv_path)[0]
@@ -138,40 +150,46 @@ class RollCall:
             logger.warning(f"{len(df)} {label} detected. Saved to {save_path}")
 
             print(
-                f"\n❗ {len(df)} {label.replace('_', ' ')} detected.\n"
+                f"\n {len(df)} {label.replace('_', ' ')} detected.\n"
                 f"Full list saved to:\n  {save_path}\n"
             )
 
     def check_duplicate_checksums(self, data_df, hash_col, ignore_duplicates=False):
         """Detect duplicate checksum values and optionally block execution."""
+
+        # Only consider non-null hashes
         dupes = (
-            data_df[data_df[hash_col].notna()]
+            data_df[data_df [hash_col].notna()]
             .groupby(hash_col)
             .filter(lambda x: len(x) > 1)
         )
 
         if dupes.empty:
             logger.info("No duplicate checksums detected.")
-            print("No duplicate checksums detected.")
+            print("✔ No duplicate checksums detected.")
             return
 
-        logger.warning(f"Duplicate checksums detected ({len(dupes)} rows).")
+        # Duplicates found
+        count = len(dupes)
+        logger.warning(f"Duplicate checksums detected in {count} rows.")
         self._preview_or_save("duplicate_checksums", dupes)
 
         if ignore_duplicates:
-            logger.warning("Ignoring duplicates due to --ignore-duplicates flag.")
+            logger.warning("Ignoring duplicate checksums due to --ignore-duplicates flag.")
             print(
-                f"\n Duplicate checksums detected ({len(dupes)} rows), "
+                f"\n⚠ Duplicate checksums detected in {count} rows, "
                 f"but --ignore-duplicates was passed. Continuing.\n"
             )
             return
 
+        # Default behavior: block execution
         msg = (
-            " Duplicate checksums detected. "
+            f"❗ Duplicate checksums detected in {count} rows. "
             "Use --ignore-duplicates to allow downloading duplicates."
         )
         logger.error(msg)
         sys.exit(msg)
+
 
     def print_download_summary(self, img_dir, downsample_dir, subfolders, num_images):
         """Print a summary of where images and downsized images will be saved."""
