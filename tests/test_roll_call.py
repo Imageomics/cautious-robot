@@ -1,7 +1,5 @@
-import os
-import sys
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
 
 from cautiousrobot.roll_call import RollCall
