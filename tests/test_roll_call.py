@@ -513,7 +513,7 @@ class TestPrintDownloadSummary(unittest.TestCase):
 
         printed_lines = [call.args[0] for call in mock_print.call_args_list]
 
-        self.assertIn("📦 Download Summary", printed_lines[0])
+        self.assertIn(" Download Summary", printed_lines[0])
         self.assertIn("--------------------", printed_lines[1])
 
 
