@@ -4,21 +4,35 @@ from sumbuddy import get_checksums
 
 
 class BuddyCheck:
+    """Validate downloaded files against expected checksums and identifiers."""
+
     def __init__(self, buddy_id = None, buddy_col = "md5"):
-        '''
+        """
+        Initialize the checksum validator.
+
         Parameters:
-        -----------
-        buddy_id - String [optional]. Name of matching unique identifier column for checksum_df. Matches on both filename and checksum values when provided.
-        buddy_col - String. Column name for checksums in checksum_df (algorithm used for the checksums with sum-buddy). Default: 'md5'.
-        '''
+            buddy_id (str | None): Name of the identifier column used to match files.
+                When provided, merges are performed on both filename and checksum values.
+            buddy_col (str): Name of the checksum column in the checksum DataFrame.
+                This normally matches the hashing algorithm in use, such as 'md5' or 'sha256'.
+        """
         self.buddy_id = buddy_id
         self.buddy_col = buddy_col
 
 
     def merge_on_checksum(self, source_df, checksum_df, source_validation_col):
-        '''
-        Merge source and checksum DataFrames on only checksum values.
-        '''
+        """
+        Merge the source and checksum DataFrames using checksum values only.
+
+        Parameters:
+            source_df (pd.DataFrame): DataFrame containing the expected image metadata.
+            checksum_df (pd.DataFrame): DataFrame containing the calculated checksums.
+            source_validation_col (str): Name of the checksum column in the source DataFrame.
+
+        Returns:
+            pd.DataFrame: Rows that matched on checksum values alone.
+        """
+        # Use checksum-only matching when no identifier column is available.
         print("merging on checksums only")
         merged_df = pd.merge(source_df,
                              checksum_df,
@@ -29,9 +43,19 @@ class BuddyCheck:
     
     
     def merge_on_filename_checksum(self, source_df, checksum_df, source_id_col, source_validation_col):
-        '''
-        Merge source and checksum DataFrames on both filename and checksum values.
-        '''
+        """
+        Merge the source and checksum DataFrames using both filename and checksum values.
+
+        Parameters:
+            source_df (pd.DataFrame): DataFrame containing the expected image metadata.
+            checksum_df (pd.DataFrame): DataFrame containing the calculated checksums.
+            source_id_col (str): Name of the identifier column in the source DataFrame.
+            source_validation_col (str): Name of the checksum column in the source DataFrame.
+
+        Returns:
+            pd.DataFrame: Rows that matched on both identifier and checksum values.
+        """
+        # Use the identifier and checksum together to avoid false matches from duplicate hashes.
         print("merging on checksums and IDs")
         merged_df = pd.merge(source_df,
                              checksum_df,
@@ -42,18 +66,18 @@ class BuddyCheck:
     
 
     def check_alignment(self, source_df, merged_df, id_col = "filename"):
-        '''
-        Check that all expected images were downloaded and record those that aren't with full source_df information.
-    
+        """
+        Check whether every expected image was accounted for in the merge result.
+
         Parameters:
-        source_df - DataFrame with unique filenames and expected checksums.
-        merged_df - DataFrame from inner merge of source_df and checksum_df (record of all downloaded images).
-        id_col - String. Name of unique identifier column for source_df. Number of non-null values must match expected number of images. Default: 'filename'.
-        
+            source_df (pd.DataFrame): DataFrame with the expected images and checksums.
+            merged_df (pd.DataFrame): DataFrame produced by merging the source and checksum data.
+            id_col (str): Name of the identifier column used to compare expected versus downloaded files.
+
         Returns:
-        missing_imgs - DataFrame. Subset of img_df that didn't match checksum_df, None if all match.
-        '''
-        
+            pd.DataFrame | None: Rows from the source data that were not matched, or None if all images were found.
+        """
+        # If fewer rows matched than expected, the missing items are those not present in the merged result.
         if merged_df.shape[0] < source_df.shape[0]:
             downloaded_ids = list(merged_df[id_col].unique())
             missing_imgs = source_df.loc[~source_df[id_col].isin(downloaded_ids)].copy()
@@ -61,37 +85,37 @@ class BuddyCheck:
         return None
 
     def validate_download(self, source_df, checksum_df, source_id_col = "filename", source_validation_col = "checksum"):
-        '''
-        Check that all expected images were downloaded.
-        Merges on the filename and checksum columns for both the source file and the checksum file produced by sum-buddy.
-        If buddy_id is not given, merges on just the checksum columns--not recommended if duplicate images are possible.
-        Returns a DataFrame of missing images if there are less than the expected number of matches and prints the number missing.
+        """
+        Validate that all expected images were downloaded and matched correctly.
 
         Parameters:
-        source_df - DataFrame with unique filenames and expected checksums.
-        checksum_source - DataFrame with checksums of images listed in source_df. Filename and checksum column names must match 'buddy_id' and 'buddy_col', respectively.
-        source_id_col - String. Name of unique identifier column for source_df. Number of non-null values must match expected number of images. Default: 'filename'.
-        source_validation_col - String. Name of column in source_df with expected checksums. Default: 'checksum'.
-        
-        Returns:
-        missing_imgs - DataFrame. Subset of source_df that didn't match checksum_df, None if all match.        
-        '''
+            source_df (pd.DataFrame): DataFrame with the expected images and checksum values.
+            checksum_df (pd.DataFrame): DataFrame with the checksums recorded for downloaded images.
+            source_id_col (str): Name of the identifier column in the source data.
+            source_validation_col (str): Name of the column in the source data containing expected checksums.
 
+        Returns:
+            pd.DataFrame | None: Rows from the source data that did not match the downloaded checksums, or None if all matched.
+        """
+        # Validate the inputs before running the merge-based checks.
         if source_df.empty:
             raise EmptyDataFrameError("source_df")
         if checksum_df.empty:
             raise EmptyDataFrameError("checksum_df")
 
         if self.buddy_id is None:
+            # Fall back to checksum-only matching when no identifier is configured.
             check_type = "checksums"
             merged_df = self.merge_on_checksum(source_df, checksum_df, source_validation_col)
             missing_imgs = self.check_alignment(source_df, merged_df, source_id_col)
         else:
+            # Use both the identifier and checksum to reduce false positives from duplicate hashes.
             check_type = "checksums and filenames"
             merged_df = self.merge_on_filename_checksum(source_df, checksum_df, source_id_col, source_validation_col)
             missing_imgs = self.check_alignment(source_df, merged_df, source_id_col)
 
         if missing_imgs is not None:
+            # Report how many records failed to align after the merge.
             print(f"Image mismatch: {missing_imgs.shape[0]} image(s) not aligned after merging on {check_type}.")
         return missing_imgs
 
@@ -121,14 +145,17 @@ def process_checksums(img_dir, metadata_path, args, source_df):
     Notes:
         Catches exceptions raised during checksum calculation and prints an error message with instructions to console and returns (None, None).
     """
+    # Build the output path for the checksum CSV before running the checksum step.
     checksum_path = metadata_path + "_checksums.csv"
     try:
+        # Generate checksums for the downloaded images using the requested algorithm.
         get_checksums(
             input_path=img_dir,
             output_filepath=checksum_path,
             algorithm=args.checksum_algorithm
         )
 
+        # Read the generated checksum file and compare its count to the expected number of images.
         checksum_df = pd.read_csv(checksum_path, low_memory=False)
         expected_num_imgs = source_df.shape[0]
         print(
@@ -138,6 +165,7 @@ def process_checksums(img_dir, metadata_path, args, source_df):
 
         return checksum_df, expected_num_imgs
     except Exception as e:
+        # If checksum generation fails, report the error and return no results for downstream handling.
         print(
             f"checksum calculation of downloaded images was unsuccessful due to {e}."
         )
@@ -173,11 +201,14 @@ def verify_downloads(
     Notes:
         Catches exceptions raised during verification and prints an error message with instructions to console.
     """
+    # Skip verification entirely when no verifier column was supplied.
     if not args.verifier_col:
         return
 
+    # Create a validator that compares the expected source checksums with the generated checksum output.
     buddy_check = BuddyCheck(buddy_id="filename", buddy_col=args.checksum_algorithm)
     try:
+        # Run the verification step using the requested filename column and validator column.
         missing_imgs = buddy_check.validate_download(
             source_df=source_df,
             checksum_df=checksum_df,
@@ -185,9 +216,11 @@ def verify_downloads(
             source_validation_col=args.verifier_col,
         )
         if missing_imgs is not None:
+            # Save the records that failed validation for later review and debugging.
             missing_imgs.to_csv(metadata_path + "_missing.csv", index=False)
             print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
         else:
+            # All expected images matched the checksum output.
             print(
                 f"Buddy check successful. All {expected_num_imgs} expected images accounted for."
             )
