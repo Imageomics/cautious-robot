@@ -66,17 +66,17 @@ class BuddyCheck:
     
 
     def check_alignment(self, source_df, merged_df, id_col = "filename"):
-        """
-        Check whether every expected image was accounted for in the merge result.
-
+        '''
+        Check that all expected images were downloaded and record those that aren't with full source_df information.
+    
         Parameters:
-            source_df (pd.DataFrame): DataFrame with the expected images and checksums.
-            merged_df (pd.DataFrame): DataFrame produced by merging the source and checksum data.
-            id_col (str): Name of the identifier column used to compare expected versus downloaded files.
-
+        source_df - DataFrame with unique filenames and expected checksums.
+        merged_df - DataFrame from inner merge of source_df and checksum_df (record of all downloaded images).
+        id_col - String. Name of unique identifier column for source_df. Number of non-null values must match expected number of images. Default: 'filename'.
+        
         Returns:
-            pd.DataFrame | None: Rows from the source data that were not matched, or None if all images were found.
-        """
+        missing_imgs - DataFrame. Subset of img_df that didn't match checksum_df, None if all match.
+        '''
         # If fewer rows matched than expected, the missing items are those not present in the merged result.
         if merged_df.shape[0] < source_df.shape[0]:
             downloaded_ids = list(merged_df[id_col].unique())
@@ -85,18 +85,21 @@ class BuddyCheck:
         return None
 
     def validate_download(self, source_df, checksum_df, source_id_col = "filename", source_validation_col = "checksum"):
-        """
-        Validate that all expected images were downloaded and matched correctly.
+        '''
+        Check that all expected images were downloaded.
+        Merges on the filename and checksum columns for both the source file and the checksum file produced by sum-buddy.
+        If buddy_id is not given, merges on just the checksum columns--not recommended if duplicate images are possible.
+        Returns a DataFrame of missing images if there are less than the expected number of matches and prints the number missing.
 
         Parameters:
-            source_df (pd.DataFrame): DataFrame with the expected images and checksum values.
-            checksum_df (pd.DataFrame): DataFrame with the checksums recorded for downloaded images.
-            source_id_col (str): Name of the identifier column in the source data.
-            source_validation_col (str): Name of the column in the source data containing expected checksums.
-
+        source_df - DataFrame with unique filenames and expected checksums.
+        checksum_source - DataFrame with checksums of images listed in source_df. Filename and checksum column names must match 'buddy_id' and 'buddy_col', respectively.
+        source_id_col - String. Name of unique identifier column for source_df. Number of non-null values must match expected number of images. Default: 'filename'.
+        source_validation_col - String. Name of column in source_df with expected checksums. Default: 'checksum'.
+        
         Returns:
-            pd.DataFrame | None: Rows from the source data that did not match the downloaded checksums, or None if all matched.
-        """
+        missing_imgs - DataFrame. Subset of source_df that didn't match checksum_df, None if all match.        
+        '''
         # Validate the inputs before running the merge-based checks.
         if source_df.empty:
             raise EmptyDataFrameError("source_df")
