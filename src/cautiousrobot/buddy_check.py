@@ -11,7 +11,7 @@ class BuddyCheck:
         Initialize the checksum validator.
 
         Parameters:
-            -----------
+        -----------
         buddy_id - String [optional]. Name of matching unique identifier column for checksum_df. Matches on both filename and checksum values when provided.
         buddy_col - String. Column name for checksums in checksum_df (algorithm used for the checksums with sum-buddy). Default: 'md5'.
         """
