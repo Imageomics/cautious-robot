@@ -27,8 +27,6 @@
 - `download_images()` - Core function for downloading images with progress tracking
 - `process_csv()` - Validates and processes input CSV files
 - `check_existing_images()` - Filters out images that have already been downloaded to the target directory
-- `process_checksums()` - Generates checksums for downloaded images using sum-buddy
-- `verify_downloads()` - Verifies downloaded images match expected checksums using BuddyCheck
 - `downsample_and_save_image()` - Handles image resizing operations
 
 ## Development Guidelines
