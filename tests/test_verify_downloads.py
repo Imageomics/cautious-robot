@@ -337,26 +337,5 @@ class TestVerifyDownloads(unittest.TestCase):
         self.assertEqual(call_kwargs["source_id_col"], custom_filename_col)
         self.assertEqual(call_kwargs["source_validation_col"], "md5")
 
-
-class TestProcessChecksumsEdgeCases(unittest.TestCase):
-    """Test edge cases for process_checksums."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.img_dir = os.path.join(self.temp_dir, "images")
-        os.makedirs(self.img_dir)
-        self.metadata_path = os.path.join(self.temp_dir, "metadata")
-
-        self.args = Namespace(
-            checksum_algorithm="md5",
-            input_file="test.csv"
-        )
-
-    def tearDown(self):
-        """Clean up temporary files."""
-        import shutil
-        shutil.rmtree(self.temp_dir)
-
 if __name__ == "__main__":
     unittest.main()
