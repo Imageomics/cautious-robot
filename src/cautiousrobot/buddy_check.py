@@ -75,7 +75,7 @@ class BuddyCheck:
         id_col - String. Name of unique identifier column for source_df. Number of non-null values must match expected number of images. Default: 'filename'.
         
         Returns:
-        missing_imgs - DataFrame. Subset of img_df that didn't match checksum_df, None if all match.
+        missing_imgs - DataFrame. Subset of source_df that didn't match checksum_df, None if all match.
         '''
         # If fewer rows matched than expected, the missing items are those not present in the merged result.
         if merged_df.shape[0] < source_df.shape[0]:
@@ -182,27 +182,22 @@ def verify_downloads(
     args, source_df, checksum_df, filename_col, metadata_path, expected_num_imgs
 ):
     """
-    Use BuddyCheck to verify the download integrity, if a verifier column is provided, and saves a CSV of missing images if the download is incomplete.
+    Verify download integrity using BuddyCheck when a verifier column is provided.
 
-        Parameters:
-        -----------
-        args: Arguments object containing:
-            - verifier_col (str or None): Column name in source CSV with expected checksums.
-            - checksum_algorithm (str): Name of checksum algorithm used to calculate checksums in 'verifier_col'.
-        source_df (pd.DataFrame): DataFrame containing source image information.
-        checksum_df (pd.DataFrame): DataFrame with calculated checksums from downloaded images.
-        filename_col (str): Name of the column containing image filenames.
-        metadata_path (str): Base path for saving the missing images CSV file.
-        checksum_df (pd.DataFrame): DataFrame with checksums of downloaded images, calculated with sum-buddy.
-        filename_col (str): Name of the column, in the source DataFrame, containing image filenames.
-        metadata_path (str): Base path for saving the missing images CSV file.
-        expected_num_imgs (int): Number of images expected to have been downloaded.
+    When verification fails (missing images or checksum mismatches), writes
+    "{metadata_path}_missing.csv" with the failing source records.
+
+    Parameters:
+        args: CLI args with verifier_col (expected checksum column in source_df) and
+            checksum_algorithm (algorithm/column name in checksum_df).
+        source_df (pd.DataFrame): Source image metadata (expected files).
+        checksum_df (pd.DataFrame): Checksums generated for downloaded files (e.g., via sum-buddy).
+        filename_col (str): Identifier column name in source_df.
+        metadata_path (str): Base path for output metadata files.
+        expected_num_imgs (int): Expected number of images (used for reporting).
 
     Returns:
-        None: Prints verification results to console. Saves a CSV of missing images if download is incomplete.
-
-    Notes:
-        Catches exceptions raised during verification and prints an error message with instructions to console.
+        None
     """
     # Skip verification entirely when no verifier column was supplied.
     if not args.verifier_col:
