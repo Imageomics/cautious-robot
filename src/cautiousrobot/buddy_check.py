@@ -184,20 +184,20 @@ def verify_downloads(
     """
     Verify download integrity using BuddyCheck when a verifier column is provided.
 
-    When verification fails (missing images or checksum mismatches), writes
+    When verification fails (missing images or checksum mismatches), saves
     "{metadata_path}_missing.csv" with the failing source records.
 
     Parameters:
         args: CLI args with verifier_col (expected checksum column in source_df) and
-            checksum_algorithm (algorithm/column name in checksum_df).
+            checksum_algorithm (algorithm used to calculate the checksums).
         source_df (pd.DataFrame): Source image metadata (expected files).
         checksum_df (pd.DataFrame): Checksums generated for downloaded files (e.g., via sum-buddy).
         filename_col (str): Identifier column name in source_df.
         metadata_path (str): Base path for output metadata files.
-        expected_num_imgs (int): Expected number of images (used for reporting).
+        expected_num_imgs (int): Expected number of downloaded images (used for reporting).
 
     Returns:
-        None
+        None: Prints verification results to console. Saves a CSV of missing images if download is incomplete.
     """
     # Skip verification entirely when no verifier column was supplied.
     if not args.verifier_col:
