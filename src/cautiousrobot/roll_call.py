@@ -57,7 +57,7 @@ class RollCall:
             url_col (str): Name of the column containing image URLs.
 
         Returns:
-            pd.DataFrame | None: Rows with missing filenames when present; otherwise None.
+            missing (pd.DataFrame) | None: DataFrame of entries with URLs but missing filenames or None.
         """
         # Find rows that have a URL but no filename, since those records cannot be downloaded safely.
         missing = data_df.loc[data_df[filename_col].isna() & data_df[url_col].notna()]
@@ -89,7 +89,7 @@ class RollCall:
             args (argparse.Namespace): Parsed command-line arguments.
 
         Returns:
-            tuple[dict, str | None]: Column mapping to use for filename, URL, and optional subfolder handling.
+            (expected_cols, subfolders) tuple[dict, str | None]: Column mapping to use for filename, URL, and optional subfolder handling.
         """
         # Normalize the CLI input into the internal column names used throughout the workflow.
         subfolders = args.subdir_col

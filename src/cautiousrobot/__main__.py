@@ -157,7 +157,7 @@ def main():
 
     # Download images with or without downsampling
     if isinstance(args.side_length, int):
-        downsample_dest_path = img_dir + "_downsized"
+    if downsample_dir:
         # Download images from urls & save downsample copy
         download_images(filtered_df,
                        img_dir=img_dir,
@@ -165,12 +165,12 @@ def main():
                        error_log_filepath=error_log_filepath,
                        filename=filename_col,
                        subfolders=subfolders,
-                       downsample_path=downsample_dest_path,
+                       downsample_path=downsample_dir,
                        downsample=args.side_length,
                        file_url=url_col,
                        wait=args.wait_time,
                        retry=args.max_retries)
-        print(f"Images downloaded from {csv_path} to {img_dir}, with downsampled images in {downsample_dest_path}.")
+        print(f"Images downloaded from {csv_path} to {img_dir}, with downsampled images in {downsample_dir}.")
     else:
         # Download images from urls without downsample copy
         download_images(filtered_df,
