@@ -49,6 +49,7 @@ def parse_args():
                         help = f"checksum algorithm to use on images (default: md5, available: {available_algorithms})"
                         )
     opt_args.add_argument("-v", "--verifier-col", required = False, help = "name of column in source CSV with checksums (same hash as -a) to verify download", nargs = "?")
+    opt_args.add_argument("--ignore-duplicates", action="store_true", help="Continue download when duplicate checksum values are detected in the source CSV. Duplicates are still printed or saved.")
     
     return parser.parse_args()
 
