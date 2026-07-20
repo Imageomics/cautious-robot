@@ -156,7 +156,6 @@ def main():
     log_filepath, error_log_filepath, metadata_path = setup_log_paths(csv_path)
 
     # Download images with or without downsampling
-    if isinstance(args.side_length, int):
     if downsample_dir:
         # Download images from urls & save downsample copy
         download_images(filtered_df,
