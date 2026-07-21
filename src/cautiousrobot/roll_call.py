@@ -180,20 +180,15 @@ class RollCall:
             label (str): Descriptive prefix for the output file and console message.
             df (pd.DataFrame): DataFrame containing the rows to preview or save.
         """
-        if len(df) <= 5:
-            # Small result sets are easier to inspect directly in the terminal.
-            print(f"\n {label.replace('_', ' ').title()} detected (showing all):")
-            print(df)
-        else:
-            # Larger result sets are written to a CSV so the user can review them without clutter.
-            csv_base = os.path.splitext(self.csv_path)[0]
-            save_path = f"{csv_base}_{label}.csv"
-            df.to_csv(save_path, index=False)
-            print(
-                f"\n {len(df)} {label.replace('_', ' ')} detected.\n"
-                f"Full list saved to:\n  {save_path}\n"
-            )
-            
+        # Result sets are written to a CSV so the user can review them without clutter.
+        csv_base = os.path.splitext(self.csv_path)[0]
+        save_path = f"{csv_base}_{label}.csv"
+        df.to_csv(save_path, index=False)
+        print(
+            f"\n {len(df)} {label.replace('_', ' ')} detected.\n"
+            f"Full list saved to:\n  {save_path}\n"
+        )
+        
     def check_duplicate_checksums(self, data_df, hash_col, ignore_duplicates=False):
         """
         Detect duplicate checksum values and optionally block execution.
