@@ -417,8 +417,10 @@ class TestPreviewOrSave(unittest.TestCase):
 
         self.rollcall._preview_or_save("test_label", df)
 
+        mock_to_csv.assert_called_once()
+        args, kwargs = mock_to_csv.call_args
+        self.assertIn("testdata_test_label.csv", args[0])
         mock_print.assert_called()
-        mock_to_csv.assert_not_called()
 
     @patch("builtins.print")
     @patch("pandas.DataFrame.to_csv")
