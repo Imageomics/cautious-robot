@@ -36,3 +36,6 @@ Post-download verification of the downloaded images including checks for checksu
 - merge_on_filename_checksum
 - process_checksums
 - verify_downloads
+
+### Architecture
+The struture of the files and functions after modularization and the control and data flows can be accessed [here](https://app.eraser.io/workspace/bhfPH97OkNPUhSZl0KZV).
