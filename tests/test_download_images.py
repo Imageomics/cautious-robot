@@ -1,16 +1,23 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-import numpy as np
 import os
 import shutil
 import tempfile
-from io import BytesIO
-import requests
-from cautiousrobot.download import download_images, extract_extension_from_filename, extract_extension_from_url, resolve_filename_with_extension
-from cautiousrobot.__main__ import main
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
+import unittest
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from io import BytesIO
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pandas as pd
+import requests
+
+from cautiousrobot.__main__ import main
+from cautiousrobot.download import (
+    download_images,
+    extract_extension_from_filename,
+    extract_extension_from_url,
+    resolve_filename_with_extension,
+)
 
 TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
 

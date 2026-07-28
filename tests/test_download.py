@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
+
 import pandas as pd
+
 from cautiousrobot.download import download_images
 
 # Define constants for download call

@@ -1,5 +1,6 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
 
 from cautiousrobot.roll_call import RollCall
@@ -182,7 +183,7 @@ class TestHandleMissingFilenames(unittest.TestCase):
 
         self.assertEqual(len(result), 6)
         mock_to_csv.assert_called_once()
-        args, kwargs = mock_to_csv.call_args
+        args = mock_to_csv.call_args
         self.assertIn("testdata_missing_filenames.csv", args[0])
 
     @patch("builtins.print")

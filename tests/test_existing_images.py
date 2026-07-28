@@ -1,6 +1,8 @@
 import unittest
-import pandas as pd
 from unittest.mock import patch
+
+import pandas as pd
+
 from cautiousrobot.roll_call import RollCall
 
 

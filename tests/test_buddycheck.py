@@ -1,9 +1,12 @@
-import unittest
-import pandas as pd
-import tempfile
 import os
+import tempfile
+import unittest
+
+import pandas as pd
+
 from cautiousrobot import BuddyCheck
 from cautiousrobot.exceptions import EmptyDataFrameError
+
 
 class TestBuddyCheck(unittest.TestCase):
     def setUp(self):

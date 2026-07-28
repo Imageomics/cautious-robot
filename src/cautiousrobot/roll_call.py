@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 from sumbuddy import gather_file_paths
 from sumbuddy.exceptions import EmptyInputDirectoryError
 

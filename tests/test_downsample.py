@@ -1,8 +1,11 @@
-import unittest
-from unittest.mock import patch, MagicMock
 import os
+import unittest
+from unittest.mock import MagicMock, patch
+
 from PIL import Image
+
 from cautiousrobot.utils import downsample_and_save_image
+
 
 class TestDownsampleAndSaveImage(unittest.TestCase):
     """Test the downsample_and_save_image function."""

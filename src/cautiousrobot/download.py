@@ -1,15 +1,17 @@
 # Download functionality for cautious-robot
 # Contains helper functions for downloading images from CSV data
 
-import requests
-import shutil
-import os
-import time
 import mimetypes
-import pandas as pd
+import os
+import shutil
+import time
 from urllib.parse import urlparse
+
+import pandas as pd
+import requests
 from tqdm import tqdm
-from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
+
+from cautiousrobot.utils import downsample_and_save_image, log_response, update_log
 
 # Constants
 # 403 (Forbidden) is included here because some APIs appear use it to signal rate limiting.
