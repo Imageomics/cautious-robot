@@ -44,7 +44,7 @@ def process_csv(csv_path, expected_cols):
         if expected_cols[col] not in list(df.columns):
             missing_cols.append(col)
     if len(missing_cols) > 0:
-        raise ValueError(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.")
+        raise Exception(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.") # noqa: TRY002
     
     return df
 
