@@ -252,7 +252,7 @@ class TestSetupExpectedColumns(unittest.TestCase):
         args.url_col = "FileURL"
         args.subdir_col = None
 
-        expected_cols = self.rollcall.setup_expected_columns(args)
+        expected_cols, subfolders = self.rollcall.setup_expected_columns(args) #noqa: RUF059
 
         self.assertEqual(expected_cols["filename_col"], "filename")
         self.assertEqual(expected_cols["url_col"], "fileurl")
@@ -326,7 +326,7 @@ class TestSetupExpectedColumns(unittest.TestCase):
         args.url_col = "url"
         args.subdir_col = "folder"
 
-        expected_cols = self.rollcall.setup_expected_columns(args)
+        expected_cols, subfolders = self.rollcall.setup_expected_columns(args)  #noqa: RUF059
 
         # Check dictionary has correct keys
         self.assertIn("filename_col", expected_cols)
