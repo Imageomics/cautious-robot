@@ -14,8 +14,8 @@ class TestBuddyCheck(unittest.TestCase):
         self.buddy_check_filename = BuddyCheck(buddy_id='filename')
         self.buddy_check_id_col = BuddyCheck(buddy_id = "filename", buddy_col = "sha256")
 
-        self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
-        self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
+        self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
+        self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
 
         self.img_source_file.write("""filename,checksum
 image1.jpg,abc123

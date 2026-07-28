@@ -68,7 +68,7 @@ def get_content_type_from_url(url):
         content_type = response.headers.get('content-type', '')
         # Split off parameters like '; charset=utf-8'
         return content_type.split(';')[0].strip() if content_type else None
-    except Exception:
+    except Exception:   # noqa: BLE001
         return None
 
 
@@ -216,13 +216,11 @@ def is_url_missing_or_invalid(url):
     Returns:
     - bool: True if URL is missing/invalid, False otherwise
     """
-    if pd.isna(url):
-        return True
-    if not url:
-        return True
-    if str(url).lower().strip() in ['nan', 'none', 'null', '']:
-        return True
-    return False
+    return (
+    pd.isna(url)
+    or not url
+    or str(url).lower().strip() in {"nan", "none", "null", ""}
+)
 
 
 def handle_download_skip(log_errors, i, image_name, url, error_code, error_log_filepath):
@@ -275,7 +273,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
     while redo and attempts_remaining > 0:
         try:
             response = requests.get(url, stream=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             redo = True
             attempts_remaining -= 1
             if attempts_remaining <= 0:

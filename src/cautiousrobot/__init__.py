@@ -5,8 +5,8 @@ from cautiousrobot.utils import downsample_and_save_image
 # Create instance of the class
 buddy_check_instance = BuddyCheck()
 
-# Expose instance methods
-buddy_check_instance.validate_download
-buddy_check_instance.check_alignment
+# Expose instance methods by executing them
+buddy_check_instance.validate_download()
+buddy_check_instance.check_alignment()
 
-__all__ = ["download_images", "validate_download", "check_alignment", "downsample_and_save_image"]
+__all__ = ["check_alignment", "download_images", "downsample_and_save_image", "validate_download"]

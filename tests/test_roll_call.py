@@ -252,7 +252,7 @@ class TestSetupExpectedColumns(unittest.TestCase):
         args.url_col = "FileURL"
         args.subdir_col = None
 
-        expected_cols, subfolders = self.rollcall.setup_expected_columns(args)
+        expected_cols = self.rollcall.setup_expected_columns(args)
 
         self.assertEqual(expected_cols["filename_col"], "filename")
         self.assertEqual(expected_cols["url_col"], "fileurl")
@@ -326,7 +326,7 @@ class TestSetupExpectedColumns(unittest.TestCase):
         args.url_col = "url"
         args.subdir_col = "folder"
 
-        expected_cols, subfolders = self.rollcall.setup_expected_columns(args)
+        expected_cols = self.rollcall.setup_expected_columns(args)
 
         # Check dictionary has correct keys
         self.assertIn("filename_col", expected_cols)
@@ -401,7 +401,7 @@ class TestCheckDuplicateChecksums(unittest.TestCase):
             self.rollcall.check_duplicate_checksums(df, "hash")
 
         mock_to_csv.assert_called_once()
-        args, kwargs = mock_to_csv.call_args
+        args = mock_to_csv.call_args
         self.assertIn("testdata_duplicate_checksums.csv", args[0])
 
 class TestPreviewOrSave(unittest.TestCase):
@@ -419,7 +419,7 @@ class TestPreviewOrSave(unittest.TestCase):
         self.rollcall._preview_or_save("test_label", df)
 
         mock_to_csv.assert_called_once()
-        args, kwargs = mock_to_csv.call_args
+        args = mock_to_csv.call_args
         self.assertIn("testdata_test_label.csv", args[0])
         mock_print.assert_called()
 
@@ -432,7 +432,7 @@ class TestPreviewOrSave(unittest.TestCase):
         self.rollcall._preview_or_save("test_label", df)
 
         mock_to_csv.assert_called_once()
-        args, kwargs = mock_to_csv.call_args
+        args = mock_to_csv.call_args
         self.assertIn("testdata_test_label.csv", args[0])
         mock_print.assert_called()
 

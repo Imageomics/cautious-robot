@@ -77,7 +77,7 @@ def process_checksums(img_dir, metadata_path, args, source_df):
         print(f"There are {checksum_df.shape[0]} files in {img_dir}. Based on {args.input_file}, there should be {expected_num_imgs} images.")
         
         return checksum_df, expected_num_imgs
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
         print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
         return None, None
@@ -102,7 +102,7 @@ def verify_downloads(args, source_df, checksum_df, filename_col, metadata_path, 
             print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
         else:
             print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Verification of download failed due to {type(e).__name__}: {e}.")
         print("'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
 
@@ -120,7 +120,7 @@ def main():
     expected_cols, subfolders = roll_call.setup_expected_columns(args)
     try:
         data_df = process_csv(csv_path, expected_cols)
-    except Exception as missing_cols:
+    except Exception as missing_cols: # noqa: BLE001
         sys.exit(f"{missing_cols} Please adjust inputs and try again.")
 
     # Validate data and handle missing filenames

@@ -44,7 +44,7 @@ def process_csv(csv_path, expected_cols):
         if expected_cols[col] not in list(df.columns):
             missing_cols.append(col)
     if len(missing_cols) > 0:
-        raise Exception(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.")
+        raise ValueError(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.")
     
     return df
 
@@ -71,7 +71,7 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
     try:
         img = Image.open(f"{image_dir_path}/{image_name}")
         img.resize((downsample_size, downsample_size)).save(f"{downsample_dir_path}/{image_name}")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(e)
         log_errors = log_response(
             log_errors,
