@@ -180,6 +180,10 @@ class RollCall:
             label (str): Descriptive prefix for the output file and console message.
             df (pd.DataFrame): DataFrame containing the rows to preview or save.
         """
+        # Print up to the first 5 rows of the DataFrame to give the user a quick look at the data.
+        print(f"\nPreview ({min(len(df), 5)} of {len(df)} rows):")
+        print(df.head(5).to_string(index=False))
+
         # Result sets are written to a CSV so the user can review them without clutter.
         csv_base = os.path.splitext(self.csv_path)[0]
         save_path = f"{csv_base}_{label}.csv"
