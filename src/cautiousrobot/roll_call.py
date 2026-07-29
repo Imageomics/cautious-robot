@@ -182,8 +182,6 @@ class RollCall:
             df (pd.DataFrame): DataFrame containing the rows to preview or save.
         """
         # Print up to the first 5 rows of the DataFrame to give the user a quick look at the data.
-        print(f"\nPreview ({min(len(df), 5)} of {len(df)} rows):")
-        print(df.head(5).to_string(index=False))
 
         # Result sets are written to a CSV so the user can review them without clutter.
         csv_base = os.path.splitext(self.csv_path)[0]
@@ -191,7 +189,9 @@ class RollCall:
         df.to_csv(save_path, index=False)
         print(
             f"\n {len(df)} {label.replace('_', ' ')} detected.\n"
-            f"Full list saved to:\n  {save_path}\n"
+            f"\nFull list saved to:\n  {save_path}"
+            f"\nPreview ({min(len(df), 5)} of {len(df)} rows):"
+            f"\n{df.head(5).to_string(index=False)}"
         )
         
     def check_duplicate_checksums(self, data_df, hash_col, ignore_duplicates=False):
