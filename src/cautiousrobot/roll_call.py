@@ -188,7 +188,7 @@ class RollCall:
         save_path = f"{csv_base}_{label}.csv"
         df.to_csv(save_path, index=False)
         print(
-            f"\n {len(df)} {label.replace('_', ' ')} detected.\n"
+            f"\n {len(df)} {label.replace('_', ' ')} detected."
             f"\nFull list saved to:\n  {save_path}"
             f"\nPreview ({min(len(df), 5)} of {len(df)} rows):"
             f"\n{df.head(5).to_string(index=False)}"
