@@ -39,3 +39,11 @@ Post-download verification of the downloaded images including checks for checksu
 
 ### Architecture
 The struture of the files and functions after modularization and the control and data flows can be accessed [here](https://app.eraser.io/workspace/bhfPH97OkNPUhSZl0KZV).
+
+> Include flag to allow uset to sequential download instead of parellel downloads.
+
+
+### Agents for Parellel Downloading
+- Scheduler: Inputs from rollcall and processes the downloads based on the rate limit of servers and http headers.
+- Orchestrator/Watcher: Determines number of workers for download, monitors time stamps and rate of download and additively increases or decreases cautiously based on the rate limit. 
+- Workers: Downloads images with set rate limit.
