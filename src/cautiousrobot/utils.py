@@ -6,7 +6,7 @@ import os
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
 
-from cautiousrobot.exceptions import ImageResizeError, MissingColumnsError
+from cautiousrobot.exceptions import MissingColumnsError
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -82,4 +82,3 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
             response_code=str(error)
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
-        raise ImageResizeError(image_name, str(error))

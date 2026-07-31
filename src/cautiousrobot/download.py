@@ -68,7 +68,7 @@ def get_content_type_from_url(url):
         content_type = response.headers.get('content-type', '')
         # Split off parameters like '; charset=utf-8'
         return content_type.split(';')[0].strip() if content_type else None
-    except Exception:   # noqa: BLE001
+    except requests.RequestException:
         return None
 
 
@@ -273,7 +273,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
     while redo and attempts_remaining > 0:
         try:
             response = requests.get(url, stream=True)
-        except Exception as e:  # noqa: BLE001
+        except requests.RequestException as error: 
             redo = True
             attempts_remaining -= 1
             if attempts_remaining <= 0:
@@ -281,7 +281,7 @@ def download_single_image(url, image_name, image_dir_path, log_data, log_errors,
                                         index=i,
                                         image=image_name,
                                         file_path=url,
-                                        response_code=str(e))
+                                        response_code=str(error))
                 update_log(log=log_errors, index=i, filepath=error_log_filepath)
             continue
         
