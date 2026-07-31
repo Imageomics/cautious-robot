@@ -407,9 +407,10 @@ class TestMainFunction(unittest.TestCase):
             "filename_col is not a unique identifier for this dataset, please choose a column with unique values for filenames."
         )
 
+    @patch('cautiousrobot.__main__.get_checksums')
     @patch('cautiousrobot.__main__.parse_args')
     @patch('cautiousrobot.__main__.process_csv')
-    def test_main_missing_filenames_noninteractive(self, mock_process_csv, mock_parse_args):
+    def test_main_missing_filenames_noninteractive(self, mock_process_csv, mock_parse_args, mock_get_checksums):
         mock_args = MagicMock()
         mock_args.input_file = 'test.csv'
         mock_args.img_name_col = 'filename_col'
@@ -421,6 +422,7 @@ class TestMainFunction(unittest.TestCase):
         mock_args.max_retries = 3
         mock_args.checksum_algorithm = 'md5'
         mock_args.verifier_col = None
+        mock_get_checksums.return_value = None
 
         mock_parse_args.return_value = mock_args
 
