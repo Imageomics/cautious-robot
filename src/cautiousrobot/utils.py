@@ -4,9 +4,9 @@ import json
 import os
 
 import pandas as pd
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
-from cautiousrobot.exceptions import MissingColumnsError
+from cautiousrobot.exceptions import ImageResizeError, MissingColumnsError
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -73,13 +73,13 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
     try:
         img = Image.open(f"{image_dir_path}/{image_name}")
         img.resize((downsample_size, downsample_size)).save(f"{downsample_dir_path}/{image_name}")
-    except Exception as e:  # noqa: BLE001
-        print(e)
+    except (OSError, UnidentifiedImageError) as error:
         log_errors = log_response(
             log_errors,
             index=image_index,
             image="downsized_" + image_name,
             file_path=file_path,
-            response_code=str(e)
+            response_code=str(error)
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)
+        raise ImageResizeError(image_name, str(error))
