@@ -118,10 +118,8 @@ def main():
 
     # Set up expected columns and process CSV
     expected_cols, subfolders = roll_call.setup_expected_columns(args)
-    try:
-        data_df = process_csv(csv_path, expected_cols)
-    except Exception as missing_cols: # noqa: BLE001
-        sys.exit(f"{missing_cols} Please adjust inputs and try again.")
+    data_df = process_csv(csv_path, expected_cols) #Exception handling process_csv
+
 
     # Validate data and handle missing filenames
     filename_col = expected_cols["filename_col"]
