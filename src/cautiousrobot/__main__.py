@@ -76,7 +76,7 @@ def process_checksums(img_dir, metadata_path, args, source_df):
         print(f"There are {checksum_df.shape[0]} files in {img_dir}. Based on {args.input_file}, there should be {expected_num_imgs} images.")
         
         return checksum_df, expected_num_imgs
-    except Exception as e:  # noqa: BLE001
+    except (OSError, ValueError, pd.errors.EmptyDataError, pd.errors.ParserError) as e: 
         print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
         print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
         return None, None
@@ -101,7 +101,7 @@ def verify_downloads(args, source_df, checksum_df, filename_col, metadata_path, 
             print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
         else:
             print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
-    except Exception as e:  # noqa: BLE001
+    except (KeyError, ValueError, TypeError, OSError) as e:
         print(f"Verification of download failed due to {type(e).__name__}: {e}.")
         print("'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
 
