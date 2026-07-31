@@ -22,7 +22,7 @@ jobs:
         shell: bash
 
       - name: run Ruff linter
-        run: ruff check .
+        run: ruff check --output-format=github .
         shell: bash
 
   run-tests:
