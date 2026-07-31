@@ -7,7 +7,6 @@
 
 import argparse
 import hashlib
-import sys
 
 import pandas as pd
 from sumbuddy import get_checksums

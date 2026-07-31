@@ -5,6 +5,7 @@ import os
 
 import pandas as pd
 from PIL import Image
+
 from cautiousrobot.exceptions import MissingColumnsError
 
 
