@@ -18,6 +18,7 @@ from cautiousrobot.download import (
     extract_extension_from_url,
     resolve_filename_with_extension,
 )
+from cautiousrobot.exceptions import MissingColumnsError
 
 TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
 
@@ -374,12 +375,12 @@ class TestMainFunction(unittest.TestCase):
         mock_args.subdir_col = None
         mock_parse_args.return_value = mock_args
 
-        mock_process_csv.side_effect = Exception("Missing required columns")
+        mock_process_csv.side_effect = MissingColumnsError("test.csv", ["filename"], ["filename_col"],)
         
-        with self.assertRaises(SystemExit) as cm:
+        with self.assertRaises(MissingColumnsError) as cm:
             main()
-        
-        self.assertEqual(cm.exception.code, "Missing required columns Please adjust inputs and try again.")
+
+        self.assertEqual(str(cm.exception), "The CSV at test.csv is missing column(s): ['filename'], defined as ['filename_col'].")
 
     @patch('cautiousrobot.__main__.parse_args')
     @patch('cautiousrobot.__main__.process_csv')
