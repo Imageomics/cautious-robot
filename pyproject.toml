@@ -30,13 +30,6 @@ dependencies = [
     "sum-buddy",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "ruff",
-    "pre-commit"
-]
-
 keywords = [
     "imageomics",
     "metadata",
@@ -50,6 +43,13 @@ keywords = [
     "downloader",
     "url",
     "sum-buddy",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff==0.16.0",
+  "pre-commit"
 ]
 
 [project.urls]
