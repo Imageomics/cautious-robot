@@ -5,6 +5,7 @@ import os
 
 import pandas as pd
 from PIL import Image
+from cautiousrobot.exceptions import MissingColumnsError
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -44,7 +45,7 @@ def process_csv(csv_path, expected_cols):
         if expected_cols[col] not in list(df.columns):
             missing_cols.append(col)
     if len(missing_cols) > 0:
-        raise Exception(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.") # noqa: TRY002
+        raise MissingColumnsError(csv_path, missing_cols, [expected_cols[col] for col in missing_cols])
     
     return df
 
