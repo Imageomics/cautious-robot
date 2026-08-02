@@ -14,9 +14,9 @@ from sumbuddy import get_checksums
 from cautiousrobot.__about__ import __version__
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot.exceptions import BuddyCheckError, ChecksumError
 from cautiousrobot.roll_call import RollCall
 from cautiousrobot.utils import process_csv
-from cautiousrobot.exceptions import ChecksumError, BuddyCheckError
 
 
 def parse_args():
