@@ -12,14 +12,13 @@ class ChecksumError(Exception):
     def __init__(self, error, img_dir):
         self.error = error
         self.img_dir = img_dir
-
-    def __str__(self):
-        return (f"Checksum calculation of downloaded images was unsuccessful due to {self.error}.\n You can get checksums for the images downloaded to {self.img_dir} by running sum-buddy directly.")
-
+        message = f"Checksum calculation of downloaded images was unsuccessful due to {self.error}.\n You can get checksums for the images downloaded to {self.img_dir} by running sum-buddy directly."
+        super().__init__(message)
+        
 class BuddyCheckError(Exception):
     def __init__(self, error, reason):
         self.error = error
         self.reason = reason
-
-    def __str__(self):
-        return (f"Verification of download failed due to {self.error}: {self.reason}.\n'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
+        message = f"Verification of download failed due to {self.error}: {self.reason}.\n'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error."
+        super().__init__(message)
+        
