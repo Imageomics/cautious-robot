@@ -326,7 +326,8 @@ class TestMainFunction(unittest.TestCase):
     @patch('cautiousrobot.__main__.BuddyCheck')
     @patch('os.path.exists')
     @patch('builtins.input', return_value='y')
-    def test_main_successful_execution(self, mock_input, mock_exists, mock_BuddyCheck, mock_get_checksums, mock_download_images, mock_process_csv, mock_parse_args):
+    @patch('cautiousrobot.__main__.process_checksums')
+    def test_main_successful_execution(self, mock_process_checksums, mock_input, mock_exists, mock_BuddyCheck, mock_get_checksums, mock_download_images, mock_process_csv, mock_parse_args):
         mock_args = MagicMock()
         mock_args.input_file = 'test.csv'
         mock_args.img_name_col = 'filename_col'
@@ -338,6 +339,7 @@ class TestMainFunction(unittest.TestCase):
         mock_args.max_retries = 3
         mock_args.checksum_algorithm = 'md5'
         mock_args.verifier_col = None
+        mock_process_checksums.return_value = (None, None)
 
         mock_parse_args.return_value = mock_args
         mock_exists.return_value = False
@@ -407,10 +409,12 @@ class TestMainFunction(unittest.TestCase):
             "filename_col is not a unique identifier for this dataset, please choose a column with unique values for filenames."
         )
 
+    @patch('cautiousrobot.__main__.download_images')
     @patch('cautiousrobot.__main__.get_checksums')
-    @patch('cautiousrobot.__main__.parse_args')
+    @patch('cautiousrobot.__main__.process_checksums')
     @patch('cautiousrobot.__main__.process_csv')
-    def test_main_missing_filenames_noninteractive(self, mock_process_csv, mock_parse_args, mock_get_checksums):
+    @patch('cautiousrobot.__main__.parse_args')
+    def test_main_missing_filenames_noninteractive(self, mock_parse_args, mock_process_csv, mock_process_checksums, mock_get_checksums, mock_download_images):
         mock_args = MagicMock()
         mock_args.input_file = 'test.csv'
         mock_args.img_name_col = 'filename_col'
@@ -422,7 +426,6 @@ class TestMainFunction(unittest.TestCase):
         mock_args.max_retries = 3
         mock_args.checksum_algorithm = 'md5'
         mock_args.verifier_col = None
-        mock_get_checksums.return_value = None
 
         mock_parse_args.return_value = mock_args
 
@@ -430,6 +433,10 @@ class TestMainFunction(unittest.TestCase):
             'filename_col': [None, None, 'file2', 'file3'],
             'url_col': ['url1', 'url2', 'url3', 'url4']
         })
+
+        mock_process_csv.return_value = mock_data
+        mock_process_checksums.return_value = (None, None)
+        mock_get_checksums.return_value = None
 
         mock_process_csv.return_value = mock_data
 
