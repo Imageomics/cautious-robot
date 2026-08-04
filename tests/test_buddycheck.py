@@ -33,6 +33,8 @@ image3.jpg,ghi789
         
 
     def tearDown(self):
+        self.img_source_file.close()
+        self.checksum_source_file.close()
         os.remove(self.img_source_file.name)
         os.remove(self.checksum_source_file.name)
 
