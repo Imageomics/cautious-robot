@@ -5,15 +5,13 @@
 # Logs saved in same folder as CSV used for download
 # Downsized images are saved in <img_dir>_downsized
 
-import pandas as pd
 import argparse
 import hashlib
 import os
 import sys
-from sumbuddy import get_checksums
 from cautiousrobot.utils import process_csv, check_existing_images
-from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot.buddy_check import process_checksums, verify_downloads
 from cautiousrobot.__about__ import __version__
 
 def parse_args():
@@ -99,48 +97,6 @@ def setup_log_paths(csv_path):
     log_filepath = metadata_path + "_log.jsonl"
     error_log_filepath = metadata_path + "_error_log.jsonl"
     return log_filepath, error_log_filepath, metadata_path
-
-
-def process_checksums(img_dir, metadata_path, args, source_df):
-    """Process checksums for downloaded images and verify if requested."""
-    checksum_path = metadata_path + "_checksums.csv"
-    try:
-        get_checksums(input_path=img_dir, output_filepath=checksum_path, algorithm=args.checksum_algorithm)
-        
-        # Verify numbers
-        checksum_df = pd.read_csv(checksum_path, low_memory=False)
-        expected_num_imgs = source_df.shape[0]
-        print(f"There are {checksum_df.shape[0]} files in {img_dir}. Based on {args.input_file}, there should be {expected_num_imgs} images.")
-        
-        return checksum_df, expected_num_imgs
-    except Exception as e:
-        print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
-        print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
-        return None, None
-
-
-def verify_downloads(args, source_df, checksum_df, filename_col, metadata_path, expected_num_imgs):
-    """Verify downloads using buddy check if verifier column is provided."""
-    if not args.verifier_col:
-        return
-    
-    # Run download verification
-    buddy_check = BuddyCheck(buddy_id="filename", buddy_col=args.checksum_algorithm)
-    try:
-        missing_imgs = buddy_check.validate_download(
-            source_df=source_df,
-            checksum_df=checksum_df,
-            source_id_col=filename_col,
-            source_validation_col=args.verifier_col
-        )
-        if missing_imgs is not None:
-            missing_imgs.to_csv(metadata_path + "_missing.csv", index=False)
-            print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
-        else:
-            print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
-    except Exception as e:
-        print(f"Verification of download failed due to {type(e).__name__}: {e}.")
-        print("'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
 
 
 def main():

@@ -314,8 +314,8 @@ class TestMainFunction(unittest.TestCase):
     @patch('cautiousrobot.__main__.parse_args')
     @patch('cautiousrobot.__main__.process_csv')
     @patch('cautiousrobot.__main__.download_images')
-    @patch('cautiousrobot.__main__.get_checksums')
-    @patch('cautiousrobot.__main__.BuddyCheck')
+    @patch('cautiousrobot.buddy_check.get_checksums')
+    @patch('cautiousrobot.buddy_check.BuddyCheck')
     @patch('os.path.exists')
     @patch('builtins.input', return_value='y')
     def test_main_successful_execution(self, mock_input, mock_exists, mock_BuddyCheck, mock_get_checksums, mock_download_images, mock_process_csv, mock_parse_args):
