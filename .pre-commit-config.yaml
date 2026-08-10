@@ -1,6 +1,9 @@
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.2
+  - repo: local
     hooks:
       - id: ruff
-
+        name: ruff
+        entry: uv run --extra dev ruff check --force-exclude
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
