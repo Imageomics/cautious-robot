@@ -1,7 +1,9 @@
 import unittest
-import pandas as pd
 from unittest.mock import patch
-from cautiousrobot.utils import check_existing_images
+
+import pandas as pd
+
+from cautiousrobot.roll_call import RollCall
 
 
 class TestCheckExistingImages(unittest.TestCase):
@@ -12,11 +14,12 @@ class TestCheckExistingImages(unittest.TestCase):
         self.sample_df = pd.DataFrame({
             self.filename_col: ["a.jpg", "b.jpg", "c.jpg"]
         })
+        self.rollcall = RollCall()
 
-    @patch("cautiousrobot.utils.os.path.exists", return_value=False)
+    @patch("cautiousrobot.roll_call.os.path.exists", return_value=False)
     def test_directory_does_not_exist(self, mock_exists):
         """If image directory doesn't exist, all images marked as not in directory."""
-        updated_df, filtered_df = check_existing_images(
+        updated_df, filtered_df = self.rollcall.check_existing_images(
             self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
@@ -24,12 +27,12 @@ class TestCheckExistingImages(unittest.TestCase):
         self.assertEqual(len(filtered_df), len(self.sample_df))
         mock_exists.assert_called_once_with(self.img_dir)
 
-    @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/a.jpg"])
-    @patch("cautiousrobot.utils.print")
+    @patch("cautiousrobot.roll_call.os.path.exists", return_value=True)
+    @patch("cautiousrobot.roll_call.gather_file_paths", return_value=["test_images/a.jpg"])
+    @patch("cautiousrobot.roll_call.print")
     def test_some_files_exist(self, mock_print, mock_gather, mock_exists):
         """Should mark existing files correctly and print status."""
-        updated_df, filtered_df = check_existing_images(
+        updated_df, filtered_df = self.rollcall.check_existing_images(
             self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
@@ -40,24 +43,24 @@ class TestCheckExistingImages(unittest.TestCase):
         mock_print.assert_called_once()
         self.assertIn("There are 1 of the desired files", mock_print.call_args[0][0])
 
-    @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/a.jpg", "test_images/b.jpg", "test_images/c.jpg"])
+    @patch("cautiousrobot.roll_call.os.path.exists", return_value=True)
+    @patch("cautiousrobot.roll_call.gather_file_paths", return_value=["test_images/a.jpg", "test_images/b.jpg", "test_images/c.jpg"])
     def test_all_files_exist_exits(self, mock_gather, mock_exists):
         """If all images exist, should exit early with proper message."""
         with self.assertRaises(SystemExit) as cm:
-            check_existing_images(
+            self.rollcall.check_existing_images(
                 self.csv_path, self.img_dir, self.sample_df, self.filename_col
             )
 
         self.assertIn("already contains all images", cm.exception.code)
         mock_exists.assert_called_once_with(self.img_dir)
 
-    @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=[])
-    @patch("cautiousrobot.utils.print")
+    @patch("cautiousrobot.roll_call.os.path.exists", return_value=True)
+    @patch("cautiousrobot.roll_call.gather_file_paths", return_value=[])
+    @patch("cautiousrobot.roll_call.print")
     def test_no_files_exist(self, mock_print, mock_gather, mock_exists):
         """If no files exist, should mark all as not in directory and print message."""
-        updated_df, filtered_df = check_existing_images(
+        updated_df, filtered_df = self.rollcall.check_existing_images(
             self.csv_path, self.img_dir, self.sample_df, self.filename_col
         )
 
@@ -66,8 +69,8 @@ class TestCheckExistingImages(unittest.TestCase):
         mock_print.assert_called_once()
         self.assertIn("There are 0 of the desired files", mock_print.call_args[0][0])
 
-    @patch("cautiousrobot.utils.os.path.exists", return_value=True)
-    @patch("cautiousrobot.utils.gather_file_paths", return_value=["test_images/species1/a.jpg", "test_images/shouldnotcount/b.jpg"])
+    @patch("cautiousrobot.roll_call.os.path.exists", return_value=True)
+    @patch("cautiousrobot.roll_call.gather_file_paths", return_value=["test_images/species1/a.jpg", "test_images/shouldnotcount/b.jpg"])
     def test_subfolders_handling(self, mock_gather, mock_exists):
         """When `subfolders` is provided, expected paths should be constructed and matched."""
         sub_df = pd.DataFrame({
@@ -75,7 +78,7 @@ class TestCheckExistingImages(unittest.TestCase):
             self.filename_col: ["a.jpg", "b.jpg"]
         })
 
-        updated_df, filtered_df = check_existing_images(
+        updated_df, filtered_df = self.rollcall.check_existing_images(
             self.csv_path, self.img_dir, sub_df, self.filename_col, subfolders="subfolder"
         )
 

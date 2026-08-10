@@ -1,9 +1,12 @@
-import unittest
-import pandas as pd
-import tempfile
 import os
+import tempfile
+import unittest
+
+import pandas as pd
+
 from cautiousrobot import BuddyCheck
 from cautiousrobot.exceptions import EmptyDataFrameError
+
 
 class TestBuddyCheck(unittest.TestCase):
     def setUp(self):
@@ -11,8 +14,8 @@ class TestBuddyCheck(unittest.TestCase):
         self.buddy_check_filename = BuddyCheck(buddy_id='filename')
         self.buddy_check_id_col = BuddyCheck(buddy_id = "filename", buddy_col = "sha256")
 
-        self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
-        self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w')
+        self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
+        self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
 
         self.img_source_file.write("""filename,checksum
 image1.jpg,abc123

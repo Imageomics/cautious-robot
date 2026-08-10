@@ -17,6 +17,7 @@
 
 ### Core Modules
 - `__main__.py` - Main entry point with CLI argument parsing and workflow orchestration
+- `roll_call.py` - Pre-download checks and processing.
 - `download.py` - Core image downloading functionality with retry logic
 - `buddy_check.py` - Checksum validation and download verification using BuddyCheck class
 - `utils.py` - Helper functions for CSV processing, logging, and image downsampling

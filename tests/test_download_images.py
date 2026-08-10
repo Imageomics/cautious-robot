@@ -1,16 +1,23 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-import numpy as np
 import os
 import shutil
 import tempfile
-from io import BytesIO
-import requests
-from cautiousrobot.download import download_images, extract_extension_from_filename, extract_extension_from_url, resolve_filename_with_extension
-from cautiousrobot.__main__ import main
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
+import unittest
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from io import BytesIO
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pandas as pd
+import requests
+
+from cautiousrobot.__main__ import main
+from cautiousrobot.download import (
+    download_images,
+    extract_extension_from_filename,
+    extract_extension_from_url,
+    resolve_filename_with_extension,
+)
 
 TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
 
@@ -401,26 +408,33 @@ class TestMainFunction(unittest.TestCase):
 
     @patch('cautiousrobot.__main__.parse_args')
     @patch('cautiousrobot.__main__.process_csv')
-    @patch('builtins.input', return_value='n')
-    def test_main_missing_filenames(self, mock_input, mock_process_csv, mock_parse_args):
+    def test_main_missing_filenames_noninteractive(self, mock_process_csv, mock_parse_args):
         mock_args = MagicMock()
         mock_args.input_file = 'test.csv'
         mock_args.img_name_col = 'filename_col'
         mock_args.url_col = 'url_col'
         mock_args.subdir_col = None
+        mock_args.output_dir = 'output_dir'
+        mock_args.side_length = None
+        mock_args.wait_time = 0
+        mock_args.max_retries = 3
+        mock_args.checksum_algorithm = 'md5'
+        mock_args.verifier_col = None
+
         mock_parse_args.return_value = mock_args
 
         mock_data = pd.DataFrame({
             'filename_col': [None, None, 'file2', 'file3'],
             'url_col': ['url1', 'url2', 'url3', 'url4']
         })
-        
+
         mock_process_csv.return_value = mock_data
 
-        with self.assertRaises(SystemExit) as cm:
+        # Should NOT exit now
+        try:
             main()
-        
-        self.assertEqual(cm.exception.code, "Exited without executing.")
+        except SystemExit as e:
+            self.fail(f"main() raised SystemExit unexpectedly: {e}")
 
 if __name__ == '__main__':
     unittest.main()
