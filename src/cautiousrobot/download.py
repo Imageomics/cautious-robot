@@ -9,7 +9,8 @@ import mimetypes
 import pandas as pd
 from urllib.parse import urlparse
 from tqdm import tqdm
-from cautiousrobot.utils import log_response, update_log, downsample_and_save_image
+from cautiousrobot.utils import log_response, update_log
+from cautiousrobot.downsample_and_save import downsample_and_save_image
 
 # Constants
 # 403 (Forbidden) is included here because some APIs appear use it to signal rate limiting.
