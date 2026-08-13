@@ -9,4 +9,4 @@ buddy_check_instance = BuddyCheck()
 _ = buddy_check_instance.validate_download
 _ = buddy_check_instance.check_alignment
 
-__all__ = ["check_alignment", "download_images", "downsample_and_save_image", "validate_download"]
+__all__ = ["BuddyCheck", "download_images", "downsample_and_save_image"]
