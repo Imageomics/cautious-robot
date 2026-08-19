@@ -96,7 +96,7 @@ class TestDownsampleAndSaveImage(unittest.TestCase):
         self.assertEqual(self.log_errors[0]['response_code'], "File not found")
 
     @patch("os.path.exists", return_value=False)
-    @patch("PIL.Image.open", side_effect=Exception("Unexpected error"))
+    @patch("PIL.Image.open", side_effect=OSError("Unexpected error"))
     @patch("cautiousrobot.utils.log_response")
     @patch("cautiousrobot.utils.update_log")
     def test_downsample_and_save_image_unexpected_error(self, mock_update_log, mock_log_response, mock_open, mock_exists):

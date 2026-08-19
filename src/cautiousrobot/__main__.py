@@ -7,7 +7,6 @@
 
 import argparse
 import hashlib
-import sys
 
 import pandas as pd
 from sumbuddy import get_checksums
@@ -15,6 +14,7 @@ from sumbuddy import get_checksums
 from cautiousrobot.__about__ import __version__
 from cautiousrobot.buddy_check import BuddyCheck
 from cautiousrobot.download import download_images
+from cautiousrobot.exceptions import BuddyCheckError, ChecksumError
 from cautiousrobot.roll_call import RollCall
 from cautiousrobot.utils import process_csv
 
@@ -77,9 +77,8 @@ def process_checksums(img_dir, metadata_path, args, source_df):
         print(f"There are {checksum_df.shape[0]} files in {img_dir}. Based on {args.input_file}, there should be {expected_num_imgs} images.")
         
         return checksum_df, expected_num_imgs
-    except Exception as e:  # noqa: BLE001
-        print(f"checksum calculation of downloaded images was unsuccessful due to {e}.")
-        print(f"you can get checksums for the images downloaded to {img_dir} by running sum-buddy directly.")
+    except (ChecksumError, OSError, ValueError, pd.errors.ParserError) as e: 
+        print(e)
         return None, None
 
 
@@ -102,10 +101,8 @@ def verify_downloads(args, source_df, checksum_df, filename_col, metadata_path, 
             print(f"See {metadata_path}_missing.csv for missing image info and check logs.")
         else:
             print(f"Buddy check successful. All {expected_num_imgs} expected images accounted for.")
-    except Exception as e:  # noqa: BLE001
-        print(f"Verification of download failed due to {type(e).__name__}: {e}.")
-        print("'BuddyCheck.validate_download' can be run directly on DataFrames of the source and checksum CSVs after correcting for this error.")
-
+    except (BuddyCheckError, OSError, ValueError, KeyError) as e:
+        print(e)
 
 def main():
     args = parse_args()
@@ -118,10 +115,8 @@ def main():
 
     # Set up expected columns and process CSV
     expected_cols, subfolders = roll_call.setup_expected_columns(args)
-    try:
-        data_df = process_csv(csv_path, expected_cols)
-    except Exception as missing_cols: # noqa: BLE001
-        sys.exit(f"{missing_cols} Please adjust inputs and try again.")
+    data_df = process_csv(csv_path, expected_cols) #Exception handling process_csv
+
 
     # Validate data and handle missing filenames
     filename_col = expected_cols["filename_col"]

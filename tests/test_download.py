@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import pandas as pd
+import requests
 
 from cautiousrobot.download import download_images
 
@@ -16,7 +17,7 @@ ERROR_LOG_FILEPATH = "test_error_log_path"
 class TestDownload(unittest.TestCase):
     @patch('requests.get')
     def test_response_exception(self, get_mock):
-        get_mock.side_effect = Exception
+        get_mock.side_effect = requests.exceptions.ConnectionError("Connection failed")
         download_images(DUMMY_DATA, img_dir = IMG_DIR, log_filepath = LOG_FILEPATH,
                         error_log_filepath = ERROR_LOG_FILEPATH)
 

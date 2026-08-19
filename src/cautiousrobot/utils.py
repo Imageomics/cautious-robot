@@ -4,7 +4,9 @@ import json
 import os
 
 import pandas as pd
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+
+from cautiousrobot.exceptions import MissingColumnsError
 
 
 def log_response(log_data, index, image, file_path, response_code):
@@ -44,7 +46,7 @@ def process_csv(csv_path, expected_cols):
         if expected_cols[col] not in list(df.columns):
             missing_cols.append(col)
     if len(missing_cols) > 0:
-        raise Exception(f"The CSV at {csv_path} is missing column(s): {missing_cols}, defined as {[expected_cols[col] for col in missing_cols]}.") # noqa: TRY002
+        raise MissingColumnsError(csv_path, missing_cols, [expected_cols[col] for col in missing_cols])
     
     return df
 
@@ -71,13 +73,12 @@ def downsample_and_save_image(image_dir_path, image_name, downsample_dir_path, d
     try:
         img = Image.open(f"{image_dir_path}/{image_name}")
         img.resize((downsample_size, downsample_size)).save(f"{downsample_dir_path}/{image_name}")
-    except Exception as e:  # noqa: BLE001
-        print(e)
+    except (OSError, UnidentifiedImageError) as error:
         log_errors = log_response(
             log_errors,
             index=image_index,
             image="downsized_" + image_name,
             file_path=file_path,
-            response_code=str(e)
+            response_code=str(error)
         )
         update_log(log=log_errors, index=image_index, filepath=error_log_filepath)

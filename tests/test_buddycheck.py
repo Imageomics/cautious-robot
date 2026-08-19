@@ -14,22 +14,23 @@ class TestBuddyCheck(unittest.TestCase):
         self.buddy_check_filename = BuddyCheck(buddy_id='filename')
         self.buddy_check_id_col = BuddyCheck(buddy_id = "filename", buddy_col = "sha256")
 
-        self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
-        self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') # noqa: SIM115
+        #self.img_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') 
+        #self.checksum_source_file = tempfile.NamedTemporaryFile(delete=False, mode='w') 
 
-        self.img_source_file.write("""filename,checksum
+
+        with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix=".csv") as f:
+            f.write("""filename,checksum
 image1.jpg,abc123
 image2.jpg,def456
-image3.jpg,ghi789
-""")
-        self.img_source_file.close()
+image3.jpg,ghi789""")
+            self.img_source_file = f
 
-        self.checksum_source_file.write("""filename,md5
+        with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix=".csv") as f:
+            f.write("""filename,md5
 image1.jpg,abc123
 image2.jpg,def456
-image3.jpg,ghi789
-""")
-        self.checksum_source_file.close()
+image3.jpg,ghi789""")
+            self.checksum_source_file = f
         
 
     def tearDown(self):
